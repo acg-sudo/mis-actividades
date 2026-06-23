@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Montaje de PC - EPA Sedaví</title>
+    <style>
+        :root {
+            --azul: #2c3e50;
+            --verde: #27ae60;
+            --rojo: #e74c3c;
+            --fondo: #f0f2f5;
+            --naranja: #e67e22;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--fondo); margin: 0; padding: 20px; }
+        
+        .contenedor {
+            max-width: 1150px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        header { text-align: center; margin-bottom: 20px; }
+        header h1 { color: var(--azul); margin: 0; font-size: 2em; }
+        
+		.consola-instrucciones {
+			background: var(--azul); 
+			color: #fff; 
+			padding: 12px 20px;
+			border-radius: 10px; 
+			text-align: center; 
+			font-weight: bold;
+			font-size: 1.1em; 
+			line-height: 1.4; 
+			margin-bottom: 20px; 
+			box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+			transition: background 0.3s;
+			white-space: pre-line;
+		}
+
+        .zona-juego { 
+            display: grid; 
+            grid-template-columns: 1fr 1.5fr; 
+            gap: 25px; 
+            min-height: 550px; 
+            align-items: start;
+        }
+
+        /* BANCO DE COMPONENTES */
+        .banco-componentes {
+            background: #ecf0f1; padding: 15px; border-radius: 15px;
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+            align-content: start; min-height: 520px;
+        }
+        .banco-componentes h3 { grid-column: 1 / span 2; text-align: center; margin: 0 0 5px 0; color: var(--azul); }
+
+        .ficha-componente {
+            background: white; border: 2px solid #bdc3c7; border-radius: 12px;
+            padding: 8px; text-align: center; cursor: grab; font-weight: bold; font-size: 0.85em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.2s;
+            box-sizing: border-box; height: 110px;
+            display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+        }
+        .ficha-componente img { max-width: 100%; max-height: 55px; object-fit: contain; pointer-events: none; }
+        .ficha-componente.bloqueada { opacity: 0.2; cursor: not-allowed; filter: grayscale(100%); }
+        
+        .ficha-llamativa {
+            border: 2px dashed var(--naranja);
+            background: #fff3e0;
+            cursor: pointer !important;
+            animation: pulse-orange 1.5s infinite;
+        }
+
+        @keyframes pulse-orange {
+            0% { box-shadow: 0 0 0 0 rgba(230, 126, 34, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(230, 126, 34, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(230, 126, 34, 0); }
+        }
+
+        /* ÁREA DE TRABAJO */
+        .area-trabajo {
+            position: relative; display: flex; justify-content: center; align-items: center;
+        }
+        .lienzo-interactivo {
+            width: 550px; height: 550px; border: 2px solid #bdc3c7; border-radius: 15px;
+            background-color: #fafafa; display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+        
+        .img-fondo-pantalla { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+        }
+        
+        .fondo-mesa-abajo {
+            object-position: bottom center !important;
+        }
+
+        /* CAPAS ELEMENTOS FIJOS SUPERPUESTOS */
+        .elemento-superpuesto {
+            position: absolute;
+            display: none;
+            pointer-events: none;
+            object-fit: contain;
+        }
+ 		
+        #img-gabinete-armado-mesa { top: -25px; right: 10px; width: 195px; height: 310px; z-index: 4; }
+        #img-monitor-mesa { top: -20px; left: 14px; width: 260px; height: 270px; z-index: 5; }
+        
+        #img-teclado-mesa { top: 200px; left: 30px; width: 210px; height: 50px; z-index: 6; }
+        #img-raton-mesa   { top: 200px; left: 210px; width: 60px; height: 50px; z-index: 6; }
+
+        #img-hdmi-mesa { top: 140px; right: 200px; width: 85px;  height: auto;   z-index: 7; }
+        #img-corriente-mesa {  top: 185px; right: 200px; width: 85px;  height: auto;  z-index: 8; }
+
+        /* ZONAS DE COLISIÓN */
+        .zona-colision {
+            position: absolute;
+            border: none;
+            background: transparent;
+            box-sizing: border-box;
+            display: none; 
+            z-index: 10;
+            color: transparent;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 4px;
+            pointer-events: none;
+        }
+        
+        .zona-colision.activa { display: block; pointer-events: auto; }
+        .zona-colision.over { cursor: copy; }
+
+		/* MODO DESARROLLADOR */
+        .canvas-dev .zona-colision {
+            display: block !important;
+            border: 2px dashed rgba(231, 76, 60, 0.6);
+            background: rgba(231, 76, 60, 0.2);
+            color: #fff !important;
+            text-shadow: 1px 1px 2px black;
+            z-index: 99;
+        }
+        
+        .canvas-dev .zona-colision.activa {
+            border: 2px solid var(--verde) !important;
+            background: rgba(39, 174, 96, 0.5) !important;
+            color: #fff !important;
+            pointer-events: auto;
+            z-index: 999;
+        }
+
+        /* Coordenadas Hardware Interno */
+        #zona-cpu          { top: 29%; left: 47%; width: 18%; height: 16%; }
+        #zona-pastatermica { top: 29%; left: 47%; width: 18%; height: 16%; } /* Misma zona que el CPU */
+        #zona-disipador    { top: 25%; left: 45%; width: 22%; height: 20%; }
+        #zona-ram          { top: 10%; left: 76%; width: 13%; height: 55%; }
+        #zona-grafica      { top: 70%; left: 20%; width: 47%; height: 5%; }
+
+        #zona-placa-gabinete { top: 18%; left: 8%; width: 50%; height: 50%; }
+        #zona-ssd          { top: 30%; left: 65%; width: 22%; height: 33%; }
+        #zona-fuente       { top: 70%; left: 8%; width: 25%; height: 15%; }
+        #zona-cablesfuente { top: 70%; left: 30%; width: 15%; height: 15%; }
+
+        /* Zonas de colisión escritorio */
+        #zona-teclado      { top: 200px; left: 15px; width: 200px; height: 50px; }
+        #zona-raton        { top: 200px; left: 205px; width: 80px; height: 50px; }
+        #zona-hdmi         { top: 130px; right: 180px; width: 80px; height: 40px; }
+        #zona-corriente    { top: 165px; right: 180px; width: 80px; height: 40px; }
+        #zona-boton-power  { top: 35px; left: 30px; width: 230px; height: 135px; cursor: pointer; }
+
+		/* CONTROLES Y BOTONES */
+        .controles { 
+            margin-top: 25px; 
+            display: flex; 
+            justify-content: center; 
+        }
+
+        button { 
+            padding: 14px 35px; 
+            font-size: 1.1em; 
+            font-weight: bold; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            color: white; 
+            background: #7f8c8d; 
+            transition: 0.2s; 
+        }
+        button:hover { background: #616a6b; }
+		
+        .btn-dev { 
+            background: transparent !important;
+            border: none;
+            color: #7f8c8d;
+            padding: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            opacity: 0.15;
+            transition: opacity 0.3s ease, transform 0.2s;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        
+        .btn-dev:hover { 
+            opacity: 0.8; 
+            background: transparent !important;
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+
+<div class="contenedor">
+    <header>
+        <h1>Simulador de Montaje de PC</h1>
+    </header>
+
+	<div class="consola-instrucciones" id="consola">👋 ¡Hola! Vamos a montar un ordenador juntos.
+	Esta es la carcasa del pc, también llamada torre o gabinete. Todas las piezas irán dentro de ella.
+	🖱️ Haz clic sobre él para abrirlo y comenzar el montaje.</div>
+
+    <div class="zona-juego">
+        <div class="banco-componentes" id="banco">
+            <h3>Componentes</h3>
+        </div>
+
+        <div class="area-trabajo">
+            <div class="lienzo-interactivo" id="canvas-montaje">
+                <img src="Componentes/gabinete.png" id="img-escenario" class="img-fondo-pantalla" onclick="clickGabinete()" style="cursor: pointer;">
+                
+                <img src="Componentes/gabinete+placa+ssd+fuente+cables.png" id="img-gabinete-armado-mesa" class="elemento-superpuesto">
+                <img src="Componentes/monitoroff.png" id="img-monitor-mesa" class="elemento-superpuesto">
+                
+                <img src="Componentes/teclado.png" id="img-teclado-mesa" class="elemento-superpuesto">
+                <img src="Componentes/raton.png" id="img-raton-mesa" class="elemento-superpuesto">
+                
+                <img src="Componentes/cablehdmi2.png" id="img-hdmi-mesa" class="elemento-superpuesto">
+                <img src="Componentes/cablecorriente2.png" id="img-corriente-mesa" class="elemento-superpuesto">
+
+                <div id="zona-cpu" class="zona-colision" ondrop="dropPieza(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-sitio="cpu">ZONA CPU</div>
+                <div id="zona-pastatermica" class="zona-colision" ondrop="dropPieza(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-sitio="pastatermica">PASTA TÉRMICA</div>
+                <div id="zona-disipador" class="zona-colision" ondrop="dropPieza(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-sitio="disipador">ZONA DISIPADOR</div>
+                <div id="zona-ram" class="zona-colision" ondrop="dropPieza(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-sitio="ram">ZONA RAM</div>
+                <div id="zona-grafica" class="zona-colision" ondrop="dropPieza(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-sitio="grafica">ZONA GRÁFICA</div>
+                
+                <div id="zona-placa-gabinete" class="zona-colision" ondrop="dropPieza(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-sitio="placa-gabinete">HUECO PARA PLACA</div>
+                <div id="zona-ssd" class="zona-colision" ondrop="dropPieza(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-sitio="ssd">ZONA SSD</div>
+                <div id="zona-fuente" class="zona-colision" ondrop="dropPieza(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-sitio="fuente">ZONA FUENTE</div>
+                <div id="zona-cablesfuente" class="zona-colision" ondrop="dropPieza(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-sitio="cablesfuente">ZONA CABLES</div>
+
+                <div id="zona-teclado" class="zona-colision" ondrop="dropPieza(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-sitio="teclado">MESA TECLADO</div>
+                <div id="zona-raton" class="zona-colision" ondrop="dropPieza(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-sitio="raton">MESA RATÓN</div>
+                <div id="zona-hdmi" class="zona-colision" ondrop="dropPieza(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-sitio="hdmi">PUERTO HDMI TORRE</div>
+                <div id="zona-corriente" class="zona-colision" ondrop="dropPieza(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-sitio="corriente">CONECTOR CORRIENTE</div>
+                
+                <div id="zona-boton-power" class="zona-colision" onclick="clickBotonPower(event)" data-sitio="power">BOTÓN POWER MONITOR</div>
+            </div>
+        </div>
+    </div>
+    
+	<div class="controles">
+        <button onclick="location.reload()">Reiniciar Simulador</button>
+    </div>
+	
+</div>
+
+<div id="plantilla-info-componentes" style="display:none;">
+	<h3 style="color:var(--azul); font-size: 1.6em; margin-bottom: 15px;">💡 Ampliaciones Profesionales</h3>
+	<p style="font-size: 1.1em; margin-bottom: 15px;">¿Sabías que el equipo que acabas de ensamblar es una configuración de oficina estándar? En entornos profesionales, las necesidades de computación suelen ser mucho más exigentes.</p>
+	<p style="font-size: 1.1em; margin-bottom: 15px;">Para tareas como la edición de vídeo 4K, diseño 3D o servidores de datos, podríamos integrar tarjetas gráficas dedicadas, controladoras RAID para redundancia de seguridad, o incluso tarjetas de fibra óptica para comunicaciones de alta velocidad.</p>
+	<p style="font-size: 1.1em;"><strong>Reflexiona:</strong> Si tuvieras un presupuesto ilimitado, ¿qué componente añadirías para potenciar la productividad de este equipo?</p>
+</div>
+
+<div id="plantilla-info-perifericos" style="display:none;">
+	<h3 style="color:var(--azul); font-size: 1.6em; margin-bottom: 15px;">🔌 Conectividad y Periféricos Avanzados</h3>
+	<p style="font-size: 1.1em; margin-bottom: 15px;">El teclado y el ratón son solo el punto de partida. En muchos puestos de trabajo técnicos, es necesario conectar dispositivos especializados: desde lectores de tarjetas inteligentes para firma digital hasta tabletas digitalizadoras para diseño gráfico.</p>
+	<p style="font-size: 1.1em; margin-bottom: 15px;">Para soportar esta versatilidad, la placa base debe contar con puertos avanzados como USB-C Thunderbolt, interfaces de alta fidelidad para audio profesional o salidas de vídeo múltiples. La conectividad define la capacidad operativa del equipo.</p>
+	<p style="font-size: 1.1em;"><strong>Reflexiona:</strong> ¿Qué dispositivos auxiliares crees que son imprescindibles en un entorno administrativo moderno?</p>
+</div>
+
+<script>
+    let estadoFase = 0; 
+    let pasoActual = 0;
+    let monitorEncendido = false;
+
+    const imgEscenario = document.getElementById('img-escenario');
+    const consola = document.getElementById('consola');
+    const lienzo = document.getElementById('canvas-montaje');
+    const banco = document.getElementById('banco');
+
+    const inventarioInicial = [
+        { id: "placa", nombre: "Placa Base", img: "Componentes/placa.png" },
+        { id: "cpu", nombre: "Procesador (CPU)", img: "Componentes/cpu.png" },
+        { id: "pastatermica", nombre: "Pasta Térmica", img: "Componentes/pastatermica.png" },
+        { id: "disipador", nombre: "Disipador", img: "Componentes/disipador.png" },
+        { id: "ram", nombre: "Memoria RAM", img: "Componentes/ram.png" },
+        { id: "grafica", nombre: "Tarjeta Gráfica", img: "Componentes/grafica.png" },
+        { id: "ssd", nombre: "Disco SSD", img: "Componentes/ssd.png" },
+        { id: "fuente", nombre: "Fuente Alimentación", img: "Componentes/fuente.png" },
+        { id: "cablesfuente", nombre: "Cables Fuente", img: "Componentes/cablesfuente.png" }
+    ];
+
+    const pasosPlaca = [
+        { id: "cpu", texto: "el Procesador (CPU)", cambioImg: "Componentes/placa+cpu.png", siguiente: "🧠 ¡Correcto!\nEl procesador es el cerebro del pc.\n🧪 Antes de colocar el disipador, debes aplicar un poco de Pasta Térmica sobre el procesador." },
+        { id: "pastatermica", texto: "la Pasta Térmica", cambioImg: "Componentes/placa+cpu.png", siguiente: "💧 ¡Excelente!\nLa pasta térmica ayuda a transferir el calor eficientemente.\n💨 Ahora sí, vamos a colocar el disipador encima." },
+        { id: "disipador", texto: "el Disipador", cambioImg: "Componentes/placa+cpu+disip.png", siguiente: "❄️ ¡Bien!\nEl disipador evita el sobrecalentamiento.\n📟 Introduce ahora los módulos de Memoria RAM." },
+        { id: "ram", texto: "la Memoria RAM", cambioImg: "Componentes/placa+cpu+disip+ram.png", siguiente: "⚡ ¡Genial!\nAlmacena temporalmente los datos de los programas abiertos.\n🎮 Ahora coloca la Tarjeta Gráfica en su ranura PCI-Express." },
+        { id: "grafica", texto: "la Tarjeta Gráfica", cambioImg: "Componentes/placa+cpu+disip+ram+grafica.png", siguiente: "" }
+    ];
+
+    const pasosGabinete = [
+        { id: "placa-gabinete", texto: "la Placa Base Armada", cambioImg: "Componentes/gabinete+placa.png", siguiente: "🏗️ ¡Placa base instalada en el chasis!\nAhora coloca el disco SSD en su bahía." },
+        { id: "ssd", texto: "el Disco SSD", cambioImg: "Componentes/gabinete+placa+ssd.png", siguiente: "💾 ¡Estupendo!\nEl disco SSD guarda los archivos de forma permanente.\n🔌 Ahora, coloca la Fuente de Alimentación abajo." },
+        { id: "fuente", texto: "la Fuente de Alimentación", cambioImg: "Componentes/gabinete+placa+ssd+fuente.png", siguiente: "🔋 ¡Muy bien!\nLa fuente transforma la corriente eléctrica para alimentar el PC.\n🔗 Conecta los cables de energía internos." },
+        { id: "cablesfuente", texto: "los Cables de la fuente", cambioImg: "Componentes/gabinete+placa+ssd+fuente+cables.png", siguiente: "🎉 ¡Chasis Interno Completado!\n🗄️ Ahora continuaremos con los periféricos para probar que todo funciona." }
+    ];
+
+    const pasosEscritorio = [
+        { id: "teclado", texto: "el Teclado USB", accion: () => { document.getElementById('img-teclado-mesa').style.display = 'block'; }, siguiente: "⌨️ ¡Teclado listo frente a la pantalla!\nAhora arrastra el Ratón USB al lado derecho del teclado." },
+        { id: "raton", texto: "el Ratón USB", accion: () => { document.getElementById('img-raton-mesa').style.display = 'block'; }, siguiente: "🖱️ ¡Ratón acomodado!\nVamos a las conexiones: toma el Cable HDMI de la caja y conéctalo al puerto de la torre armada." },
+        { id: "hdmi", texto: "el Cable HDMI", accion: () => { document.getElementById('img-hdmi-mesa').style.display = 'block'; }, siguiente: "📺 ¡Cable HDMI conectado! Ya tenemos señal de vídeo entre la torre y la pantalla.\nPor último, arrastra el Cable de Corriente a la toma de alimentación." },
+        { id: "corriente", texto: "el Cable de Corriente", accion: () => { document.getElementById('img-corriente-mesa').style.display = 'block'; }, siguiente: "🔌 ¡Cable de corriente conectado con éxito!\nTodo listo. Haz clic sobre la pantalla del MONITOR (Botón Power) para encender el ordenador." }
+    ];
+
+    renderizarBancoBloqueado();
+
+    function toggleModoDev() {
+        lienzo.classList.toggle('canvas-dev');
+    }
+
+    function renderizarBancoBloqueado() {
+        banco.innerHTML = "<h3>Componentes</h3>";
+        inventarioInicial.forEach(comp => {
+            banco.innerHTML += `
+                <div class="ficha-componente bloqueada" id="comp-${comp.id}" draggable="false">
+                    <img src="${comp.img}"><div>${comp.nombre}</div>
+                </div>`;
+        });
+    }
+
+    function clickGabinete() {
+        if (estadoFase === 0) {
+            estadoFase = 1;
+            imgEscenario.src = "Componentes/gabinetegirado.png";
+            consola.textContent = "🔧 Como ves, ya está desatornillado el panel lateral.\n🖱️ Haz clic sobre él para girarlo y ver su interior.";
+        } else if (estadoFase === 1) {
+            estadoFase = 2;
+            imgEscenario.src = "Componentes/gabinetevacio.png";
+			consola.textContent = "🛠️ ¡Gabinete listo para empezar a trabajar!.\nPrimero montaremos nuestra placa base.\n🫳 Arrástrala al cuadro de la derecha para comenzar el ensamblaje.";
+            
+            lienzo.setAttribute("ondrop", "dropPlacaInicial(event)");
+            lienzo.setAttribute("ondragover", "allowDrop(event)");
+            lienzo.setAttribute("ondragleave", "dragLeave(event)");
+
+            actualizarFichasDisponibles("placa");
+        } else if (estadoFase === 5 && pasoActual === pasosGabinete.length) {
+            estadoFase = 6; 
+            pasoActual = 0;
+            
+            imgEscenario.src = "Componentes/mesa.png"; 
+            imgEscenario.classList.add('fondo-mesa-abajo');
+            imgEscenario.removeAttribute('onclick');
+            imgEscenario.style.cursor = "default";
+            
+            document.getElementById('img-gabinete-armado-mesa').style.display = 'block';
+            document.getElementById('img-monitor-mesa').style.display = 'block';
+
+            consola.style.background = "var(--azul)";
+            consola.textContent = "🖥️ ¡Ya estamos en la mesa de escritorio!\nEl monitor y la torre montada ya están colocados.\n👇 Arrastra el Teclado USB enfrente de la pantalla.";
+            
+            banco.innerHTML = `
+                <h3>Periféricos</h3>
+                <div class="ficha-componente" id="comp-teclado" draggable="true" ondragstart="drag(event)"><img src="Componentes/teclado.png"><div>Teclado USB</div></div>
+                <div class="ficha-componente bloqueada" id="comp-raton" draggable="false"><img src="Componentes/raton.png"><div>Ratón USB</div></div>
+                <div class="ficha-componente bloqueada" id="comp-hdmi" draggable="false"><img src="Componentes/cablehdmi1.png"><div>Cable HDMI</div></div>
+                <div class="ficha-componente bloqueada" id="comp-corriente" draggable="false"><img src="Componentes/cablecorriente1.png"><div>Cable Corriente</div></div>
+            `;
+            mostrarCajaColision("teclado");
+        }
+    }
+
+    function actualizarFichasDisponibles(idPermitido) {
+        inventarioInicial.forEach(comp => {
+            const el = document.getElementById("comp-" + comp.id);
+            if(!el) return;
+            if(comp.id === idPermitido) {
+                el.classList.remove('bloqueada');
+                el.setAttribute("draggable", "true");
+                el.setAttribute("ondragstart", "drag(event)");
+            } else {
+                el.classList.add('bloqueada');
+                el.setAttribute("draggable", "false");
+            }
+        });
+    }
+
+    function drag(ev) {
+        ev.dataTransfer.setData("tipo", ev.target.id.replace("comp-", ""));
+    }
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+        ev.currentTarget.classList.add('over');
+    }
+
+    function dragLeave(ev) {
+        ev.currentTarget.classList.remove('over');
+    }
+
+    function dropPlacaInicial(ev) {
+        ev.preventDefault();
+        lienzo.classList.remove('over');
+        const tipoArrastrado = ev.dataTransfer.getData("tipo");
+
+        if (estadoFase === 2 && tipoArrastrado === "placa") {
+            imgEscenario.removeAttribute('onclick');
+            lienzo.removeAttribute("ondrop");
+
+            imgEscenario.src = "Componentes/placa.png";
+            imgEscenario.style.cursor = "default";
+            consola.style.background = "var(--verde)";
+            consola.textContent = "🟢 ¡Placa Base lista en el banco!\nEmpezaremos instalando el Procesador (CPU).\n👇 Arrástralo a su zócalo.";
+            
+            document.getElementById("comp-placa").style.visibility = "hidden";
+            estadoFase = 3; 
+
+            mostrarCajaColision("cpu");
+            setTimeout(() => { consola.style.background = "var(--azul)"; }, 2000);
+            actualizarFichasDisponibles(pasosPlaca[pasoActual].id);
+        }
+    }
+
+    function mostrarCajaColision(idCaja) {
+        const cajas = document.querySelectorAll('.zona-colision');
+        cajas.forEach(c => { 
+            c.classList.remove('activa'); 
+            if(c.id === "zona-" + idCaja) {
+                c.textContent = "ZONA " + idCaja.toUpperCase();
+            }
+        });
+        
+        const objetivo = document.getElementById("zona-" + idCaja);
+        if (objetivo) {
+            objetivo.classList.add('activa');
+        }
+    }
+
+    function dropPieza(ev) {
+        ev.preventDefault();
+        const cajaTarget = ev.currentTarget;
+        cajaTarget.classList.remove('over');
+        
+        const sitioObjetivo = cajaTarget.getAttribute("data-sitio");
+        const tipoArrastrado = ev.dataTransfer.getData("tipo");
+
+        if (estadoFase === 3) {
+            const piezaEsperada = pasosPlaca[pasoActual].id;
+            if (tipoArrastrado === piezaEsperada && sitioObjetivo !== piezaEsperada) {
+                errorSitio("¡Lugar incorrecto! Suelta la pieza en su sitio de la placa.");
+                return;
+            }
+            if (tipoArrastrado !== piezaEsperada) {
+                errorOrden(pasosPlaca[pasoActual].texto);
+                return;
+            }
+            document.getElementById("comp-" + tipoArrastrado).style.visibility = "hidden";
+            imgEscenario.src = pasosPlaca[pasoActual].cambioImg; 
+            pasoActual++;
+
+			if (pasoActual < pasosPlaca.length) {
+                consola.style.background = "var(--verde)";
+                consola.textContent = pasosPlaca[pasoActual - 1].siguiente;
+                setTimeout(() => { consola.style.background = "var(--azul)"; }, 2000);
+                actualizarFichasDisponibles(pasosPlaca[pasoActual].id);
+                mostrarCajaColision(pasosPlaca[pasoActual].id);
+            } else {
+                mostrarCajaColision(""); 
+                consola.style.background = "var(--naranja)";
+                consola.textContent = "✨ ¡Placa Base completada con éxito!\n📝 Lee la información del panel izquierdo. Cuando termines, haz clic en el 'Gabinete Vacío' para continuar.";
+                estadoFase = 4;
+                pasoActual = 0;
+                
+                const contenidoInfo = document.getElementById('plantilla-info-componentes').innerHTML;
+                banco.innerHTML = `
+                    <div style="grid-column: 1 / span 2; padding: 10px; text-align: left;">
+                        ${contenidoInfo}
+                        <div class="ficha-componente ficha-llamativa" id="btn-traer-gabinete" onclick="activarGabineteCentro()" style="width: 100%; height: 110px; margin-top: 20px;">
+                            <img src="Componentes/gabinetevacio.png">
+                            <div>¡Entendido! Pasar al Gabinete Vacío</div>
+                        </div>
+                    </div>
+                `;
+            }
+            return;
+        }
+
+        if (estadoFase === 5) {
+            const piezaEsperada = pasosGabinete[pasoActual].id;
+            if (tipoArrastrado === piezaEsperada && sitioObjetivo !== piezaEsperada) {
+                errorSitio("¡Lugar incorrecto! Lleva el componente a su hueco en el chasis.");
+                return;
+            }
+            if (tipoArrastrado !== piezaEsperada) {
+                errorOrden(pasosGabinete[pasoActual].texto);
+                return;
+            }
+            document.getElementById("comp-" + tipoArrastrado).style.visibility = "hidden";
+            imgEscenario.src = pasosGabinete[pasoActual].cambioImg;
+            consola.style.background = "var(--verde)";
+            consola.textContent = pasosGabinete[pasoActual].siguiente;
+            pasoActual++;
+
+            if (pasoActual < pasosGabinete.length) {
+                setTimeout(() => { consola.style.background = "var(--azul)"; }, 2000);
+                actualizarFichasDisponiblesGabinete(pasosGabinete[pasoActual].id);
+                mostrarCajaColision(pasosGabinete[pasoActual].id);
+            } else {
+                mostrarCajaColision(""); 
+                imgEscenario.setAttribute('onclick', 'clickGabinete()');
+                imgEscenario.style.cursor = "pointer";
+                banco.innerHTML = `
+                    <div style="grid-column: 1 / span 2; padding: 15px; text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100%; box-sizing: border-box;">
+                        <h3 style="color: var(--verde); font-size: 1.5em; margin-bottom: 15px;">Chasis Completado 🚀</h3>
+                        <p style="font-size: 1.05em; color: var(--azul); line-height: 1.5; margin-bottom: 20px;">
+                            ¡Excelente trabajo! Todo el hardware interno está en su sitio, conectado y asegurado.
+                        </p>
+                        <div style="background: #e8f8f5; border: 2px dashed var(--verde); padding: 15px; border-radius: 12px; font-weight: bold; color: #117a65; animation: pulse-orange 1.5s infinite;">
+                            👉 Haz clic sobre la torre armada de la derecha para llevarla a la mesa y conectar los periféricos.
+                        </div>
+                    </div>
+                `;
+            }
+            return;
+        }
+
+        if (estadoFase === 6) {
+            const piezaEsperada = pasosEscritorio[pasoActual].id;
+            if (tipoArrastrado === piezaEsperada && sitioObjetivo !== piezaEsperada) {
+                errorSitio("¡Conexión errónea! Suelta el periférico o cable en su zona marcada.");
+                return;
+            }
+            if (tipoArrastrado !== piezaEsperada) {
+                errorOrden(pasosEscritorio[pasoActual].texto);
+                return;
+            }
+
+            document.getElementById("comp-" + tipoArrastrado).style.visibility = "hidden";
+            
+            pasosEscritorio[pasoActual].accion();
+            
+            consola.style.background = "var(--verde)";
+            consola.textContent = pasosEscritorio[pasoActual].siguiente;
+            pasoActual++;
+
+            if (pasoActual < pasosEscritorio.length) {
+                setTimeout(() => { consola.style.background = "var(--azul)"; }, 2000);
+                actualizarFichasDisponiblesEscritorio(pasosEscritorio[pasoActual].id);
+                mostrarCajaColision(pasosEscritorio[pasoActual].id);
+            } else {
+                mostrarCajaColision("boton-power");
+                estadoFase = 7; 
+            }
+            return;
+        }
+    }
+
+	function clickBotonPower(ev) {
+        if (estadoFase !== 7) return;
+        
+        const monitorHTML = document.getElementById('img-monitor-mesa');
+
+        if (!monitorEncendido) {
+            consola.style.background = "var(--naranja)";
+            consola.textContent = "🔄 Procesando el arranque del equipo... Enviando señal...";
+            
+            setTimeout(() => {
+                monitorHTML.src = "Componentes/monitornosignal.png";
+                consola.textContent = "⚡ ¡El monitor recibe energía! Comprobando salida HDMI...";
+                
+                setTimeout(() => {
+                    monitorHTML.src = "Componentes/monitoron.png";
+                    consola.style.background = "var(--verde)";
+                    consola.textContent = "🎉 ¡SISTEMA OPERATIVO ARRANCADO CON ÉXITO!\n🏆 ¡Enhorabuena, has completado todo el montaje perfectamente!\n(Puedes volver a pulsar la pantalla si quieres apagarlo)";
+                    monitorEncendido = true;
+                    
+                    const contenidoInfoPerifericos = document.getElementById('plantilla-info-perifericos').innerHTML;
+                    banco.innerHTML = `
+                        <div style="grid-column: 1 / span 2; padding: 10px; text-align: left;">
+                            ${contenidoInfoPerifericos}
+                        </div>
+                    `;
+                    
+                }, 2500);
+            }, 1500);
+        } else {
+            monitorHTML.src = "Componentes/monitoroff.png";
+            consola.style.background = "var(--azul)";
+            consola.textContent = "🔌 Sistema apagado.\n(Haz clic en la pantalla de nuevo si deseas volver a encenderlo)";
+            monitorEncendido = false;
+        }
+    }
+
+    function activarGabineteCentro() {
+        if(estadoFase !== 4) return;
+        imgEscenario.src = "Componentes/gabinetevacio.png";
+        consola.style.background = "var(--azul)";
+        consola.textContent = "🏗️ Ahora, arrastra la Placa Base ya armada dentro del Gabinete.";
+        banco.innerHTML = `
+            <h3>Componentes</h3>
+            <div class="ficha-componente" id="comp-placa-gabinete" draggable="true" ondragstart="drag(event)">
+                <img src="Componentes/placa+cpu+disip+ram+grafica.png"><div>Placa Base Montada</div>
+            </div>
+            <div class="ficha-componente bloqueada" id="comp-ssd" draggable="false"><img src="Componentes/ssd.png"><div>Disco SSD</div></div>
+            <div class="ficha-componente bloqueada" id="comp-fuente" draggable="false"><img src="Componentes/fuente.png"><div>Fuente Alimentación</div></div>
+            <div class="ficha-componente bloqueada" id="comp-cablesfuente" draggable="false"><img src="Componentes/cablesfuente.png"><div>Cables Fuente</div></div>
+        `;
+        estadoFase = 5;
+        pasoActual = 0; 
+        mostrarCajaColision("placa-gabinete");
+    }
+
+    function actualizarFichasDisponiblesGabinete(idPermitido) {
+        const ids = ["placa-gabinete", "ssd", "fuente", "cablesfuente"];
+        ids.forEach(id => {
+            const el = document.getElementById("comp-" + id);
+            if(!el) return;
+            if(id === idPermitido) {
+                el.classList.remove('bloqueada');
+                el.setAttribute("draggable", "true");
+                el.setAttribute("ondragstart", "drag(event)");
+            } else {
+                el.classList.add('bloqueada');
+                el.setAttribute("draggable", "false");
+            }
+        });
+    }
+
+    function actualizarFichasDisponiblesEscritorio(idPermitido) {
+        const ids = ["teclado", "raton", "hdmi", "corriente"];
+        ids.forEach(id => {
+            const el = document.getElementById("comp-" + id);
+            if(!el) return;
+            if(id === idPermitido) {
+                el.classList.remove('bloqueada');
+                el.setAttribute("draggable", "true");
+                el.setAttribute("ondragstart", "drag(event)");
+            } else {
+                el.classList.add('bloqueada');
+                el.setAttribute("draggable", "false");
+            }
+        });
+    }
+
+    function errorOrden(nombrePiece) {
+        consola.style.background = "var(--rojo)";
+        consola.textContent = `❌ ¡Orden incorrecto! En este punto debes conectar ${nombrePiece}.`;
+        restaurarTextoConsola();
+    }
+
+    function errorSitio(mensaje) {
+        consola.style.background = "var(--rojo)";
+        consola.textContent = `❌ ${mensaje}`;
+        restaurarTextoConsola();
+    }
+
+    function restaurarTextoConsola() {
+        setTimeout(() => {
+            if (estadoFase >= 7) return;
+
+            consola.style.background = "var(--azul)";
+            if (estadoFase === 2) {
+                consola.textContent = "🛠️ ¡Gabinete listo para empezar a trabajar!.\nPrimero montaremos nuestra placa base.\n🫳 Arrástrala al cuadro de la derecha para comenzar el ensamblaje.";
+            } else if (estadoFase === 3) {
+                consola.textContent = pasoActual === 0 ? "🟢 ¡Placa Base lista en el banco!\nEmpezaremos instalando el Procesador (CPU).\n👇 Arrástralo a su zócalo." : pasosPlaca[pasoActual - 1].siguiente;
+            } else if (estadoFase === 4) {
+                consola.style.background = "var(--naranja)";
+                consola.textContent = "✨ ¡Placa Base completada con éxito!\n👇 Haz clic en el 'Gabinete Vacío' de la izquierda para meterla dentro de la torre.";
+            } else if (estadoFase === 5) {
+                consola.textContent = pasoActual === 0 ? "🏗️ Ahora, arrastra la Placa Base ya armada dentro del Gabinete." : pasosGabinete[pasoActual - 1].siguiente;
+            } else if (estadoFase === 6) {
+                consola.textContent = pasoActual === 0 ? "🖥️ ¡Ya estamos en la mesa de escritorio!\nEl monitor y la torre montada ya están colocados.\n👇 Arrastra el Teclado USB enfrente de la pantalla." : pasosEscritorio[pasoActual - 1].siguiente;
+            }
+        }, 2500);
+    }
+</script>
+</body>
+<footer style="text-align: center; padding: 10px 10px; color: #7f8c8d; font-size: 0.9em; margin-top: 10px; border-top: 1px solid #e0e0e0; line-height: 1.5;">
+	<strong>&copy; 2026 — Creado por Profe Adna</strong> | Taller de Informática EPA Sedaví<br>
+	Diseñado con &hearts; para mis alumnos<br>
+     <button class="btn-dev" onclick="toggleModoDev()" title="Modo Profesor">🔧</button>
+</footer>
+</html>
