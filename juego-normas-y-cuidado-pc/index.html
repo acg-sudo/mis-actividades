@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ergonomía y Cuidado del PC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://tallerinformaticaepasedavi.blogspot.com/favicon.ico' rel='icon' type='image/x-icon'/>
+    <!-- Cargamos Confetti y la librería de Iconos vectoriales -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --azul: #2c3e50;
+            --naranja: #e67e22;
+            --verde: #27ae60;
+            --rojo: #e74c3c;
+            --fondo: #f0f2f5;
+            --celeste: #3498db;
+            --card: #ffffff;
+            --text: #2c3e50;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+        }
+        
+        *{box-sizing:border-box;}
+        
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: var(--fondo); 
+            margin: 0; 
+            padding: 20px; 
+            overflow-x: hidden; 
+        }
+        
+        .contenedor { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08); 
+            position: relative;
+        }
+        
+        header { 
+            text-align: center; 
+            margin-bottom: 25px; 
+            border-bottom: 2px solid #f0f2f5; 
+            padding-bottom: 20px; 
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+        }
+        
+        header h1 { 
+            color: var(--azul); 
+            font-size: 2.2em; 
+            margin: 0 0 5px 0; 
+        }
+        
+        header p { 
+            color: #7f8c8d; 
+            font-size: 1.1em; 
+            margin: 0 0 15px 0; 
+            line-height: 1.4; 
+        }
+
+        button {
+            padding: 14px 26px; 
+            margin: 5px; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 18px; 
+            font-weight: bold; 
+            transition: 0.3s;
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: white !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn-check { background-color: var(--verde) !important; }
+        .btn-reset { background-color: var(--naranja) !important; }
+        button:hover{ opacity:0.9; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+
+        .img-exercise-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); 
+            gap: 25px; 
+            margin: 20px 0; 
+        }
+
+        .img-card {
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            min-height: 360px; 
+            background: var(--card); 
+            border: 2px solid #e2e8f0; 
+            padding: 20px; 
+            border-radius: 18px; 
+            text-align: center; 
+            transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+
+        .img-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        }
+
+        .card-icon-container {
+            font-size: 3.2em;
+            color: var(--celeste);
+            margin-bottom: 10px;
+        }
+
+        .img-card p.pregunta-texto {
+            font-size: 1.1em !important; 
+            line-height: 1.4 !important; 
+            color: var(--azul);
+            font-weight: bold;
+            margin: 5px 0 15px 0;
+            flex-grow: 1;
+        }
+
+        .opciones-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .btn-opcion {
+            background-color: #f8f9fa;
+            border: 2px solid #cbd5e1;
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-opcion:hover {
+            background-color: #e2e8f0;
+            border-color: #94a3b8;
+        }
+
+        .btn-opcion.seleccionada {
+            background-color: #e8f4fd !important;
+            border-color: var(--celeste) !important;
+            color: var(--azul) !important;
+            font-weight: bold;
+        }
+
+        .correct { border: 3px solid var(--success) !important; background: #f1f9f5; }
+        .correct .btn-opcion.seleccionada { background-color: var(--success) !important; border-color: var(--success) !important; color: white !important; }
+        
+        .incorrect { border: 3px solid var(--danger) !important; background: #fff5f5; }
+        .incorrect .btn-opcion.seleccionada { background-color: var(--danger) !important; border-color: var(--danger) !important; color: white !important; }
+
+        .feedback {
+            font-size: 0.9em; 
+            margin-top: 10px; 
+            font-weight: bold; 
+            display: none;
+            line-height: 1.3;
+        }
+
+        .llave-secreta { 
+            cursor: pointer; 
+            opacity: 0.15; 
+            transition: opacity 0.5s; 
+            font-size: 1.2em;
+            margin-left: 10px;
+            user-select: none;
+        }
+        .llave-secreta:hover { opacity: 1; }
+        
+        .btn-profe {
+            display: none !important; 
+            background: linear-gradient(135deg, #6e45e2, #88d3ce) !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <header>
+            <h1>🧑‍💻 Ergonomía y Cuidado del Equipo (Rondas al Azar)</h1>
+            <p>Se han seleccionado <strong>8 retos aleatorios</strong> basados en normativas de salud y prevención digital. <br/>Analiza bien cada tarjeta y pulsa sobre la opción que consideres correcta.</p>
+        </header>
+
+        <div class="img-exercise-grid" id="desafioContent"></div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn-check" onclick="comprobarDesafio()">✔️ Corregir Desafío</button>
+            <button class="btn-reset" onclick="initDesafio()">🔄 Nueva Ronda (8 al Azar)</button>
+            <button id="btn-profe" class="btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Resolver reto</button>
+        </div>
+    </div>
+
+    <script>
+        // --- BANCO 35 PREGUNTAS ---
+        const todasLasPreguntas = [
+            // --- CUIDADO HARDWARE ---
+            { i: "🥤", q: "¿Qué es lo más seguro que puedes hacer con tus bebidas mientras usas el ordenador?", a: "Mantenerlas lejos del teclado", o: ["Mantenerlas lejos del teclado", "Dejarlas encima de la torre"], f: "✅ ¡Exacto! Un derrame accidental puede causar un cortocircuito fatal para el PC." },
+            { i: "🧹", q: "Si quieres que tu PC no se llene de pelusas rápidamente, ¿dónde es mejor colocarlo?", a: "Sobre la mesa o un soporte", o: ["Sobre la mesa o un soporte", "Directamente en el suelo"], f: "✅ ¡Bien! El suelo actúa como una aspiradora de polvo, obstruyendo los componentes." },
+            { i: "💨", q: "¿Por qué debemos dejar un hueco de unos 10-15 cm entre la pared y la parte trasera del PC?", a: "Para que el aire caliente salga bien", o: ["Para que el aire caliente salga bien", "Para que no se escapen los cables"], f: "✅ ¡Correcto! Sin ese espacio, el calor rebota y el ordenador se sobrecalienta." },
+            { i: "🔧", q: "¿Cada cuánto tiempo se recomienda abrir la tapa lateral para limpiar el polvo interno?", a: "Una o dos veces al año", o: ["Cada 10 años en el taller", "Una o dos veces al año"], f: "✅ ¡Así es! Un mantenimiento regular evita que los ventiladores se bloqueen." },
+            { i: "🛌", q: "¿Qué sucede si utilizas un ordenador portátil apoyado directamente sobre las sábanas de la cama?", a: "Se tapan las rejillas de aire", o: ["Se tapan las rejillas de aire", "La batería se carga más rápido"], f: "✅ ¡Muy bien! Las superficies blandas asfixian el portátil y lo sobrecalientan rápido." },
+            { i: "🔋", q: "Para cuidar la salud de la batería de tu portátil, ¿cuándo deberías enchufar el cargador?", a: "Cuando le quede un 20% de carga", o: ["Solo cuando llegue al 0%", "Cuando le quede un 20% de carga"], f: "✅ ¡Perfecto! Evitar que baje al 0% alarga mucho la vida útil de las celdas de litio." },
+            { i: "🖥️", q: "Has manchado la pantalla con los dedos. ¿Cómo deberías limpiarla correctamente?", a: "Con un paño de microfibra seco", o: ["Con un paño de microfibra seco", "Con un estropajo y jabón líquido"], f: "✅ ¡Correcto! Las pantallas son delicadas; nunca uses productos químicos abrasivos." },
+            { i: "⚡", q: "Si hay una tormenta eléctrica muy fuerte con rayos cerca de casa, ¿qué es lo más seguro?", a: "Apagar y desenchufar el equipo", o: ["Seguir jugando normalmente", "Apagar y desenchufar el equipo"], f: "✅ ¡Sabio consejo! Un pico de tensión por un rayo puede quemar los componentes internos." },
+            { i: "🖱️", q: "¿Cuál es la forma correcta de apagar el ordenador cuando has terminado tus tareas?", a: "Desde el menú Inicio del sistema", o: ["Desde el menú Inicio del sistema", "Tirando directamente del cable"], f: "✅ ¡Bravo! El sistema necesita cerrar los archivos correctamente para no dañarlos." },
+            { i: "🔌", q: "¿Cómo se debe desconectar un cable de la corriente eléctrica de forma segura?", a: "Tirando del cabezal de plástico", o: ["Tirando con fuerza del propio cable", "Tirando del cabezal de plástico"], f: "✅ ¡Exacto! Tirar del cable rompe los hilos de cobre internos y puede causar un chispazo." },
+            { i: "💾", q: "Vas a desconectar un pendrive con archivos importantes. ¿Qué debes hacer antes de sacarlo?", a: "Usar la opción de Expulsión Segura", o: ["Arrancarlo rápido mientras parpadea", "Usar la opción de Expulsión Segura"], f: "✅ ¡Muy bien! Expulsarlo avisa al sistema para que deje de escribir datos y no se corrompan." },
+            { i: "🔥", q: "Escuchas que los ventiladores de tu torre hacen muchísimo ruido de repente y el PC va lento. ¿Qué pasa?", a: "Se está calentando demasiado", o: ["El procesador está cantando", "Se está calentando demasiado"], f: "✅ ¡Cuidado! El ruido alto indica que los ventiladores giran al máximo para evitar que el PC se queme." },
+            { i: "🎒", q: "Vas a llevar el portátil en la mochila. ¿Cómo debes meterlo para evitar averías?", a: "Apagado por completo", o: ["En modo suspensión activa", "Apagado por completo"], f: "✅ ¡Bien pensado! En suspensión puede encenderse solo dentro de la mochila y asfixiarse por calor." },
+            { i: "🧲", q: "¿Qué elemento doméstico común nunca debes acercar a un disco duro mecánico antiguo (HDD)?", a: "Un imán potente", o: ["Un imán potente", "Un puntero láser"], f: "✅ ¡Peligro! Los discos duros HDD graban mediante magnetismo; un imán borraría los datos." },
+            { i: "⚙️", q: "Si notas que el PC falla o va mal por dentro, ¿qué herramienta de impacto debes evitar usar?", a: "Darle golpes a la torre", o: ["Darle golpes a la torre", "Reiniciar el sistema"], f: "✅ ¡Lógico! Los golpes pueden aflojar piezas de la placa base o romper los cabezales del disco duro." },
+
+            // --- ERGONOMÍA Y SALUD ---
+            { i: "🪑", q: "¿Qué características fundamentales debe cumplir la silla de trabajo según prevención?", a: "Tener soporte lumbar y altura ajustable", o: ["Tener soporte lumbar y altura ajustable", "Ser lo más blanda y hundida posible"], f: "✅ ¡Excelente! La silla ajustable protege la curva natural de la columna y relaja los hombros." },
+            { i: "👁️", q: "Para evitar doblar el cuello hacia abajo al usar un portátil, ¿qué recomiendan los expertos?", a: "Utilizar soportes para elevar la pantalla", o: ["Utilizar soportes para elevar la pantalla", "Agachar la espalda hacia el teclado"], f: "✅ ¡Exacto! Elevar la pantalla de modo que su parte superior quede al nivel de tus ojos reduce la fatiga cervical." },
+            { i: "⌨️", q: "¿Por qué se recomienda conectar un teclado y ratón externos en un portátil si ya los trae integrados?", a: "Evita posiciones incómodas de las manos", o: ["Evita posiciones incómodas de las manos", "Para que consuma menos batería externa"], f: "✅ ¡Correcto! Su uso previene lesiones musculares y ayuda a guardar la distancia adecuada con la pantalla." },
+            { i: "💡", q: "Respecto a los reflejos en la pantalla, ¿donde se aconseja regular la luz de la habitación?", a: "Donde no provoque deslumbramientos", o: ["Justo enfocando directo al monitor", "Donde no provoque deslumbramientos"], f: "✅ ¡Exacto! Evitar los reflejos en el cristal reduce la fatiga ocular y mejora mucho la visibilidad." },
+            { i: "📦", q: "¿Qué beneficio secundario aporta mantener el espacio de trabajo limpio y ordenado?", a: "Mejora la eficiencia y reduce el estrés", o: ["Mejora la eficiencia y reduce el estrés", "Hace que el PC procese más rápido"], f: "✅ ¡Gran respuesta! Organizar cables y despejar el entorno ayuda enormemente a concentrarse." },
+            { i: "🦶", q: "Si al sentarte tus pies quedan colgando, ¿qué elemento de prevención se debe usar de inmediato?", a: "Un reposapiés para descansar las plantas", o: ["Un reposapiés para descansar las plantas", "Un cojín muy alto en el asiento"], f: "✅ ¡Muy bien! Si no puedes apoyar los pies planos en el suelo, el reposapiés previene problemas circulatorios." },
+            { i: "📏", q: "¿A qué distancia mínima aproximada de tus ojos deberías colocar la pantalla?", a: "A unos 50 o 60 centímetros", o: ["A unos 15 centímetros", "A unos 50 o 60 centímetros"], f: "✅ ¡Correcto! Equivale aproximadamente a la longitud de tu brazo extendido hacia el monitor." },
+            { i: "🕶️", q: "Si pasas muchas horas leyendo texto en el PC y notas los ojos muy secos, ¿qué hábito debes forzar?", a: "Parpadear conscientemente más", o: ["Parpadear conscientemente más", "No cerrar los ojos en una hora"], f: "✅ ¡Exacto! Al mirar fijamente una pantalla reducimos el parpadeo a la mitad sin darnos cuenta." },
+            { i: "🛋️", q: "¿Es recomendable trabajar con el ordenador portátil apoyado sobre las rodillas cruzadas?", a: "No, encorva demasiado el cuello", o: ["Sí, es la postura más ergonómica", "No, encorva demasiado el cuello"], f: "✅ ¡Muy bien! Te obliga a mirar hacia abajo doblando las cervicales y cargando la espalda." },
+            { i: "🧊", q: "¿Cómo debe ser la temperatura ideal de la habitación donde trabajas con el PC?", a: "Confortable, entre 20 y 24 grados", o: ["Muy calurosa para no pasar frío", "Confortable, entre 20 y 24 grados"], f: "✅ ¡Así es! El exceso de calor adormece al usuario y perjudica la refrigeración de la máquina." },
+            { i: "🔊", q: "Usas auriculares para trabajar o jugar en el ordenador. ¿Cuál es el límite de volumen recomendado?", a: "No superar el 60% del máximo", o: ["Al tope para aislarse del ruido", "No superar el 60% del máximo"], f: "✅ ¡Excelente! Cuidar el volumen previene la pérdida de audición prematura provocada por fatiga acústica." },
+            { i: "🖱️", q: "Al sujetar el ratón, ¿cómo debe posicionarse la mano para evitar sobreesfuerzos?", a: "Relajada, cubriendo el ratón sin forzar", o: ["Relajada, cubriendo el ratón sin forzar", "Apretando los dedos con fuerza"], f: "✅ ¡Correcto! La mano debe descansar suavemente sobre el periférico para no tensionar los tendones." },
+            { i: "☀️", q: "Si el sol entra directamente por la ventana de tu habitación e impacta en tu pantalla, ¿qué debes hacer?", a: "Bajar persianas o usar cortinas", o: ["Bajar persianas o usar cortinas", "Acercarte más al monitor"], f: "✅ ¡Exacto! Evitar los reflejos directos reduce drásticamente los dolores de cabeza y el sobreesfuerzo ocular." },
+
+            // --- NUEVAS PREGUNTAS (29-35) ---
+            { i: "🌗", q: "Vas a leer o redactar un texto largo de noche o en un sitio oscuro. ¿Qué modo de pantalla cansa menos la vista?", a: "El modo oscuro", o: ["El modo claro con fondo blanco", "El modo oscuro"], f: "✅ ¡Perfecto! El modo oscuro emite mucha menos luz directa, lo que reduce la fatiga visual nocturna." },
+            { i: "🔆", q: "Estás en una habitación muy iluminada a plena luz del día y te cuesta leer la pantalla. ¿Qué configuración debes usar?", a: "El modo claro con buen contraste", o: ["El modo claro con buen contraste", "Bajar el brillo de la pantalla a cero"], f: "✅ ¡Muy bien! Con mucha luz ambiental, el modo claro y un brillo adecuado evitan que tengas que forzar y entrecerrar los ojos." },
+            { i: "🎯", q: "Si a veces pierdes de vista el cursor en pantallas grandes o te cuesta apuntar, ¿qué ajuste de accesibilidad ayuda?", a: "Aumentar el tamaño del puntero", o: ["Aumentar el tamaño del puntero", "Mover el ratón en círculos muy rápido"], f: "✅ ¡Gran truco! Hacer el puntero más grande o cambiarle el color evita el estrés visual de estar buscándolo continuamente." },
+            { i: "🔍", q: "Si una página web tiene la letra minúscula y tienes que acercarte mucho al monitor para leer, ¿qué debes hacer?", a: "Ajustar el zoom del navegador (Ctrl +)", o: ["Ajustar el zoom del navegador (Ctrl +)", "Pegar la cara a la pantalla"], f: "✅ ¡Exacto! Utilizar el zoom digital mantiene tus ojos a una distancia saludable de 50-60 cm sin perder detalle." },
+            { i: "⏳", q: "Según las pautas de salud digital, ¿cada cuánto tiempo se aconseja apartar la mirada de la pantalla y mirar de lejos?", a: "Cada 20 minutos", o: ["Cada 20 minutos", "Una vez al terminar el día"], f: "✅ ¡Así es! Es la famosa regla del descanso visual para relajar los músculos del ojo enfocado a corta distancia." },
+            { i: "🤸", q: "Llevas una hora escribiendo apuntes sentado frente al ordenador. ¿Qué es lo más recomendable hacer ahora?", a: "Levantarse y realizar estiramientos cortos", o: ["Levantarse y realizar estiramientos cortos", "Seguir sentado otra hora sin moverte"], f: "✅ ¡Excelente! Levantarse a mover el cuello, la espalda y los brazos activa la circulación y previene la rigidez muscular." },
+            { i: "🔄", q: "Para evitar la fatiga mental y física en el PC, ¿qué estrategia de organización es la mejor?", a: "Cambiar de actividad o tarea cada hora", o: ["Hacer la misma tarea mecánica 4 horas", "Cambiar de actividad o tarea cada hora"], f: "✅ ¡Muy bien! Alternar tareas (por ejemplo, pasar de escribir a leer o revisar apuntes en papel) da un respiro al cuerpo y a la mente." }
+        ];
+
+        let desafioData = [];
+
+        function initDesafio() {
+            let preguntasMezcladas = [...todasLasPreguntas].sort(() => Math.random() - 0.5);
+            let seleccionadas = preguntasMezcladas.slice(0, 8);
+            
+            desafioData = seleccionadas.map(p => {
+                let opcionesMezcladas = [...p.o].sort(() => Math.random() - 0.5);
+                return {
+                    icon: p.i,
+                    question: p.q,
+                    correct: p.a,
+                    options: opcionesMezcladas,
+                    feedback: p.f,
+                    userAns: ''
+                };
+            });
+
+            renderizarTarjetas();
+        }
+
+        function renderizarTarjetas() {
+            const grid = document.getElementById('desafioContent');
+            grid.innerHTML = '';
+
+            desafioData.forEach((d, i) => {
+                const card = document.createElement('div');
+                card.className = 'img-card';
+                card.id = `concept_card_${i}`;
+
+                let opcionesHTML = d.options.map(opt => `
+                    <div class="btn-opcion" id="opt_${i}_${opt.replace(/[^a-zA-Z0-9]/g, '_')}" onclick="marcarOpcion(${i}, '${opt}')">
+                        ${opt}
+                    </div>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="card-icon-container">${d.icon}</div>
+                    <p class="pregunta-texto">${d.question}</p>
+                    <div class="opciones-container">
+                        ${opcionesHTML}
+                    </div>
+                    <div class="feedback" id="fb_concept_${i}"></div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function marcarOpcion(indiceCard, valorOpcion) {
+            const d = desafioData[indiceCard];
+            const card = document.getElementById(`concept_card_${indiceCard}`);
+            if(card.classList.contains('correct') || card.classList.contains('incorrect')) return;
+
+            d.options.forEach(opt => {
+                const idOpt = `opt_${indiceCard}_${opt.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                const el = document.getElementById(idOpt);
+                if(el) el.classList.remove('seleccionada');
+            });
+
+            d.userAns = valorOpcion;
+            const idActivo = `opt_${indiceCard}_${valorOpcion.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            const elActivo = document.getElementById(idActivo);
+            if(elActivo) elActivo.classList.add('seleccionada');
+        }
+
+        function comprobarDesafio() {
+            let aciertos = 0;
+            let sinResponder = false;
+
+            desafioData.forEach(d => {
+                if(!d.userAns) sinResponder = true;
+            });
+
+            if(sinResponder) {
+                alert("⚠️ ¡Espera! Todavía te quedan tarjetas sin marcar. Respóndelas todas antes de corregir.");
+                return;
+            }
+
+            desafioData.forEach((d, i) => {
+                const card = document.getElementById(`concept_card_${i}`);
+                const fb = document.getElementById(`fb_concept_${i}`);
+                
+                card.classList.remove('correct', 'incorrect');
+                
+                if (d.userAns === d.correct) {
+                    card.classList.add('correct');
+                    fb.innerHTML = d.feedback;
+                    fb.style.color = 'var(--verde)';
+                    fb.style.display = 'block';
+                    aciertos++;
+                } else {
+                    card.classList.add('incorrect');
+                    fb.innerHTML = `❌ Incorrecto. La opción correcta era:<br/>"${d.correct}"`;
+                    fb.style.color = 'var(--rojo)';
+                    fb.style.display = 'block';
+                }
+            });
+
+            if (aciertos === desafioData.length) {
+                lanzarConfeti();
+                alert("🏆 ¡PERFECTO! Has superado con nota el nivel de Ergonomía y Cuidado del PC.");
+            } else {
+                alert(`Has corregido el ejercicio. Aciertos: ${aciertos} de ${desafioData.length}.\n\nRevisa las tarjetas marcadas en rojo para ver tus fallos.`);
+            }
+        }
+
+        function lanzarConfeti() {
+            var duration = 3 * 1000;
+            var end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+
+        function revelarBoton() {
+            const btn = document.getElementById('btn-profe');
+            if (btn) {
+                btn.style.setProperty('display', 'inline-flex', 'important'); 
+                alert("🧙‍♂️ ¡Llave maestra activada! Botón de autocompletado visible abajo.");
+            }
+        }
+
+        function resolverModoProfe() {
+            desafioData.forEach((d, i) => {
+                d.userAns = d.correct;
+                d.options.forEach(opt => {
+                    const idOpt = `opt_${i}_${opt.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                    const el = document.getElementById(idOpt);
+                    if(el) {
+                        if(opt === d.correct) el.classList.add('seleccionada');
+                        else el.classList.remove('seleccionada');
+                    }
+                });
+            });
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key.toLowerCase() === 'd') {
+                e.preventDefault(); 
+                resolverModoProfe();
+                alert("🪄 Modo Profe: Opciones correctas preseleccionadas en la ronda.");
+            }
+        });
+
+        window.onload = initDesafio;
+    </script>
+</body>
+<footer style="text-align: center; padding: 10px 10px; color: #7f8c8d; font-size: 1em; margin-top: 20px; border-top: 1px solid #e0e0e0; line-height: 1.5;">
+        <strong>&copy; 2026 — Creado por Profe Adna</strong> con &hearts; para mis alumnos | Taller de Informática EPA Sedaví<br>     
+        <span class="llave-secreta" onclick="revelarBoton()">🔑</span>
+</footer>
+</html>

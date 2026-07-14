@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Completar Definiciones Informática</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://tallerinformaticaepasedavi.blogspot.com/favicon.ico' rel='icon' type='image/x-icon'/>
+	<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+		:root {
+            --azul-profundo: #1e293b;
+            --indigo: #4338ca;
+            --esmeralda: #15803d;
+            --coral: #dd6b20;
+            --fondo-relajante: #f8fafc;
+            --tarjeta: #ffffff;
+            --borde-suave: #cbd5e1;
+            
+            /* Estados */
+            --success-bg: #f0fdf4;
+            --danger-bg: #fef2f2;
+            --warning-bg: #fffbeb;
+        }
+        
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: var(--fondo-relajante); 
+            margin: 0; 
+            padding: 24px; 
+            overflow-x: hidden; 
+            color: var(--azul-profundo);
+        }
+        
+        .contenedor { 
+            max-width: 950px; 
+            margin: 0 auto; 
+            background: var(--tarjeta); 
+            padding: 35px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); 
+        }
+        
+        header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            border-bottom: 2px solid #e2e8f0; 
+            padding-bottom: 25px; 
+        }
+        
+        header h1 { 
+            color: var(--azul-profundo); 
+            font-size: 2.1em; 
+            margin: 0 0 10px 0; 
+        }
+        
+        header p { 
+            color: #475569; 
+            font-size: 1.15em; 
+            margin: 0; 
+            line-height: 1.5; 
+        }
+
+        .grid-definiciones {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin: 25px 0;
+        }
+
+        .question-box {
+            background: #ffffff;
+            border: 2px solid var(--borde-suave);
+            padding: 25px;
+            border-radius: 16px;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.01);
+        }
+
+        .question-title {
+            display: inline-block;
+            background: var(--azul-profundo);
+            color: white;
+            padding: 5px 14px;
+            font-size: 0.95em;
+            font-weight: bold;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .question-box p {
+            font-size: 1.3em; /* Aumentado sutilmente para mejorar la lectura a la vista cansada */
+            color: var(--azul-profundo);
+            line-height: 1.8;
+            margin: 0 0 20px 0;
+        }
+
+        /* HUECOS EN BLANCO DENTRO DEL TEXTO */
+        .hueco-blanco {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 150px;
+            height: 36px;
+            border-bottom: 3px dashed var(--indigo);
+            color: var(--indigo);
+            font-weight: bold;
+            padding: 0 12px;
+            margin: 0 6px;
+            vertical-align: middle;
+            transition: all 0.2s;
+        }
+
+        .hueco-blanco.relleno {
+            border-bottom: 3px solid var(--indigo);
+            background: #eff6ff;
+            border-radius: 6px;
+        }
+
+        /* FILAS DE BOTONES TIPO PÍLDORA */
+        .opciones-pildora {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .pildora-grupo {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pildora-label {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #475569;
+            min-width: 90px;
+        }
+
+        .btn-pildora {
+            background: white;
+            border: 2px solid var(--borde-suave);
+            color: var(--azul-profundo);
+            padding: 8px 16px;
+            border-radius: 12px; /* Menos redondeado, más estilo botón clásico y limpio */
+            cursor: pointer;
+            font-size: 1.05em; /* Más legible */
+            font-weight: 600;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .btn-pildora:hover {
+            border-color: var(--indigo);
+            background: #f5f3ff;
+            transform: translateY(-1px);
+        }
+
+        .btn-pildora.activa {
+            background: var(--indigo);
+            color: white;
+            border-color: var(--indigo);
+        }
+
+        /* ACCIONES PRINCIPALES */
+        .btn-control {
+            padding: 14px 28px; 
+            margin: 8px; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 18px; 
+            font-weight: bold; 
+            transition: all 0.2s;
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .btn-check { background-color: var(--esmeralda); }
+        .btn-reset { background-color: var(--coral); }
+        .btn-control:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+        /* ESTADOS DE CORRECCIÓN */
+        .correct { border-color: var(--esmeralda) !important; background: var(--success-bg) !important; } 
+        .correct .question-title { background: var(--esmeralda); }
+        .correct .hueco-blanco { border-bottom-color: var(--esmeralda); background: #e6f4ea; color: var(--esmeralda); }
+        .correct .opciones-pildora { display: none; } 
+
+        .incorrect { border-color: #ef4444 !important; background: var(--danger-bg) !important; } 
+        .incorrect .question-title { background: #ef4444; }
+        .incorrect .hueco-blanco { border-bottom-color: #ef4444; color: #ef4444; }
+
+        .feedback {
+            font-size: 1.1em; 
+            margin-top: 15px; 
+            font-weight: bold; 
+            display: none;
+        }
+
+        .llave-secreta { 
+            cursor: pointer; 
+            opacity: 0.2; 
+            transition: opacity 0.3s; 
+            font-size: 1.2em;
+            margin-left: 10px;
+        }
+        .llave-secreta:hover { opacity: 1; }
+        
+        .btn-profe {
+            display: none !important; 
+            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <header>
+            <h1>📝 Desafío: Completar Definiciones (Rondas al Azar)</h1>
+            <p>Pulsa los botones tipo "píldora" debajo de cada definición para rellenar los huecos correspondientes.</p>
+        </header>
+
+        <div class="grid-definiciones" id="rellenarContent"></div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn-control btn-check" onclick="checkRellenar()">✔️ Corregir Ejercicio</button>
+            <button class="btn-control btn-reset" onclick="initRellenar()">🔄 Nueva Ronda (Azar)</button>
+            <button id="btn-profe" class="btn-control btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Resolver reto</button>
+        </div>
+    </div>
+
+    <script>
+		// --- BANCO COMPLETO DE PALABRAS ---
+		const rellenarWords = [
+			"Aplicaciones", "Archivos", "Atajos", "Bit", "Buses", "Cables", "Contraseña", "Cursor", "Datos", "Discos", "Disipador",
+			"Drivers", "Extensiones", "Fuente de alimentación", "Hardware", "HDMI", "Internet", "Monitor", "Pasta térmica",
+			"Periféricos", "Placa base", "Posición", "Procesador", "Puerto", "Puertos", "RAM", "Ranura", "Ranuras", "Ratón",
+			"Router", "Sistema Binario", "Sistema Operativo", "Software", "SSD", "Tarjeta de Red", "Tarjeta Gráfica", "Teclado", 
+			"Teclas", "Torre", "USB", "Ventiladores", "Virus", "Zócalo"
+		];
+
+		// BANCO AMPLIADO A 50 FRASES PARA HACERLO ULTRA REJUGABLE
+		const bancoSolucionesTotal = [
+			// === HARDWARE INTERNO Y COMPONENTES (1 a 13) ===
+			{ 
+				texto: "El [[1]] es el jefe del ordenador y se encarga de hacer el trabajo importante. Para encenderse, necesita que la [[2]] reciba la electricidad del enchufe.",
+				id1: "Procesador", id2: "Fuente de alimentación", 
+				feedback: "✅ El Procesador (CPU) ejecuta las órdenes y la Fuente transforma la corriente." 
+			},
+			{ 
+				texto: "La memoria [[1]] es temporal y se borra al apagar el equipo. Para guardar los archivos para siempre, usamos un disco [[2]].",
+				id1: "RAM", id2: "SSD", 
+				feedback: "✅ La RAM es volátil, mientras que el SSD guarda tus datos permanentemente." 
+			},
+			{ 
+				texto: "La [[1]] es la pieza donde se conectan todos los componentes. La información viaja entre ellos a través de los [[2]].",
+				id1: "Placa base", id2: "Buses", 
+				feedback: "✅ La Placa Base es el esqueleto y los Buses son las autopistas de datos." 
+			},
+			{ 
+				texto: "El [[1]] absorbe el calor del procesador, mientras que los [[2]] expulsan el aire caliente al exterior.",
+				id1: "Disipador", id2: "Ventiladores", 
+				feedback: "✅ El sistema de refrigeración evita que el PC se queme por el calor." 
+			},
+			{ 
+				texto: "La [[1]] es la caja que protege todo. Por su parte trasera asoman los [[2]] donde enchufamos los periféricos.",
+				id1: "Torre", id2: "Puertos", 
+				feedback: "✅ La Torre estructura el equipo y los puertos permiten la comunicación con el exterior." 
+			},
+			{ 
+				texto: "La memoria RAM se pincha en las [[1]] de memoria tipo DIMM. Para no ponerla al revés, debemos fijarnos bien en su [[2]].",
+				id1: "Ranuras", id2: "Posición", 
+				feedback: "✅ Las Ranuras o Slots de memoria tipo DIMM son específicos para la RAM y tienen una posición única." 
+			},
+			{ 
+				texto: "El procesador se coloca en el [[1]]. Antes de poner el disipador, es obligatorio aplicar un poco de [[2]] encima.",
+				id1: "Zócalo", id2: "Pasta térmica", 
+				feedback: "✅ El Zócalo o Socket es la cuna de la CPU y la pasta asegura que el calor pase al disipador." 
+			},
+			{ 
+				texto: "Para conectar periféricos externos usamos el puerto [[1]], mientras que para ver la imagen en el monitor usamos el cable [[2]].",
+				id1: "USB", id2: "HDMI", 
+				feedback: "✅ USB es el estándar para accesorios y HDMI el estándar actual de vídeo." 
+			},
+			{ 
+				texto: "Dentro de la caja, es importante organizar bien los [[1]] para que no choquen con los [[2]] que giran.",
+				id1: "Cables", id2: "Ventiladores", 
+				feedback: "✅ Mantener el interior despejado mejora la ventilación y evita ruidos." 
+			},
+			{ 
+				texto: "Si queremos jugar a juegos potentes, instalamos una [[1]] dedicada en una [[2]] de expansión PCI / PCIe de la placa base.",
+				id1: "Tarjeta Gráfica", id2: "Ranura", 
+				feedback: "✅ Las ranuras de expansión PCI / PCIe permiten expandir las capacidades del PC añadiendo tarjetas que no venían de serie, como las gráficas o de sonido." 
+			},
+			{ 
+				texto: "Los ordenadores procesan la información mediante el [[1]], un lenguaje basado en ceros y unos donde cada dígito individual se conoce como [[2]].",
+				id1: "Sistema Binario", id2: "Bit", 
+				feedback: "✅ El sistema binario utiliza bits (0 o 1) como base para realizar cualquier cálculo informático." 
+			},
+			{ 
+				texto: "El ratón y el teclado introducen datos en el PC, por eso pertenecen al grupo de [[1]] de entrada, mientras que el [[2]] proyecta las imágenes y actúa como un dispositivo de salida.",
+				id1: "Periféricos", id2: "Monitor", 
+				feedback: "✅ Los periféricos permiten la comunicación entre el usuario y la máquina." 
+			},
+{ 
+				texto: "Para que nuestra placa base pueda comunicarse con el router de casa y tener internet, necesita una [[1]] o un chip Wifi integrado en un [[2]] trasero.",
+				id1: "Tarjeta de Red", id2: "Puerto", 
+				feedback: "✅ La tarjeta de red gestiona el tráfico de datos entrante y saliente hacia internet." 
+			},
+
+			// === CONCEPTOS GLOBALES, SOFTWARE Y SISTEMAS (14 a 25) ===
+			{ 
+				texto: "La parte física, metálica y tangible del ordenador se denomina [[1]], mientras que el conjunto de instrucciones digitales invisibles se llama [[2]].",
+				id1: "Hardware", id2: "Software", 
+				feedback: "✅ El Hardware es el cuerpo físico del equipo y el Software es la mente o programas." 
+			},
+			{ 
+				texto: "Sin el [[1]] el ordenador sería solo una caja de metal inútil, ya que requiere del [[2]] para saber exactamente qué tareas debe procesar.",
+				id1: "Software", id2: "Hardware", 
+				feedback: "✅ Ambos conceptos se complementan: los programas controlan los circuitos físicos." 
+			},
+			{ 
+				texto: "El programa principal que gestiona los recursos del PC al arrancar es el [[1]], el cual nos permite abrir y ejecutar las [[2]] como el navegador o los juegos.",
+				id1: "Sistema Operativo", id2: "Aplicaciones", 
+				feedback: "✅ Windows o Linux son Sistemas Operativos que sirven de base para tus Aplicaciones favoritas." 
+			},
+			{ 
+				texto: "Para que el Sistema Operativo entienda cómo usar una nueva Tarjeta Gráfica, necesita instalar unos mini-programas llamados [[1]] que traduzcan las órdenes al [[2]].",
+				id1: "Drivers", id2: "Hardware", 
+				feedback: "✅ Los Drivers (o controladores) actúan como traductores entre los programas y las piezas físicas." 
+			},
+			{ 
+				texto: "Los documentos, canciones o vídeos que guardamos en nuestro disco duro se organizan en [[1]], los cuales almacenan bloques de [[2]] legibles por el sistema.",
+				id1: "Archivos", id2: "Datos", 
+				feedback: "✅ La información se empaqueta en Archivos (como .jpg o .mp3) repletos de datos binarios." 
+			},
+			{ 
+				texto: "Al escribir texto o diseñar un dibujo, estamos manipulando [[1]] mediante el uso de [[2]] específicas de oficina o edición de imagen.",
+				id1: "Datos", id2: "Aplicaciones", 
+				feedback: "✅ El software de aplicación transforma los datos del usuario en información útil estructurada." 
+			},
+			{ 
+				texto: "Un disco de tipo [[1]] lee y escribe datos de forma electrónica y silenciosa, superando enormemente en velocidad a los antiguos [[2]] magnéticos.",
+				id1: "SSD", id2: "Discos", 
+				feedback: "✅ Los SSD (unidades de estado sólido) prescinden de partes móviles y aceleran los tiempos de carga." 
+			},
+			{ 
+				texto: "La placa base lee las instrucciones del sistema operativo directo de la memoria [[1]] para trabajar en tiempo real, pero guarda los cambios definitivos en el [[2]].",
+				id1: "RAM", id2: "SSD", 
+				feedback: "✅ La RAM da velocidad inmediata en el encendido, pero el almacenamiento masivo retiene tus datos." 
+			},
+			{ 
+				texto: "Para evitar que se desconecte el almacenamiento interno por vibraciones, el disco duro se fija firmemente al chasis de la [[1]] conectando sus [[2]] de alimentación con fuerza.",
+				id1: "Torre", id2: "Cables", 
+				feedback: "✅ El anclaje rígido protege los componentes y sus conexiones eléctricas internas." 
+			},
+			{ 
+				texto: "Cada pequeña imagen o letra en tu pantalla se reduce en el fondo a un flujo constante de un [[1]] tras otro, organizados gracias a las reglas del [[2]].",
+				id1: "Bit", id2: "Sistema Binario", 
+				feedback: "✅ La arquitectura actual reduce todo software a combinaciones masivas de ceros y unos." 
+			},
+			{ 
+				texto: "Un cortocircuito en la [[1]] podría dañar la memoria [[2]] y corromper el inicio de los programas si la energía fluctúa de forma inestable.",
+				id1: "Fuente de alimentación", id2: "RAM", 
+				feedback: "✅ Una fuente de calidad garantiza un voltaje estable protegiendo los chips electrónicos." 
+			},
+			{ 
+				texto: "El [[1]] debe hacer contacto directo sobre la superficie del [[2]] para disipar con éxito las temperaturas letales de procesamiento.",
+				id1: "Disipador", id2: "Procesador", 
+				feedback: "✅ Mantener limpia el área de contacto asegura que la CPU opere dentro de sus límites térmicos seguros." 
+			},
+
+			// === EL RATÓN Y EL TECLADO (26 a 34) ===
+			{ 
+				texto: "El [[1]] nos permite desplazarnos por la pantalla de forma intuitiva guiando un indicador visual llamado [[2]].",
+				id1: "Ratón", id2: "Cursor", 
+				feedback: "✅ El ratón traduce el movimiento físico de nuestra mano en la trayectoria del cursor en pantalla." 
+			},
+			{ 
+				texto: "Al pulsar los botones del [[1]] enviamos órdenes inmediatas de selección al PC, facilitando la navegación sin memorizar comandos del [[2]].",
+				id1: "Ratón", id2: "Teclado", 
+				feedback: "✅ El ratón revolucionó la informática al permitir interactuar mediante clics directos." 
+			},
+			{ 
+				texto: "Para conectar un moderno ratón óptico o un teclado de cable a la torre, solemos buscar un [[1]] de tipo [[2]] libre en el panel posterior.",
+				id1: "Puerto", id2: "USB", 
+				feedback: "✅ Los puertos USB sustituyeron a los antiguos conectores PS/2 para periféricos." 
+			},
+			{ 
+				texto: "El [[1]] es el periférico de entrada de texto principal, estructurado en diferentes secciones de [[2]] como la zona alfanumérica o numérica.",
+				id1: "Teclado", id2: "Teclas", 
+				feedback: "✅ El teclado permite la introducción directa de caracteres mediante pulsación mecánica." 
+			},
+			{ 
+				texto: "Al presionar las [[1]] especiales de control (como Ctrl, Alt o Shift) junto a una letra del [[2]], podemos ejecutar atajos rápidos en el sistema.",
+				id1: "Teclas", id2: "Teclado", 
+				feedback: "✅ Las combinaciones de teclas mejoran la productividad al evitar el uso constante del ratón." 
+			},
+			{ 
+				texto: "El periférico llamado [[1]] cuenta con una fila superior de 'Teclas de Función' (F1 a F12) que activan herramientas rápidas dependiendo de las [[2]] que usemos.",
+				id1: "Teclado", id2: "Aplicaciones", 
+				feedback: "✅ Las teclas de función realizan tareas automáticas predefinidas en los programas abiertos." 
+			},
+			{ 
+				texto: "Cuando usamos el [[1]], la rueda central (scroll) sirve para deslizar verticalmente las páginas, mientras que el botón izquierdo pincha donde apunta el [[2]].",
+				id1: "Ratón", id2: "Cursor", 
+				feedback: "✅ El botón izquierdo selecciona y ejecuta, mientras que el scroll desplaza el contenido largo." 
+			},
+			{ 
+				texto: "Si dejamos de pulsar las [[1]] del teclado, el ordenador deja de recibir pulsaciones, reteniendo el último comando procesado en la memoria [[2]].",
+				id1: "Teclas", id2: "RAM", 
+				feedback: "✅ Las entradas de usuario viajan a la velocidad de la luz hacia los buffers de memoria de trabajo." 
+			},
+			{ 
+				texto: "Un golpe accidental sobre el [[1]] puede romper sus mecanismos de muelle internos, provocando que algunas [[2]] se queden atascadas o repitan caracteres.",
+				id1: "Teclado", id2: "Teclas", 
+				feedback: "✅ Los teclados mecánicos o de membrana requieren cuidado para no perder sensibilidad." 
+			},
+
+			// === NUEVOS BLOQUES: SEGURIDAD, INTERNET, ATAJOS Y ARCHIVOS (35 a 50) ===
+			{ 
+				texto: "Para no usar siempre el ratón, los usuarios avanzados emplean [[1]] de teclado combinando varias [[2]] a la vez (como Ctrl+C para copiar).",
+				id1: "Atajos", id2: "Teclas", 
+				feedback: "✅ Los atajos aceleran el flujo de trabajo omitiendo menús visuales." 
+			},
+			{ 
+				texto: "Para identificar qué programa abre cada uno de nuestros [[1]], el sistema utiliza las [[2]] de tres o cuatro letras al final de su nombre (como .pdf o .docx).",
+				id1: "Archivos", id2: "Extensiones", 
+				feedback: "✅ Las extensiones indican el formato y el software asociado para abrir dicho archivo." 
+			},
+			{ 
+				texto: "Para conectar nuestro PC a la red global de [[1]], conectamos un cable de red desde el puerto de la torre hasta el [[2]] de casa.",
+				id1: "Internet", id2: "Router", 
+				feedback: "✅ El router es la puerta de enlace que distribuye la conexión de internet a nuestros dispositivos." 
+			},
+			{ 
+				texto: "Un [[1]] es un programa malicioso que daña el software del sistema o roba nuestros [[2]] privados si abrimos enlaces sospechosos.",
+				id1: "Virus", id2: "Datos", 
+				feedback: "✅ Los virus informáticos (malware) requieren de un antivirus activo para su detección." 
+			},
+			{ 
+				texto: "Al iniciar sesión en nuestro [[1]] favorito, es vital proteger la cuenta con una [[2]] segura que mezcle letras, números y símbolos.",
+				id1: "Sistema Operativo", id2: "Contraseña", 
+				feedback: "✅ Una contraseña robusta es la primera línea de defensa en la seguridad digital." 
+			},
+			{ 
+				texto: "Cuando enviamos fotos a la nube a través de [[1]], los datos viajan mediante ondas Wifi hacia las antenas conectadas directamente al [[2]].",
+				id1: "Internet", id2: "Router", 
+				feedback: "✅ El router convierte las ondas inalámbricas Wifi en señales de cable de alta velocidad." 
+			},
+			{ 
+				texto: "Los archivos ejecutables que instalan nuevas [[1]] en Windows suelen terminar en las [[2]] de tipo '.exe'.",
+				id1: "Aplicaciones", id2: "Extensiones", 
+				feedback: "✅ La extensión .exe significa ejecutable y arranca instaladores o programas directamente." 
+			},
+			{ 
+				texto: "El uso de [[1]] de teclado rápidos permite cerrar ventanas rebeldes de forma veloz cuando el [[2]] se queda congelado o no responde.",
+				id1: "Atajos", id2: "Ratón", 
+				feedback: "✅ Alt+F4 es el atajo de emergencia clásico para clausurar tareas bloqueadas." 
+			},
+			{ 
+				texto: "Para resguardar los [[1]] importantes contra ataques de un [[2]], es sabio realizar copias de seguridad en un disco externo de manera periódica.",
+				id1: "Archivos", id2: "Virus", 
+				feedback: "✅ El respaldo de información (backup) garantiza no perder nada ante un secuestro de datos." 
+			},
+			{ 
+				texto: "El [[1]] redirige los paquetes de información que descargas desde [[2]] de forma automática hacia la dirección IP de tu ordenador.",
+				id1: "Router", id2: "Internet", 
+				feedback: "✅ El enrutamiento de datos distribuye el tráfico web de forma precisa en una red local." 
+			},
+			{ 
+				texto: "Es una pésima práctica apuntar la [[1]] de acceso al PC en un papel pegado al [[2]], ya que rompe la privacidad del hardware físico.",
+				id1: "Contraseña", id2: "Monitor", 
+				feedback: "✅ La seguridad física del equipo es tan relevante como los firewalls digitales." 
+			},
+			{ 
+				texto: "Al vaciar la papelera de reciclaje de nuestro [[1]], eliminamos los [[2]] marcados liberando espacio real en el disco SSD.",
+				id1: "Sistema Operativo", id2: "Archivos", 
+				feedback: "✅ Borrar de la papelera confirma la remoción permanente de los bloques lógicos." 
+			},
+			{ 
+				texto: "Los ciberdelincuentes intentan averiguar tu [[1]] mediante engaños en correos falsos para acceder de forma remota a tus [[2]] personales.",
+				id1: "Contraseña", id2: "Datos", 
+				feedback: "✅ El phishing busca obtener credenciales suplantando identidades de servicios oficiales." 
+			},
+			{ 
+				texto: "Un cable [[1]] estropeado provocará pérdidas de señal de vídeo intermitentes hacia el [[2]], distorsionando los colores mostrados.",
+				id1: "HDMI", id2: "Monitor", 
+				feedback: "✅ Una conexión física defectuosa en puertos multimedia arruina la experiencia visual." 
+			},
+			{ 
+				texto: "Las [[1]] de fotografía digital más populares son .jpg y .png, las cuales contienen millones de [[2]] de color organizados en píxeles.",
+				id1: "Extensiones", id2: "Datos", 
+				feedback: "✅ Los formatos comprimidos optimizan el espacio en disco de las galerías multimedia." 
+			},
+			{ 
+				texto: "El sistema operativo almacena temporalmente los textos copiados mediante [[1]] en un rincón invisible de la memoria [[2]] llamado portapapeles.",
+				id1: "Atajos", id2: "RAM", 
+				feedback: "✅ Ctrl+C guarda la información en la memoria volátil hasta que decidimos pegarla con Ctrl+V." 
+			}
+		];
+
+        let solucionesRondaActiva = [];
+
+        // Genera distractores únicos combinando la respuesta correcta con opciones al azar
+        function generarOpcionesCuatro(correcta) {
+            let opciones = [correcta];
+            let poolFiltrado = rellenarWords.filter(w => w !== correcta);
+            while(opciones.length < 4 && poolFiltrado.length > 0) {
+                let randomIdx = Math.floor(Math.random() * poolFiltrado.length);
+                let elegido = poolFiltrado.splice(randomIdx, 1)[0];
+                opciones.push(elegido);
+            }
+            return opciones.sort((a, b) => a.localeCompare(b));
+        }
+
+		// --- INICIAR JUEGO CON 8 PREGUNTAS AL AZAR ---
+		function initRellenar() {
+			const cont = document.getElementById('rellenarContent');
+			if (!cont) return;
+
+            // Barajar el banco total de soluciones y pillar solo 8
+            let copiaBanco = [...bancoSolucionesTotal].sort(() => 0.5 - Math.random());
+            solucionesRondaActiva = copiaBanco.slice(0, 8).map(item => ({
+                ...item,
+                userAns1: '',
+                userAns2: ''
+            }));
+			
+			cont.innerHTML = ''; 
+
+			solucionesRondaActiva.forEach((sol, i) => {
+                // Creamos los elementos interactivos visuales (huecos vacíos)
+                let fraseHtml = sol.texto
+                    .replace('[[1]]', `<span class="hueco-blanco" id="hueco_${i}_1">¿?</span>`)
+                    .replace('[[2]]', `<span class="hueco-blanco" id="hueco_${i}_2">¿?</span>`);
+                
+                // Generar los 4 botones aleatorios para el Hueco 1 y Hueco 2
+                let opcionesH1 = generarOpcionesCuatro(sol.id1);
+                let opcionesH2 = generarOpcionesCuatro(sol.id2);
+
+                let pildorasH1Html = opcionesH1.map(opt => 
+                    `<button class="btn-pildora" id="btn_${i}_1_${opt.replace(/[^a-zA-Z0-9]/g, '_')}" onclick="marcarPildora(${i}, 1, '${opt}')">${opt}</button>`
+                ).join('');
+
+                let pildorasH2Html = opcionesH2.map(opt => 
+                    `<button class="btn-pildora" id="btn_${i}_2_${opt.replace(/[^a-zA-Z0-9]/g, '_')}" onclick="marcarPildora(${i}, 2, '${opt}')">${opt}</button>`
+                ).join('');
+
+				cont.innerHTML += `
+					<div class="question-box" id="q_rel_${i}">
+						<span class="question-title">📝 Definición ${i + 1}</span>
+						<p>${fraseHtml}</p>
+						
+						<div class="opciones-pildora">
+							<div class="pildora-grupo">
+								<span class="pildora-label">1️⃣ Primer hueco:</span>
+								${pildorasH1Html}
+							</div>
+							<div class="pildora-grupo" style="margin-top: 8px; width: 100%;">
+								<span class="pildora-label">2️⃣ Segundo hueco:</span>
+								${pildorasH2Html}
+							</div>
+						</div>
+
+						<div class="feedback" id="fb_rel_${i}"></div>
+					</div>`;
+			});
+		}
+
+        // Asigna el valor del botón al hueco correspondiente
+        function marcarPildora(indicePregunta, numeroHueco, valorSeleccionado) {
+            const sol = solucionesRondaActiva[indicePregunta];
+            const hueco = document.getElementById(`hueco_${indicePregunta}_${numeroHueco}`);
+            
+            // Si pulsa el mismo botón que ya estaba activo, lo desmarcamos (vaciamos el hueco)
+            if ((numeroHueco === 1 && sol.userAns1 === valorSeleccionado) || (numeroHueco === 2 && sol.userAns2 === valorSeleccionado)) {
+                if (numeroHueco === 1) sol.userAns1 = '';
+                else sol.userAns2 = '';
+                hueco.innerHTML = '¿?';
+                hueco.classList.remove('relleno');
+                
+                let idBtn = `btn_${indicePregunta}_${numeroHueco}_${valorSeleccionado.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                document.getElementById(idBtn).classList.remove('activa');
+                return;
+            }
+
+            // Desmarcar botón anterior de ese mismo grupo
+            let valorViejo = numeroHueco === 1 ? sol.userAns1 : sol.userAns2;
+            if (valorViejo) {
+                let idBtnViejo = `btn_${indicePregunta}_${numeroHueco}_${valorViejo.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                let bViejo = document.getElementById(idBtnViejo);
+                if (bViejo) bViejo.classList.remove('activa');
+            }
+
+            // Guardar y activar el nuevo
+            if (numeroHueco === 1) sol.userAns1 = valorSeleccionado;
+            else sol.userAns2 = valorSeleccionado;
+
+            hueco.innerHTML = valorSeleccionado;
+            hueco.classList.add('relleno');
+
+            let idBtnNuevo = `btn_${indicePregunta}_${numeroHueco}_${valorSeleccionado.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            document.getElementById(idBtnNuevo).classList.add('activa');
+        }
+
+		function checkRellenar() {
+			let aciertosTotales = 0;
+			
+			solucionesRondaActiva.forEach((sol, i) => {
+				const box = document.getElementById(`q_rel_${i}`);
+				const fb = document.getElementById(`fb_rel_${i}`);
+				
+				if (fb) {
+					fb.style.display = 'block';
+					const val1 = sol.userAns1;
+					const val2 = sol.userAns2;
+
+					// 1. Falta rellenar algún hueco
+					if (val1 === "" || val2 === "") {
+						box.className = 'question-box';
+						fb.innerHTML = "⚠️ Selecciona una opción para ambos huecos.";
+						fb.style.color = "var(--warning)";
+					} 
+					// 2. ¡Perfecto!
+					else if (val1 === sol.id1 && val2 === sol.id2) {
+						box.className = 'question-box correct';
+						fb.innerHTML = sol.feedback; 
+						fb.style.color = "var(--success)";
+						aciertosTotales++;
+					} 
+					// 3. Acierto parcial (Pista intermedia)
+					else if (val1 === sol.id1 || val2 === sol.id2) {
+						box.className = 'question-box incorrect';
+						fb.innerHTML = "🟠 ¡Casi! Una de las dos palabras es correcta, pero la otra no va ahí.";
+						fb.style.color = "var(--warning)";
+					}
+					// 4. Fallo absoluto
+					else {
+						box.className = 'question-box incorrect';
+						fb.innerHTML = "❌ Combinación incorrecta. Revisa los conceptos técnicos.";
+						fb.style.color = "var(--danger)";
+					}
+				}
+			});
+
+			if (aciertosTotales === solucionesRondaActiva.length) {
+				alert("🏆 ¡Brillante! Has superado esta ronda aleatoria sin fallos.");
+				lanzarConfeti();
+			} else {
+				alert(`Corregido. Has completado perfectamente ${aciertosTotales} de las 8 definiciones de esta ronda.`);
+			}
+		}
+
+        function lanzarConfeti() {
+            var duration = 3 * 1000;
+            var end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+
+        // --- MODO PROFESOR (SECRETOS ACTIVADOS) ---
+        function revelarBoton() {
+            const btn = document.getElementById('btn-profe');
+            if (btn) {
+                btn.style.setProperty('display', 'inline-flex', 'important'); 
+                alert("🧙‍♂️ ¡Llave maestra activada! Resolución automática desbloqueada.");
+            }
+        }
+
+        function resolverModoProfe() {
+            solucionesRondaActiva.forEach((sol, i) => {
+                sol.userAns1 = sol.id1;
+                sol.userAns2 = sol.id2;
+                
+                const h1 = document.getElementById(`hueco_${i}_1`);
+                const h2 = document.getElementById(`hueco_${i}_2`);
+                if (h1 && h2) {
+                    h1.innerHTML = sol.id1; h1.classList.add('relleno');
+                    h2.innerHTML = sol.id2; h2.classList.add('relleno');
+                }
+                
+                // Iluminar botones correspondientes de la interfaz
+                let idB1 = `btn_${i}_1_${sol.id1.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                let idB2 = `btn_${i}_2_${sol.id2.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                if(document.getElementById(idB1)) document.getElementById(idB1).classList.add('activa');
+                if(document.getElementById(idB2)) document.getElementById(idB2).classList.add('activa');
+            });
+            alert("🪄 Modo Profe: Píldoras solucionadas automáticamente.");
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key.toLowerCase() === 'd') {
+                e.preventDefault(); 
+                resolverModoProfe();
+            }
+        });
+
+        window.onload = initRellenar;
+    </script>
+</body>
+<footer style="text-align: center; padding: 10px 10px; color: #7f8c8d; font-size: 1em; margin-top: 20px; border-top: 1px solid #e0e0e0; line-height: 1.5;">
+        <strong>&copy; 2026 — Creado por Profe Adna</strong> con &hearts; para mis alumnos | Taller de Informática EPA Sedaví<br>	 
+		<span class="llave-secreta" onclick="revelarBoton()">🔑</span>
+</footer>
+</html>

@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Asesor de Compras y Hardware</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://tallerinformaticaepasedavi.blogspot.com/favicon.ico' rel='icon' type='image/x-icon'/>	
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --azul: #2c3e50;
+            --naranja: #e67e22;
+            --verde: #27ae60;
+            --rojo: #e74c3c;
+            --fondo: #f0f2f5;
+            --celeste: #3498db;
+            --card: #ffffff;
+            --text: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+        }
+        
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: var(--fondo); 
+            margin: 0; 
+            padding: 20px; 
+            overflow-x: hidden; 
+        }
+        
+        .contenedor { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08); 
+        }
+        
+        header { 
+            text-align: center; 
+            margin-bottom: 25px; 
+            border-bottom: 2px solid #f0f2f5; 
+            padding-bottom: 20px; 
+        }
+        
+        header h1 { 
+            color: var(--azul); 
+            font-size: 2.2em; 
+            margin: 0 0 5px 0; 
+        }
+        
+        header p { 
+            color: #7f8c8d; 
+            font-size: 1.1em; 
+            margin: 0; 
+            line-height: 1.5; 
+        }
+
+        .pantalla {
+            display: none;
+        }
+        .pantalla.activa {
+            display: block;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .grid-casos {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .question-box {
+            background: #f8f9fa;
+            border: 2px solid #e2e8f0;
+            padding: 22px;
+            border-radius: 18px;
+            transition: 0.3s ease;
+        }
+
+        .question-box:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        }
+
+        .question-title {
+            display: inline-block;
+            background: var(--azul);
+            color: white;
+            padding: 4px 12px;
+            font-size: 0.9em;
+            font-weight: bold;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .question-box p {
+            font-size: 1.25em;
+            color: var(--azul);
+            line-height: 1.6;
+            margin: 0 0 15px 0;
+            font-weight: 500;
+        }
+
+        .opciones-pildora {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-pildora {
+            background: white;
+            border: 2px solid #cbd5e1;
+            color: var(--azul);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .btn-pildora:hover {
+            border-color: var(--accent);
+            background: #f0f8ff;
+            transform: scale(1.02);
+        }
+
+        .btn-pildora.activa {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .btn-control {
+            padding: 14px 26px; 
+            margin: 5px; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 18px; 
+            font-weight: bold; 
+            transition: 0.3s;
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: white !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .btn-check { background-color: var(--verde) !important; }
+        .btn-reset { background-color: var(--naranja) !important; }
+        .btn-next { background-color: var(--celeste) !important; }
+        .btn-control:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+
+        .correct { border: 2px solid var(--success) !important; background: #f1f9f5 !important; } 
+        .correct .question-title { background: var(--success); }
+        .correct .opciones-pildora { pointer-events: none; opacity: 0.8; } 
+        .correct .btn-pildora.activa { background: var(--success); border-color: var(--success); }
+
+        .incorrect { border: 2px solid var(--danger) !important; background: #fff5f5 !important; } 
+        .incorrect .question-title { background: var(--danger); }
+        .incorrect .btn-pildora.activa { background: var(--danger); border-color: var(--danger); }
+
+        .feedback {
+            font-size: 1.05em; 
+            margin-top: 12px; 
+            font-weight: bold; 
+            display: none;
+        }
+
+        .llave-secreta { 
+            cursor: pointer; 
+            opacity: 0.15; 
+            transition: opacity 0.5s; 
+            font-size: 1.2em;
+            margin-left: 10px;
+            user-select: none;
+        }
+        .llave-secreta:hover { opacity: 1; }
+        
+        .btn-profe {
+            display: none !important; 
+            background: linear-gradient(135deg, #6e45e2, #88d3ce) !important;
+            color: white !important;
+        }
+
+        .indicador-fase {
+            text-align: center;
+            font-weight: bold;
+            color: var(--azul);
+            background: #e2e8f0;
+            padding: 8px 15px;
+            border-radius: 30px;
+            display: inline-block;
+            margin: 0 auto 20px auto;
+        }
+
+        /* --- ESTILOS DEL GLOSARIO INTERACTIVO (TOOLTIPS) --- */
+        .glosario {
+            color: var(--celeste);
+            border-bottom: 2px dotted var(--celeste);
+            cursor: help;
+            position: relative;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .glosario::after {
+            content: attr(data-info);
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+            background: #2c3e50;
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.75em;
+            line-height: 1.4;
+            width: 280px;
+            text-align: left;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+            transition: all 0.2s ease-in-out;
+            z-index: 99;
+            font-family: sans-serif;
+            font-weight: normal;
+        }
+
+        .glosario::before {
+            content: "";
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #2c3e50 transparent transparent transparent;
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+            transition: all 0.2s ease-in-out;
+            z-index: 99;
+        }
+
+		/* --- NUEVO SISTEMA DE INVOCACIÓN DE TOOLTIPS ACCESIBLES --- */
+
+		/* 1. Comportamiento para Móviles y Teclado: se abre al hacer clic/foco y se cierra al pulsar fuera[cite: 8] */
+		.glosario:focus::after, 
+		.glosario:focus-within::after {
+			opacity: 1;
+			visibility: visible;
+			transform: translateX(-50%) scale(1);
+		}
+		.glosario:focus::before, 
+		.glosario:focus-within::before {
+			opacity: 1;
+			visibility: visible;
+		}
+
+		/* 2. Comportamiento para Ordenadores: solo activa el 'hover' si el dispositivo tiene ratón */
+		@media (hover: hover) {
+			.glosario:hover::after {
+				opacity: 1;
+				visibility: visible;
+				transform: translateX(-50%) scale(1);
+			}
+			.glosario:hover::before {
+				opacity: 1;
+				visibility: visible;
+			}
+		}
+
+		/* Opcional: añade esto para quitar el molesto recuadro azul de selección por defecto en móviles al hacer clic */
+		.glosario {
+			outline: none;
+			-webkit-tap-highlight-color: transparent;
+		}
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <header>
+            <h1>🛒 Asesor de Compras y Hardware (Rondas al Azar)</h1>
+            <p>Conviértete en un experto informático. Resuelve los casos prácticos de la tienda y supera el test de control.</p>
+        </header>
+        
+        <div style="text-align: center;">
+            <div id="faseIndicador" class="indicador-fase">FASE 1 DE 2</div>
+        </div>
+
+        <!-- PANTALLA 1: CASOS DE CLIENTES -->
+        <section id="pantalla-clientes" class="pantalla activa">
+            <h3>🕵️‍♂️ Parte 1: Elige el PC ideal para cada usuario</h3>
+            <div class="grid-casos" id="casosCompraContent">
+                <!-- Inyección dinámica -->
+            </div>
+            <div style="text-align: center; margin-top: 30px; border-top: 2px solid #f0f2f5; padding-top: 20px;">
+                <button class="btn-control btn-check" onclick="checkClientes()">✔️ Validar Clientes</button>
+                <button class="btn-control btn-next" id="btnIrAParte2" onclick="cambiarAPantalla2()" style="display: none;">Siguiente Fase ➡️</button>
+            </div>
+        </section>
+
+        <!-- PANTALLA 2: VERDADERO O FALSO -->
+        <section id="pantalla-vf" class="pantalla">
+            <h3>✅ Parte 2: Test rápido de Verdadero o Falso</h3>
+            <div id="consejosVFContent" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <!-- Inyección dinámica -->
+            </div>
+            <div style="text-align: center; margin-top: 30px; border-top: 2px solid #f0f2f5; padding-top: 20px;">
+                <button class="btn-control btn-check" onclick="checkVF()">✔️ Validar Test Técnico</button>
+                <button class="btn-control btn-reset" onclick="initJuegoCompleto()">🔄 Jugar Otra Vez (Nuevas Preguntas)</button>
+            </div>
+        </section>
+
+        <!-- CONTROL GLOBAL FUERA DE LAS PANTALLAS (ZONA MAESTRA) -->
+        <div style="text-align: center; margin-top: 15px;">
+            <button id="btn-profe" class="btn-control btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Resolver Reto</button>
+        </div>
+    </div>
+
+    <script>
+// ==========================================================================
+// --- BANCO DE DATOS SÚPER AMPLIADO (12 CASOS Y 20 PREGUNTAS V/F) ---
+// ==========================================================================
+
+// --- 12 CASOS INTERACTIVOS FASE 1 DE 2: ATENCIÓN A CLIENTES ---
+const bancoClientes = [
+    {
+        q: "Quiero navegar por internet, ver fotos, escribir cartas y que el PC me siga yendo rápido dentro de 5 o 6 años.",
+        opts: [
+            { id: "caro", text: "Torre Intel i7 / 32GB / 2TB SSD / RTX 5060 - 1479€" },
+            { id: "ideal", text: "Portátil Lenovo i5 / 16GB / 1TB SSD / 15.6\" - 509€" },
+            { id: "barato", text: "Portátil Celeron N100 / 8GB / 256GB SSD - 329€" }
+        ],
+        correct: "ideal",
+        feedbackCorrect: "✅ ¡Excelente! El Lenovo i5 con 16GB RAM es perfecto y equilibrado a largo plazo.",
+        feedbacksIncorrect: { caro: "❌ Demasiado dinero gastado para tareas tan básicas.", barato: "❌ El procesador N100 se volverá lento muy rápido." }
+    },
+    {
+        q: "Soy un profesional que necesita editar vídeos en alta definición (4K) y jugar a <span class='glosario' tabindex='0' data-info='Juegos de grandes empresas con presupuestos millonarios y gráficos ultrarrealistas de película. Exigen tarjetas gráficas muy potentes.'>videojuegos Triple A</span> de última generación.",
+        opts: [
+            { id: "ideal", text: "Torre Intel i7 / 32GB / 2TB SSD / RTX 5060 V2 - 1479€" },
+            { id: "medio", text: "All-in-One Acer i5 / 16GB / 512GB SSD / Gráfica Integrada - 679€" }
+        ],
+        correct: "ideal",
+        feedbackCorrect: "✅ ¡Correcto! La edición pesada y videojuegos exigen CPU potente y tarjeta dedicada potente.",
+        feedbacksIncorrect: { medio: "❌ Sin tarjeta gráfica dedicada, la edición 4K e irá a tirones congelados." }
+    },
+    {
+        q: "Soy estudiante. Hago trabajos en Word, busco en Google y necesito que la batería aguante todo el día en clase.",
+        opts: [
+            { id: "macbook", text: "MacBook Air 16GB / 256GB SSD / 18h batería / Ultra ligero - 1299€" },
+            { id: "ideal", text: "Portátil HP Ryzen 5 / 16GB RAM / 1TB SSD / Buena batería - 499€" },
+            { id: "gaming", text: "Portátil Gaming MSI i7 / RTX 3070Ti / Peso elevado / Batería 2h - 999€" }
+        ],
+        correct: "ideal",
+        feedbackCorrect: "✅ ¡Esa es! El HP con Ryzen 5 ofrece gran autonomía, rendimiento óptimo y un precio comedido.",
+        feedbacksIncorrect: { macbook: "❌ Buen equipo, pero 1300€ es demasiado presupuesto para usar solo Word.", gaming: "❌ Los portátiles gaming pesan mucho y su batería no aguanta ni dos clases." }
+    },
+    {
+        q: "Para mi oficina del trabajo. Busco un equipo que no ocupe nada de espacio en la mesa, sin cables molestos y con pantalla incluida.",
+        opts: [
+            { id: "torre", text: "HP ProTower (Torre grande + Cables + Pantalla aparte) - 580€" },
+            { id: "ideal", text: "Acer Aspire All-in-One (Pantalla y PC integrados en una pieza) - 679€" },
+            { id: "mini", text: "Dell OptiPlex Micro (PC minúsculo pero requiere pantalla aparte) - 520€" }
+        ],
+        correct: "ideal",
+        feedbackCorrect: "✅ ¡Perfecto! Los 'All-in-One' ahorran un espacio vital eliminando mazos de cables en las oficinas.",
+        feedbacksIncorrect: { torre: "❌ Ocupa demasiado espacio y llena el suelo de cables.", mini: "❌ Es muy pequeño pero no incluye la pantalla obligatoria." }
+    },
+    {
+        q: "Quiero montar un ordenador para mi hijo de 10 años. Es para que haga tareas del colegio y juegue principalmente a Minecraft y a <span class='glosario' tabindex='0' data-info='Plataforma online con miles de juegos sencillos de aspecto cúbico. Al tener gráficos simples, funcionan bien en PCs básicos sin gastar mucho.'>Roblox</span>.",
+        opts: [
+            { id: "ideal", text: "PC Torre Ryzen 5 / 16GB / 512GB SSD / Gráfica GTX 1650 - 550€" },
+            { id: "excesivo", text: "PC Gaming Extremo i9 / 64GB / RTX 4090 Líquida - 3200€" },
+            { id: "insuficiente", text: "Chromebook Educativo Celeron / 4GB RAM / 64GB eMMC - 199€" }
+        ],
+        correct: "ideal",
+        feedbackCorrect: "✅ ¡Excelente! Una torre económica con gráfica de gama de entrada es perfecta para Minecraft y tareas escolares.",
+        feedbacksIncorrect: { excesivo: "❌ ¡Una locura! Gastar 3200€ para jugar a Minecraft es un desperdicio total.", insuficiente: "❌ Los Chromebooks no pueden ejecutar la versión completa de Minecraft de PC fluidamente." }
+    },
+    {
+        q: "Tengo un estudio fotográfico profesional. Trabajo abriendo decenas de <span class='glosario' tabindex='0' data-info='Formato de foto profesional sin comprimir. Guarda todos los detalles de luz y color, por lo que pesa muchísimo y consume mucha memoria RAM.'>imágenes RAW gigantes</span> simultáneamente en Photoshop.",
+        opts: [
+            { id: "insuficiente", text: "Portátil Básico i3 / 8GB RAM / 256GB SSD - 399€" },
+            { id: "ideal", text: "PC Sobremesa Intel i7 / 32GB RAM / 2TB SSD NVMe Rápido - 1150€" }
+        ],
+        correct: "ideal",
+        feedbackCorrect: "✅ ¡Exacto! Los archivos RAW pesados y el diseño profesional requieren obligatoriamente mucha RAM (32GB) y almacenamiento ultrarrápido.",
+        feedbacksIncorrect: { insuficiente: "❌ Con 8GB de RAM, Photoshop colapsará al abrir la tercera imagen de alta resolución." }
+    },
+    {
+        q: "Busco un portátil muy ligero, con batería infinita para viajar y trabajar, y que use los nuevos <span class='glosario' tabindex='0' data-info='Tipo de procesador ultraeficiente de telefonía móvil ahora adaptado a ordenadores. Consume poquísima energía y la batería dura el doble.'>procesadores ARM</span> eficientes.",
+        opts: [
+            { id: "ideal", text: "MacBook Air M3 o Surface Laptop ARM (Ultra ligero + 18h batería) - 1199€" },
+            { id: "gaming", text: "Portátil Gaming Intel i7 (Potente pero batería dura 2 horas) - 1050€" }
+        ],
+        correct: "ideal",
+        feedbackCorrect: "✅ ¡Perfecto! Los chips basados en arquitectura ARM ofrecen una eficiencia energética inigualable.",
+        feedbacksIncorrect: { gaming: "❌ Los portátiles gaming tradicionales gastan demasiada batería para viajar de forma cómoda." }
+    },
+    {
+        q: "Tengo un presupuesto bajísimo (menos de 200€) y solo lo quiero para que mi abuelo lea el periódico digital y vea vídeos en YouTube.",
+        opts: [
+            { id: "ideal", text: "Chromebook de 14 pulgadas (Sistema ligero, rápido y básico) - 189€" },
+            { id: "malo", text: "Portátil con Windows, Intel Celeron y 4GB de RAM - 249€" }
+        ],
+        correct: "ideal",
+        feedbackCorrect: "✅ ¡Gran elección! En hardware barato, ChromeOS vuela y es sencillísimo de usar para mayores.",
+        feedbacksIncorrect: { malo: "❌ Windows con un Celeron y 4GB se arrastra y va a tirones insufribles." }
+    },
+    {
+        q: "Quiero el PC para jugar competitivamente a shooters rápidos. Me importa muchísimo que el monitor tenga una alta <span class='glosario' tabindex='0' data-info='Número de veces que la pantalla actualiza su imagen por segundo. Se mide en Hercios (Hz). Más Hz significan un movimiento mucho más fluido y rápido.'>tasa de refresco</span>.",
+        opts: [
+            { id: "ideal", text: "PC Gaming + Monitor 144Hz o 240Hz (Fluidez total para apuntar) - 950€" },
+            { id: "oficina", text: "PC de oficina + Monitor estándar de 60Hz (Imagen normal de escritorio) - 600€" }
+        ],
+        correct: "ideal",
+        feedbackCorrect: "✅ ¡Exacto! Los monitores de altos Hercios (Hz) dan una ventaja competitiva brutal en juegos rápidos.",
+        feedbacksIncorrect: { oficina: "❌ En un monitor de 60Hz las imágenes rápidas se ven borrosas al girar la cámara." }
+    },
+    {
+        q: "Quiero conectar mi ordenador a 3 pantallas a la vez en mi despacho para trabajar con la bolsa y gráficos financieros en tiempo real.",
+        opts: [
+            { id: "ideal", text: "PC con Tarjeta Gráfica dedicada con múltiples salidas HDMI/DisplayPort - 720€" },
+            { id: "basico", text: "Mini PC básico con una única salida de vídeo integrada - 350€" }
+        ],
+        correct: "ideal",
+        feedbackCorrect: "✅ ¡Correcto! Necesitas una tarjeta que admita la conexión simultánea de múltiples pantallas.",
+        feedbacksIncorrect: { basico: "❌ Con un puerto de vídeo solo podrás conectar una pantalla; te faltará espacio de trabajo." }
+    },
+    {
+        q: "Quiero montar un ordenador para programar bases de datos y simular redes de servidores virtuales pesados desde casa.",
+        opts: [
+            { id: "ideal", text: "PC Torre Ryzen 7 / 32GB RAM / 1TB SSD NVMe - 890€" },
+            { id: "insuficiente", text: "Portátil i3 / 8GB RAM / 512GB SSD - 450€" }
+        ],
+        correct: "ideal",
+        feedbackCorrect: "✅ ¡Brillante! La virtualización y las bases de datos devoran núcleos de CPU y muchísima memoria RAM.",
+        feedbacksIncorrect: { insuficiente: "❌ Con 8GB de RAM apenas podrás encender una sola máquina virtual antes de agotar el sistema." }
+    },
+    {
+        q: "Trabajo en una tienda de cara al público y busco un ordenador que esté encendido 12 horas al día cobrando clientes, pero que sea totalmente silencioso.",
+        opts: [
+            { id: "ideal", text: "Mini PC con refrigeración pasiva (Sin ventiladores) - 399€" },
+            { id: "torre", text: "Torre clásica con 3 ventiladores internos grandes - 420€" }
+        ],
+        correct: "ideal",
+        feedbackCorrect: "✅ ¡Exacto! Los equipos sin ventiladores (pasivos) no hacen absolutamente nada de ruido y no absorben polvo comercial.",
+        feedbacksIncorrect: { torre: "❌ Los ventiladores tradicionales acabarán haciendo ruido molesto en el mostrador." }
+    }
+];
+
+// --- 20 PREGUNTAS FASE 2 DE 2: TEST TÉCNICO EXPRÉS ---
+const bancoVF = [
+    { q: "¿Es mejor un disco SSD que un HDD antiguo porque es 10 veces más rápido?", v: "V", msgV: "✅ ¡Exacto! El SSD transforma por completo la velocidad de respuesta del PC.", msgF: "❌ El HDD mecánico se queda obsoleto por su extrema lentitud." },
+    { q: "¿Con 4GB de RAM es suficiente para que Windows 11 vaya rápido y fluido?", v: "F", msgV: "❌ ¡Falso! 4GB provocan constantes bloqueos en sistemas modernos.", msgF: "✅ ¡Bien! El mínimo absoluto para no sufrir tirones hoy en día son 8GB." },
+    { q: "¿Un procesador Intel i3 o i5 de generación actual es ideal para uso de hogar?", v: "V", msgV: "✅ ¡Correcto! Cumplen de sobra con la navegación, vídeos y ofimática.", msgF: "❌ ¡Error! Son las gamas domésticas más sólidas y equilibradas del mercado." },
+    { q: "¿Los modelos 'Celeron' son recomendados si buscas que dure muchos años rápido?", v: "F", msgV: "❌ ¡No! Son procesadores recortados de gama de entrada que envejecen muy mal.", msgF: "✅ ¡Exacto! Es preferible dar el salto a un Core i3 o un Ryzen 3." },
+    { q: "¿Un procesador AMD Ryzen actual rinde igual de bien que un procesador Intel?", v: "V", msgV: "✅ ¡Gran verdad! Ambos fabricantes compiten al más alto nivel.", msgF: "❌ ¡Falso! Hoy en día los Ryzen de AMD son procesadores potentísimos y eficientes." },
+    { q: "¿Un almacenamiento de 256GB tiene más capacidad total que uno de 1TB?", v: "F", msgV: "❌ ¡Error masivo! 1TB equivale a 1024GB, es cuatro veces más espacio.", msgF: "✅ ¡Muy bien! 1TB es una capacidad drásticamente superior a 256GB." },
+    { q: "¿Comprar el PC más barato con malas valoraciones es rentable a largo plazo?", v: "F", msgV: "❌ ¡Mala idea! Lo barato sale caro en materiales, rendimiento y durabilidad.", msgF: "✅ ¡Correcto! Comprar con malas críticas suele traducirse en averías prontas." },
+    { q: "¿Para jugar a videojuegos exigentes es obligatorio disponer de Gráfica Dedicada?", v: "V", msgV: "✅ ¡Imprescindible! Las integradas no tienen potencia para mover entornos 3D complejos.", msgF: "❌ ¡Falso! Sin tarjeta gráfica independiente (Nvidia/AMD), el juego irá como un pase de diapositivas." },
+    { q: "¿Los equipos All-in-One son más fáciles de actualizar por piezas que una torre?", v: "F", msgV: "❌ ¡Falso! Son tan cerrados como un portátil, casi nada se puede cambiar.", msgF: "✅ ¡Exacto! Las torres tradicionales ganan por goleada en facilidad de ampliación." },
+    { q: "¿La resolución de pantalla Full HD (1080p) muestra los textos más nítidos que la HD?", v: "V", msgV: "✅ ¡Sí! Al albergar más píxeles, la definición de imagen es sustancialmente mejor.", msgF: "❌ ¡Incorrecto! La resolución HD básica ya se nota borrosa y pixelada." },
+    { q: "¿Los conectores USB-C permiten pasar datos y además cargar el ordenador?", v: "V", msgV: "✅ ¡Correcto! Es el puerto universal polivalente moderno.", msgF: "❌ El USB-C es el estándar actual precisamente por su versatilidad." },
+    { q: "¿Un teclado retroiluminado gasta tanta batería que se desaconseja totalmente?", v: "F", msgV: "❌ ¡Falso! El gasto de los LEDs integrados es minúsculo e insignificante.", msgF: "✅ ¡Exacto! Es una opción fantástica para trabajar o estudiar con luz ambiental tenue." },
+	{ q: "¿La memoria RAM es una <span class='glosario' tabindex='0' data-info='Es la zona de trabajo temporal del ordenador. Imagina que es como tu mesa de escritorio: ahí tienes abiertos los libros que estás usando justo ahora, pero no es el archivador definitivo.'>memoria volátil</span> que se vacía sola al apagar el PC?", v: "V", msgV: "✅ ¡Exacto! Es la memoria de trabajo a corto plazo, si no hay luz se borra.", msgF: "❌ ¡Error! Al apagar el PC la RAM se limpia completamente." },    { q: "¿Poner una tarjeta gráfica de gama súper alta con un procesador viejísimo genera <span class='glosario' tabindex='0' data-info='Fenómeno que ocurre cuando un componente lento frena el rendimiento de un componente rápido, impidiendo aprovechar su potencia real.'>cuello de botella</span>?", v: "V", msgV: "✅ ¡Exacto! El procesador antiguo frena por completo a la gráfica moderna.", msgF: "❌ ¡Falso! La potencia se desaprovechará porque la CPU vieja hará de tapón." },
+    { q: "¿Limpiar el polvo de los ventiladores del PC una vez al año ayuda a que no vaya lento?", v: "V", msgV: "✅ ¡Gran verdad! Evita el sobrecalentamiento que ralentiza el procesador.", msgF: "❌ ¡Falso! El polvo acumulado hace que el PC se caliente y baje su velocidad para no quemarse." },
+    { q: "¿Los portátiles Mac con chip Apple Silicon (M1, M2, M3) usan arquitectura ARM?", v: "V", msgV: "✅ ¡Correcto! Por eso sus baterías duran tantas horas funcionando.", msgF: "❌ ¡Incorrecto! Apple abandonó a Intel y ahora diseña sus propios procesadores ARM." },
+    { q: "¿La refrigeración líquida es obligatoria para ordenadores de oficina básicos?", v: "F", msgV: "❌ ¡Qué va! Un ventilador normal y barato de aire sobra para la oficina.", msgF: "✅ ¡Muy bien! La líquida solo se usa en ordenadores potentes que generan muchísimo calor." },
+    { q: "¿Tener el disco duro o SSD lleno al 99% de capacidad puede ralentizar el ordenador?", v: "V", msgV: "✅ ¡Sí! El sistema operativo necesita espacio libre para sus archivos temporales de intercambio.", msgF: "❌ ¡Falso! Un disco saturado bloquea las tareas de fondo de Windows." },
+    { q: "¿La pasta térmica del procesador dura para toda la vida y jamás hay que cambiarla?", v: "F", msgV: "❌ ¡No! Se seca con los años y pierde su capacidad de transmitir el calor.", msgF: "✅ ¡Exacto! Se recomienda cambiarla cada 3 o 4 años para cuidar las temperaturas." },
+    { q: "¿Un cable HDMI estándar puede transmitir tanto vídeo de alta definición como sonido?", v: "V", msgV: "✅ ¡Correcto! El estándar HDMI unificó imagen y audio en un solo cable.", msgF: "❌ ¡Error! El HDMI envía la señal digital de audio y vídeo de forma conjunta." }
+];
+
+let rondaClientes = [];
+let rondaVF = [];
+
+let respuestasClientes = ["", "", ""];
+let respuestasVF = Array(6).fill(""); 
+
+function obtenerElementosAleatorios(banco, cantidad) {
+    let copia = [...banco];
+    // Algoritmo Fisher-Yates
+    for (let i = copia.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copia[i], copia[j]] = [copia[j], copia[i]];
+    }
+    return copia.slice(0, cantidad);
+}
+
+function initJuegoCompleto() {
+    document.getElementById('pantalla-clientes').classList.add('activa');
+    document.getElementById('pantalla-vf').classList.remove('activa');
+    document.getElementById('faseIndicador').innerText = "FASE 1 DE 2: ATENCIÓN A CLIENTES";
+    document.getElementById('btnIrAParte2').style.display = 'none';
+
+    rondaClientes = obtenerElementosAleatorios(bancoClientes, 3);
+    rondaVF = obtenerElementosAleatorios(bancoVF, 6);
+
+    respuestasClientes = ["", "", ""];
+    respuestasVF = Array(6).fill("");
+
+    const contenedorClientes = document.getElementById('casosCompraContent');
+    if (contenedorClientes) {
+        contenedorClientes.innerHTML = rondaClientes.map((caso, i) => {
+            let optsBarajadas = [...caso.opts].sort(() => 0.5 - Math.random());
+            let botonesHtml = optsBarajadas.map(o => `
+                <button class="btn-pildora" id="btn_p_cliente_${i}_${o.id}" onclick="seleccionarClienteOpt(${i}, '${o.id}')" style="display:block; width:100%; text-align:left; margin: 6px 0;">
+                    ${o.text}
+                </button>
+            `).join('');
+
+            return `
+                <div class="question-box" id="card_cliente_${i}">
+                    <span class="question-title">Cliente en Tienda nº ${i + 1}</span>
+                    <p style="font-size:1.15em; font-weight:500; margin:10px 0;"><strong>" ${caso.q} "</strong></p>
+                    <div class="opciones-pildora">
+                        ${botonesHtml}
+                    </div>
+                    <div id="fb_cliente_${i}" class="feedback"></div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    const contenedorVF = document.getElementById('consejosVFContent');
+    if (contenedorVF) {
+        contenedorVF.innerHTML = rondaVF.map((item, i) => `
+            <div id="card_vf_${i}" class="question-box" style="padding:15px; background:#f8f9fa;">
+                <p style="font-size:1em; margin:0 0 10px 0; min-height:45px; font-weight:500;">${item.q}</p>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-pildora" id="btn_vf_${i}_V" onclick="seleccionarVFOpt(${i}, 'V')" style="flex:1;">Verdadero</button>
+                    <button class="btn-pildora" id="btn_vf_${i}_F" onclick="seleccionarVFOpt(${i}, 'F')" style="flex:1;">Falso</button>
+                </div>
+                <div id="fb_vf_${i}" class="feedback" style="margin-top:10px; font-size:0.85em; line-height:1.3;"></div>
+            </div>
+        `).join('');
+    }
+}
+
+function seleccionarClienteOpt(index, optId) {
+    const actual = respuestasClientes[index];
+    if (actual === optId) {
+        respuestasClientes[index] = "";
+        document.getElementById(`btn_p_cliente_${index}_${optId}`).classList.remove('activa');
+        return;
+    }
+    if (actual) {
+        const btnViejo = document.getElementById(`btn_p_cliente_${index}_${actual}`);
+        if (btnViejo) btnViejo.classList.remove('activa');
+    }
+    respuestasClientes[index] = optId;
+    document.getElementById(`btn_p_cliente_${index}_${optId}`).classList.add('activa');
+}
+
+function seleccionarVFOpt(index, valor) {
+    const actual = respuestasVF[index];
+    if (actual === valor) {
+        respuestasVF[index] = "";
+        document.getElementById(`btn_vf_${index}_${valor}`).classList.remove('activa');
+        return;
+    }
+    if (actual) {
+        document.getElementById(`btn_vf_${index}_${actual}`).classList.remove('activa');
+    }
+    respuestasVF[index] = valor;
+    document.getElementById(`btn_vf_${index}_${valor}`).classList.add('activa');
+}
+
+function checkClientes() {
+    let errores = 0;
+    rondaClientes.forEach((data, i) => {
+        const userAns = respuestasClientes[i];
+        const card = document.getElementById(`card_cliente_${i}`);
+        const fb = document.getElementById(`fb_cliente_${i}`);
+        
+        if (card && fb) {
+            fb.style.display = 'block';
+            card.classList.remove('correct', 'incorrect');
+
+            if (!userAns) {
+                fb.innerHTML = "⚠️ ¡Atención! No has atendido a este cliente.";
+                fb.style.color = "var(--warning)";
+                errores++;
+            } else if (userAns === data.correct) {
+                card.classList.add('correct');
+                fb.innerHTML = data.feedbackCorrect;
+                fb.style.color = "var(--success)";
+            } else {
+                card.classList.add('incorrect');
+                fb.innerHTML = data.feedbacksIncorrect[userAns] || "❌ Esta opción no es adecuada.";
+                fb.style.color = "var(--danger)";
+                errores++;
+            }
+        }
+    });
+
+    if (errores === 0) {
+        document.getElementById('btnIrAParte2').style.display = 'inline-flex';
+        alert("🎉 ¡Perfecto! Has asesorado de forma brillante a los 3 clientes. Ya puedes avanzar a la Fase 2.");
+    } else {
+        alert("⚠️ Algunos clientes no han quedado satisfechos. ¡Revisa tus opciones marcadas en rojo!");
+    }
+}
+
+function cambiarAPantalla2() {
+    document.getElementById('pantalla-clientes').classList.remove('activa');
+    document.getElementById('pantalla-vf').classList.add('activa');
+    document.getElementById('faseIndicador').innerText = "FASE 2 DE 2: TEST TÉCNICO EXPRÉS";
+}
+
+function checkVF() {
+    let aciertos = 0;
+    rondaVF.forEach((data, i) => {
+        const userAns = respuestasVF[i];
+        const card = document.getElementById(`card_vf_${i}`);
+        const fb = document.getElementById(`fb_vf_${i}`);
+
+        if (card && fb) {
+            fb.style.display = 'block';
+            card.classList.remove('correct', 'incorrect');
+
+            if (!userAns) {
+                fb.innerHTML = "⚠️ Selecciona una respuesta.";
+                fb.style.color = "var(--warning)";
+            } else if (userAns === data.v) {
+                card.classList.add('correct');
+                fb.innerHTML = (userAns === 'V') ? data.msgV : data.msgF;
+                fb.style.color = "var(--success)";
+                aciertos++;
+            } else {
+                card.classList.add('incorrect');
+                fb.innerHTML = (userAns === 'V') ? data.msgF : data.msgV;
+                fb.style.color = "var(--danger)";
+            }
+        }
+    });
+
+    if (aciertos === 6) {
+        lanzarConfeti();
+        alert("🏆 ¡BRILLANTE! Has superado el test técnico sin fallos.\n\nNivel completado con éxito. Si vuelves a jugar, ¡saldrán preguntas totalmente distintas!");
+    } else {
+        alert(`Has acertado ${aciertos} de las 6 preguntas de hardware. ¡Revisa los conceptos erróneos!`);
+    }
+}
+
+function lanzarConfeti() {
+    var duration = 3 * 1000;
+    var end = Date.now() + duration;
+    (function frame() {
+        confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 } });
+        confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 } });
+        if (Date.now() < end) { requestAnimationFrame(frame); }
+    }());
+}
+
+function revelarBoton() {
+    const btn = document.getElementById('btn-profe');
+    if (btn) {
+        btn.style.setProperty('display', 'inline-flex', 'important'); 
+        alert("🧙‍♂️ ¡Llave maestra activada! Resolución automática disponible abajo del todo.");
+    }
+}
+
+function resolverModoProfe() {
+    if (document.getElementById('pantalla-clientes').classList.contains('activa')) {
+        rondaClientes.forEach((caso, i) => { seleccionarClienteOpt(i, caso.correct); });
+        checkClientes();
+    } else {
+        rondaVF.forEach((caso, i) => { seleccionarVFOpt(i, caso.v); });
+        checkVF();
+    }
+}
+
+window.addEventListener('keydown', (e) => {
+    if (e.altKey && e.key.toLowerCase() === 'd') {
+        e.preventDefault(); 
+        resolverModoProfe();
+    }
+});
+
+window.onload = initJuegoCompleto;
+    </script>
+</body>
+<footer style="text-align: center; padding: 10px 10px; color: #7f8c8d; font-size: 1em; margin-top: 20px; border-top: 1px solid #e0e0e0; line-height: 1.5;">
+    <strong>&copy; 2026 — Creado por Profe Adna</strong> con &hearts; para mis alumnos | Taller de Informática EPA Sedaví<br>	 
+    <span class="llave-secreta" onclick="revelarBoton()">🔑</span>
+</footer>
+</html>

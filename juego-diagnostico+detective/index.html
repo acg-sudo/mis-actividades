@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detective Técnico del PC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href='https://tallerinformaticaepasedavi.blogspot.com/favicon.ico' rel='icon' type='image/x-icon'/>	
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+:root {
+            --azul-profundo: #1e293b;
+            --indigo: #4338ca;
+            --esmeralda: #15803d;
+            --coral: #dd6b20;
+            --fondo-relajante: #f1f5f9;
+            --tarjeta: #ffffff;
+            --borde-suave: #cbd5e1;
+            
+            /* Estados */
+            --success-bg: #f0fdf4;
+            --danger-bg: #fef2f2;
+            --warning-bg: #fffbeb;
+        }
+        
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: var(--fondo-relajante); 
+            margin: 0; 
+            padding: 24px; 
+            overflow-x: hidden; 
+            color: var(--azul-profundo);
+        }
+        
+        .contenedor { 
+            max-width: 950px; 
+            margin: 0 auto; 
+            background: var(--tarjeta); 
+            padding: 35px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); 
+        }
+        
+        header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            border-bottom: 2px solid #e2e8f0; 
+            padding-bottom: 25px; 
+        }
+        
+        header h1 { 
+            color: var(--azul-profundo); 
+            font-size: 2.3em; 
+            margin: 0 0 12px 0; 
+        }
+        
+        header p { 
+            color: #475569; 
+            font-size: 1.15em; 
+            margin: 0; 
+            line-height: 1.6; 
+        }
+
+        .grid-casos {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin: 25px 0;
+        }
+
+        /* TARJETA ESTILO CASO DE INVESTIGACIÓN */
+        .question-box {
+            background: #ffffff;
+            border: 2px solid var(--borde-suave);
+            padding: 25px;
+            border-radius: 16px;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.01);
+        }
+
+        .question-box:hover {
+            border-color: var(--indigo);
+            box-shadow: 0 5px 15px rgba(67, 56, 202, 0.08);
+        }
+
+        .question-title {
+            display: inline-block;
+            background: var(--azul-profundo);
+            color: white;
+            padding: 6px 14px;
+            font-size: 0.95em;
+            font-weight: bold;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .question-box p {
+            font-size: 1.3em; /* Tamaño ideal para evitar fatiga visual */
+            color: var(--azul-profundo);
+            line-height: 1.7;
+            margin: 0 0 20px 0;
+            font-weight: 500;
+        }
+
+        /* FILAS DE BOTONES TIPO PÍLDORA */
+        .opciones-pildora {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-pildora {
+            background: white;
+            border: 2px solid var(--borde-suave);
+            color: var(--azul-profundo);
+            padding: 10px 18px;
+            border-radius: 10px; /* Bordes menos redondeados para asimilar mejor que es un botón */
+            cursor: pointer;
+            font-size: 1.1em; /* Texto claro */
+            font-weight: 600;
+            transition: all 0.2s;
+            text-align: left; /* Alineado a la izquierda para leerse como opciones de lista */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .btn-pildora:hover {
+            border-color: var(--indigo);
+            background: #f5f3ff;
+            transform: translateX(4px); /* Efecto sutil de desplazamiento hacia la derecha */
+        }
+
+        .btn-pildora.activa {
+            background: var(--indigo) !important;
+            color: white !important;
+            border-color: var(--indigo) !important;
+        }
+
+        /* ACCIONES PRINCIPALES */
+        .btn-control {
+            padding: 14px 28px; 
+            margin: 8px; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 18px; 
+            font-weight: bold; 
+            transition: all 0.2s;
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: white !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .btn-check { background-color: var(--esmeralda) !important; }
+        .btn-reset { background-color: var(--coral) !important; }
+        .btn-control:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+        /* ESTADOS DE CORRECCIÓN */
+        .correct { border-color: var(--esmeralda) !important; background: var(--success-bg) !important; } 
+        .correct .question-title { background: var(--esmeralda); }
+        .correct .opciones-pildora { pointer-events: none; opacity: 0.7; background: #e6f4ea; } 
+
+        .incorrect { border-color: #ef4444 !important; background: var(--danger-bg) !important; } 
+        .incorrect .question-title { background: #ef4444; }
+
+        .feedback {
+            font-size: 1.15em; 
+            margin-top: 15px; 
+            font-weight: bold; 
+            display: none;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .llave-secreta { 
+            cursor: pointer; 
+            opacity: 0.2; 
+            transition: opacity 0.3s; 
+            font-size: 1.2em;
+            margin-left: 10px;
+            user-select: none;
+        }
+        .llave-secreta:hover { opacity: 1; }
+        
+        .btn-profe {
+            display: none !important; 
+            background: linear-gradient(135deg, #4f46e5, #06b6d4) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <header>
+            <h1>🕵️‍♂️ Desafío: Detective Técnico del PC (Rondas al Azar) </h1>
+            <p><strong>¡Hora de entrenar el pensamiento lógico!</strong> Vamos a resolver problemas reales basados en los síntomas de un ordenador. Analiza el caso de cada tarjeta y selecciona la píldora con el diagnóstico correcto para solucionar el problema.</p>
+        </header>
+
+        <!-- Contenedor dinámico donde se inyectarán los 8 casos de la ronda -->
+        <div class="grid-casos" id="casosContent"></div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn-control btn-check" onclick="checkCasos()">✔️ Corregir Casos</button>
+            <button class="btn-control btn-reset" onclick="initJuego()">🔄 Siguiente Ronda (Azar)</button>
+            <button id="btn-profe" class="btn-control btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Resolver reto</button>
+        </div>
+    </div>
+
+    <script>
+		// --- MEGA BANCO OPTIMIZADO (Identificadores en tipo para evitar redundancias) ---
+		const megaBancoCasos = [
+			// ==========================================
+			// BLOQUE: CASOS DIAGNÓSTICO (20 PREGUNTAS)
+			// ==========================================
+			{ tipo: "Diagnóstico", q: "Desde que pulso el botón hasta que sale el escritorio pasan 4 minutos enteros.", opts: ["Cambiar el disco antiguo por un SSD", "Cambiar el Procesador", "Añadir más ventiladores"], correct: "Cambiar el disco antiguo por un SSD", fb: "✅ ¡Exacto! Los discos duros mecánicos antiguos vuelven el inicio lentísimo; un SSD revive el PC." },
+			{ tipo: "Diagnóstico", q: "Tengo abiertas solo 3 páginas web sencillas y el ordenador ya va a tirones.", opts: ["Ampliar la Memoria RAM", "Comprar una Tarjeta Gráfica dedicada", "Cambiar el cable HDMI"], correct: "Ampliar la Memoria RAM", fb: "✅ ¡Correcto! La navegación web actual consume mucha memoria RAM." },
+			{ tipo: "Diagnóstico", q: "El ordenador se apaga por completo cuando lleva media hora encendido y sale aire abrasando.", opts: ["Limpiar Ventiladores y disipador", "Reinstalar el sistema Windows", "Cambiar la pila de la placa"], correct: "Limpiar Ventiladores y disipador", fb: "✅ ¡Muy bien! Es un apagado por seguridad térmica para evitar que la CPU se queme." },
+			{ tipo: "Diagnóstico", q: "Quiero guardar todas las fotos de mi móvil en la torre pero salta el aviso de 'Espacio Lleno'.", opts: ["Añadir un Disco de 1TB", "Poner una CPU más potente", "Formatear la memoria RAM"], correct: "Añadir un Disco de 1TB", fb: "✅ ¡Lógico! El almacenamiento físico se soluciona aumentando la capacidad del disco." },
+			{ tipo: "Diagnóstico", q: "He conectado una impresora nueva con su cable, pero el ordenador no sabe qué dispositivo es.", opts: ["Faltan instalar los Drivers", "El Cable USB está roto", "La fuente no tiene potencia"], correct: "Faltan instalar los Drivers", fb: "✅ ¡Eso es! Los drivers o controladores le enseñan al sistema operativo cómo usar el nuevo hardware." },
+			{ tipo: "Diagnóstico", q: "En mitad de una videollamada importante mi imagen se corta todo el rato o se congela.", opts: ["Revisar la Tarjeta Red/Wi-Fi", "Poner más memoria RAM", "Limpiar el sensor del ratón"], correct: "Revisar la Tarjeta Red/Wi-Fi", fb: "✅ ¡Perfecto! Los cortes en transmisiones en directo son culpa de la estabilidad de la red." },
+			{ tipo: "Diagnóstico", q: "He instalado un juego nuevo de última generación, pero la imagen se mueve muy lenta y a saltos.", opts: ["Mejorar la Tarjeta Gráfica (GPU)", "Cambiar el almacenamiento SSD", "Comprar altavoces nuevos"], correct: "Mejorar la Tarjeta Gráfica (GPU)", fb: "✅ ¡Exacto! El procesamiento de entornos en 3D y texturas de juegos es tarea de la GPU." },
+			{ tipo: "Diagnóstico", q: "Al encender el ordenador, emite un pitido constante y la pantalla se queda totalmente en negro.", opts: ["Memoria RAM mal encajada", "El Ratón no funciona bien", "Falta tinta en la impresora"], correct: "Memoria RAM mal encajada", fb: "✅ ¡Buen ojo! Los pitidos de la placa base al arrancar suelen avisar de fallos críticos de RAM o vídeo." },
+			{ tipo: "Diagnóstico", q: "Ayer hubo una tormenta eléctrica enorme y ahora el PC no hace absolutamente nada al dar al botón.", opts: ["Fuente de alimentación quemada", "Google Chrome se ha borrado", "El teclado se ha desconectado"], correct: "Fuente de alimentación quemada", fb: "✅ ¡Efectivamente! La fuente recibió la sobretensión protegiendo (con suerte) al resto del PC." },
+			{ tipo: "Diagnóstico", q: "El reloj del sistema de Windows se desconfigura e inicia en el año 2010 cada vez que lo desenchufo.", opts: ["Pila de la Placa Base gastada", "El Monitor es demasiado viejo", "Fallo del cable de red"], correct: "Pila de la Placa Base gastada", fb: "✅ ¡Excelente! La pila CR2032 de la placa mantiene la hora de la placa base cuando no hay corriente." },
+			{ tipo: "Diagnóstico", q: "Escucho un ruido constante de rascado metálico bastante desagradable dentro de la torre.", opts: ["Disco Duro HDD dañado", "Fallo de Software general", "La pasta térmica está seca"], correct: "Disco Duro HDD dañado", fb: "✅ ¡Cuidado! Los cabezales de un disco duro mecánico viejo están rozando; hay que respaldar datos ya." },
+			{ tipo: "Diagnóstico", q: "Al ponerme a escribir en el teclado aparecen símbolos raros en lugar de las letras correctas.", opts: ["Idioma/Región mal configurado", "Fallo eléctrico de la Fuente", "El monitor está mal calibrado"], correct: "Idioma/Región mal configurado", fb: "✅ ¡Eso es! El mapa de teclado se ha cambiado por error de software (por ejemplo, a inglés)." },
+            { tipo: "Diagnóstico", q: "La pantalla se ve borrosa, gigante y los iconos están estirados de forma extraña.", opts: ["Resolución de pantalla incorrecta", "Fallo físico del cable HDMI", "El procesador se ha quedado lento"], correct: "Resolución de pantalla incorrecta", fb: "✅ ¡Eso es! Hay que ajustar los píxeles nativos del monitor desde la configuración de Windows." },
+            { tipo: "Diagnóstico", q: "Intento conectar mis auriculares inalámbricos nuevos pero el PC no tiene la opción de buscarlos.", opts: ["No dispone de adaptador Bluetooth", "Falta espacio en el SSD", "La pantalla bloquea las ondas"], correct: "No dispone de adaptador Bluetooth", fb: "✅ ¡Exacto! Muchas placas de torre de sobremesa necesitan una antena o pincho USB Bluetooth externo." },
+            { tipo: "Diagnóstico", q: "Windows Update se queda congelado en el 99% en bucle cada vez que reinicio el sistema.", opts: ["Archivos temporales corruptos de actualización", "El teclado se ha roto", "La fuente de alimentación no da voltios"], correct: "Archivos temporales corruptos de actualización", fb: "✅ ¡Cerrado! Hay que vaciar la carpeta SoftwareDistribution para limpiar el bucle del sistema." },
+            { tipo: "Diagnóstico", q: "El lector de DVD/CD no se abre ni hace ruido al pulsar el botón físico metálico.", opts: ["Falta de alimentación o cable suelto", "El procesador está ocupado", "Se ha desconfigurado el ratón"], correct: "Falta de alimentación o cable suelto", fb: "✅ ¡Efectivamente! Si no le llega corriente directa de la fuente, el motor no puede abrir la bandeja." },
+            { tipo: "Diagnóstico", q: "Al pinchar un pendrive en el puerto USB delantero no hace nada, pero si lo pongo atrás funciona genial.", opts: ["Cable interno frontal desconectado", "El pendrive es defectuoso", "Falta memoria RAM libre"], correct: "Cable interno frontal desconectado", fb: "✅ ¡Gran diagnóstico! El cable interno que une el frontal de la caja a la placa base se ha soltado." },
+            { tipo: "Diagnóstico", q: "El ordenador funciona bien, pero al tocar la chapa metálica exterior de la torre da calambrazos pequeños.", opts: ["Falta toma de tierra en el enchufe", "El monitor tiene demasiados colores", "El procesador está sobrecalentado"], correct: "Falta toma de tierra en el enchufe", fb: "✅ ¡Alerta de seguridad! La corriente residual no se desvía correctamente al suelo por culpa del enchufe de la pared." },
+            { tipo: "Diagnóstico", q: "De repente aparecen ventanas de publicidad en mitad del escritorio aunque no tenga ningún navegador abierto.", opts: ["Infección por Malware / Adware", "El monitor se ha estropeado", "Fallo en los drivers de sonido"], correct: "Infección por Malware / Adware", fb: "✅ ¡Cuidado! Un programa malicioso se ha instalado en segundo plano; requiere limpieza de antivirus." },
+            { tipo: "Diagnóstico", q: "El PC enciende, giran los ventiladores, pero la pantalla se queda flotando con el mensaje 'Sin Señal'.", opts: ["Fallo de conexión o selección de fuente de vídeo", "El disco duro SSD está lleno", "Falta actualizar el sistema operativo"], correct: "Fallo de conexión o selección de fuente de vídeo", fb: "✅ ¡Localizado! El monitor funciona pero no le está llegando señal eléctrica por el cable de vídeo o está en el canal incorrecto." },
+
+			// ==========================================
+			// BLOQUE: CASOS INSPECTOR (20 PREGUNTAS)
+			// ==========================================
+			{ tipo: "Inspector", q: "El PC se congela momentáneamente solo cuando abres muchas pestañas simultáneas de Chrome.", opts: ["Falta memoria RAM", "El Monitor es pequeño", "Teclado sucio"], correct: "Falta memoria RAM", fb: "✅ ¡Resuelto! Cada pestaña de Chrome es un proceso que se aloja directamente en la memoria RAM." },
+			{ tipo: "Inspector", q: "Al pulsar el botón de encendido de la torre, no suena nada ni brilla ninguna luz LED.", opts: ["Fallo del Ratón", "Fallo de la Fuente de Alimentación", "Fallo de los Altavoces"], correct: "Fallo de la Fuente de Alimentación", fb: "✅ ¡Caso cerrado! Sin energía de la fuente, ningún componente ni testigo luminoso puede reaccionar." },
+			{ tipo: "Inspector", q: "El usuario quiere descargar una película pero el equipo lanza un error de 'Memoria llena'.", opts: ["Falta espacio en Disco Duro", "Falta memoria RAM", "La CPU es muy lenta"], correct: "Falta espacio en Disco Duro", fb: "✅ ¡Localizado! El almacenamiento permanente se realiza en el Disco Duro, no confundir con la RAM de ejecución." },
+			{ tipo: "Inspector", q: "El ordenador de sobremesa se apaga repentinamente a los 10 minutos exactos de ponerse a jugar.", opts: ["Problema de Calor/Ventilación", "Falta espacio en el disco", "Falta batería"], correct: "Problema de Calor/Ventilación", fb: "✅ ¡Buen trabajo! Los juegos exprimen el procesador, elevando la temperatura si los ventiladores fallan." },
+			{ tipo: "Inspector", q: "Los entornos y movimientos de los videojuegos se ven 'a saltos' y con píxeles gigantes.", opts: ["Fallo de Tarjeta Gráfica", "Fallo de Disco Duro", "Fallo de conexión a Red"], correct: "Fallo de Tarjeta Gráfica", fb: "✅ ¡Fácil para ti! La fluidez matemática de los fotogramas depende enteramente del procesador gráfico." },
+			{ tipo: "Inspector", q: "El PC arranca pero se queda colgado fijamente en una pantalla negra con letras blancas raras.", opts: ["Fallo en BIOS/Sistema de arranque", "Fallo del Monitor externo", "Fallo de la Alfombrilla"], correct: "Fallo en BIOS/Sistema de arranque", fb: "✅ ¡Exacto! No localiza el sector de arranque del sistema operativo en los discos." },
+			{ tipo: "Inspector", q: "El usuario teclea desesperadamente pero no se dibuja ninguna letra en la pantalla.", opts: ["Fallo de Puerto/Cable del teclado", "Fallo general de CPU", "Fallo de lectura de RAM"], correct: "Fallo de Puerto/Cable del teclado", fb: "✅ ¡Visualizado! Lo primero que hay que revisar en un periférico que no responde es su conexión física." },
+			{ tipo: "Inspector", q: "El equipo no puede navegar por páginas web ni conectarse a servidores de streaming.", opts: ["Fallo de Red/Wi-Fi", "Fallo de tarjeta Gráfica", "Fallo de Fuente de poder"], correct: "Fallo de Red/Wi-Fi", fb: "✅ ¡Solucionado! Falta enlace con la red local o con la puerta de enlace a Internet." },
+			{ tipo: "Inspector", q: "Se escucha un traqueteo fuerte, como si algo estuviera chocando constantemente dentro de la caja.", opts: ["Ventilador obstruido por cable", "Un virus informático", "Memoria RAM suelta"], correct: "Ventilador obstruido por cable", fb: "✅ ¡Correcto! Un cable suelto en el interior está rozando con las aspas de un ventilador en movimiento." },
+			{ tipo: "Inspector", q: "Al iniciar el ordenador, la placa pita repetidamente y la pantalla se apaga por completo.", opts: ["Memoria RAM mal encajada o sucia", "Impresora sin papel", "Falta actualizar Drivers"], correct: "Memoria RAM mal encajada o sucia", fb: "✅ ¡Exacto! El autodiagnóstico físico (POST) de la placa detecta que no puede acceder a la memoria de trabajo." },
+			{ tipo: "Inspector", q: "El puntero o flecha del ratón da saltos locos por el escritorio o se bloquea constantemente.", opts: ["Fallo de Sensor/Puerto USB", "Fallo crítico de RAM", "Fallo de lectura de Disco"], correct: "Fallo de Sensor/Puerto USB", fb: "✅ ¡Resuelto! El sensor óptico inferior está sucio o el puerto USB está haciendo mal contacto." },
+			{ tipo: "Inspector", q: "El entorno de Windows se cierra bruscamente mostrando un pantallazo azul con códigos.", opts: ["Fallo Grave de Hardware/Driver", "Fallo de los Altavoces", "Fallo físico de la Caja"], correct: "Fallo Grave de Hardware/Driver", fb: "✅ ¡Punto final! Un pantallazo azul (BSOD) denota un error crítico de hardware o un controlador incompatible." },
+            { tipo: "Inspector", q: "Tras instalar un componente nuevo, se percibe un olor ligero a plástico quemado dentro de la torre.", opts: ["Cortocircuito o sobrecalentamiento plástico", "El disco duro está borrando archivos", "La RAM está procesando rápido"], correct: "Cortocircuito o sobrecalentamiento plástico", fb: "✅ ¡Emergencia! Hay que apagar el equipo de inmediato para revisar conexiones antes de que se destruya la placa." },
+            { tipo: "Inspector", q: "El sonido de los altavoces exteriores se escucha distorsionado, metálico y con ruidos de fondo permanentes.", opts: ["Mal contacto de la clavija Jack de audio", "La CPU no procesa la música", "El teclado hace interferencias"], correct: "Mal contacto de la clavija Jack de audio", fb: "✅ ¡Resuelto! El conector cilíndrico de 3.5mm no ha entrado hasta el fondo o está sucio." },
+            { tipo: "Inspector", q: "Al encender el PC sale un mensaje de advertencia enorme que dice 'CPU Fan Error' antes de iniciar.", opts: ["Fallo en el ventilador del procesador", "Fallo en el botón físico de la torre", "Falta memoria de almacenamiento"], correct: "Fallo en el ventilador del procesador", fb: "✅ ¡Gran trabajo! La placa avisa que el ventilador principal no gira; arrancar así quemaría el procesador." },
+            { tipo: "Inspector", q: "Un archivo importante que ayer se abría perfectamente, hoy muestra símbolos corruptos y no se puede leer.", opts: ["Sectores defectuosos en el almacenamiento", "El monitor ha perdido definición", "El cable de alimentación está viejo"], correct: "Sectores defectuosos en el almacenamiento", fb: "✅ ¡Alerta! El disco está empezando a fallar físicamente y los datos se están dañando." },
+            { tipo: "Inspector", q: "El usuario no puede escuchar nada de los vídeos de Youtube usando los auriculares integrados en su pantalla HDMI.", opts: ["Dispositivo de salida de audio mal seleccionado", "Falta instalar drivers del ratón", "La tarjeta de red está saturada"], correct: "Dispositivo de salida de audio mal seleccionado", fb: "✅ ¡Caso cerrado! Windows está mandando el sonido a los altavoces de la torre en vez de enviarlo por el HDMI." },
+            { tipo: "Inspector", q: "El ordenador portátil de un alumno no se enciende a menos que esté enchufado directamente a la pared.", opts: ["La batería interna está degradada o muerta", "El procesador necesita demasiada energía", "El teclado consume la carga"], correct: "La batería interna está degradada o muerta", fb: "✅ ¡Elemental! Las celdas de litio de la batería han perdido su vida útil y ya no retienen los electrones." },
+            { tipo: "Inspector", q: "Al conectar un disco duro externo de gran tamaño, se escucha un pitido flojo e intermitente y el PC no lo lee.", opts: ["Puerto USB con insuficiente energía eléctrica", "El disco externo tiene un virus", "El procesador is antiguo"], correct: "Puerto USB con insuficiente energía eléctrica", fb: "✅ ¡Buen ojo! Los discos mecánicos grandes necesitan más amperaje del que proporciona ese puerto específico." },
+            { tipo: "Inspector", q: "Tras limpiar el PC por dentro, el ordenador enciende pero no detecta el almacenamiento secundario.", opts: ["Cable de datos SATA mal conectado", "La pasta térmica se ha evaporado", "El sistema operativo se ha borrado"], correct: "Cable de datos SATA mal conectado", fb: "✅ ¡Resuelto! Al limpiar la torre se ha rozado sin querer el conector fino de datos del disco." }
+		];
+
+        let rondaActiva = [];
+
+// --- INICIAR JUEGO (RONDA ALEATORIA DE 8 CASOS CON ETIQUETAS DINÁMICAS) ---
+		function initJuego() {
+			const cont = document.getElementById('casosContent');
+			if (!cont) return;
+
+            // Barajamos el mega banco de 40 preguntas y tomamos los primeros 8 casos
+            let copiaBanco = [...megaBancoCasos].sort(() => 0.5 - Math.random());
+            rondaActiva = copiaBanco.slice(0, 8).map(item => ({
+                ...item,
+                userAns: '' 
+            }));
+			
+			cont.innerHTML = ''; 
+
+			rondaActiva.forEach((caso, i) => {
+                let opcionesBarajadas = [...caso.opts].sort(() => 0.5 - Math.random());
+                
+                let botonesHtml = opcionesBarajadas.map(opt => {
+                    let idBtn = `btn_${i}_${opt.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                    return `<button class="btn-pildora" id="${idBtn}" onclick="seleccionarPildora(${i}, '${opt}')">▪️ ${opt}</button>`;
+                }).join('');
+
+                // Seleccionar icono elegante según el tipo de caso
+                let iconoTipo = caso.tipo === "Diagnóstico" ? "🔍" : "🚨";
+
+				cont.innerHTML += `
+					<div class="question-box" id="caso_card_${i}">
+						<!-- Añadido icono dinámico y mejor separación de números de caso -->
+						<span class="question-title">${iconoTipo} Caso ${i + 1}: ${caso.tipo}</span>
+						<p>${caso.q}</p>
+                        
+                        <div class="opciones-pildora">
+                            <span style="font-size: 0.95em; font-weight: bold; color: #64748b; margin-bottom: 5px;">Selecciona el diagnóstico correcto:</span>
+                            ${botonesHtml}
+                        </div>
+
+						<div class="feedback" id="caso_fb_${i}"></div>
+					</div>`;
+			});
+		}
+
+        // --- MANEJAR LA SELECCIÓN DE PÍLDORAS ---
+        function seleccionarPildora(indiceCaso, opcionSeleccionada) {
+            const caso = rondaActiva[indiceCaso];
+            
+            if (caso.userAns === opcionSeleccionada) {
+                caso.userAns = '';
+                let idBtn = `btn_${indiceCaso}_${opcionSeleccionada.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                document.getElementById(idBtn).classList.remove('activa');
+                return;
+            }
+
+            if (caso.userAns) {
+                let idBtnViejo = `btn_${indiceCaso}_${caso.userAns.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                let btnViejo = document.getElementById(idBtnViejo);
+                if (btnViejo) btnViejo.classList.remove('activa');
+            }
+
+            caso.userAns = opcionSeleccionada;
+            let idBtnNuevo = `btn_${indiceCaso}_${opcionSeleccionada.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            document.getElementById(idBtnNuevo).classList.add('activa');
+        }
+
+        // --- SISTEMA DE CORRECCIÓN ---
+		function checkCasos() {
+			let aciertosTotales = 0;
+            let respondidas = 0;
+			
+			rondaActiva.forEach((caso, i) => {
+				const card = document.getElementById(`caso_card_${i}`);
+				const fb = document.getElementById(`caso_fb_${i}`);
+				
+				if (card && fb) {
+					fb.style.display = 'block';
+                    card.classList.remove('correct', 'incorrect');
+					const eleccion = caso.userAns;
+
+					if (eleccion === "") {
+						fb.innerHTML = "⚠️ ¡Caso ignorado! Selecciona una píldora de diagnóstico.";
+						fb.style.color = "var(--warning)";
+					} else {
+                        respondidas++;
+                        if (eleccion === caso.correct) {
+                            card.classList.add('correct');
+                            fb.innerHTML = caso.fb; 
+                            fb.style.color = "var(--success)";
+                            aciertosTotales++;
+                        } else {
+                            card.classList.add('incorrect');
+                            fb.innerHTML = "❌ Diagnóstico erróneo. ¡Ese componente está sano o no produce ese síntoma!";
+                            fb.style.color = "var(--danger)";
+                        }
+                    }
+				}
+			});
+
+			if (aciertosTotales === rondaActiva.length) {
+				alert("🏆 ¡Espectacular! Has resuelto los 8 misterios técnicos de esta ronda.");
+				lanzarConfeti();
+			} else {
+				alert(`Casos cerrados. Has solucionado con éxito ${aciertosTotales} de ${rondaActiva.length} problemas.`);
+			}
+		}
+
+        function lanzarConfeti() {
+            var duration = 3 * 1000;
+            var end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+
+        // --- MODO PROFESOR (SECRETOS) ---
+        function revelarBoton() {
+            const btn = document.getElementById('btn-profe');
+            if (btn) {
+                btn.style.setProperty('display', 'inline-flex', 'important'); 
+                alert("🧙‍♂️ ¡Llave maestra activada! Resolución automática disponible.");
+            }
+        }
+
+        function resolverModoProfe() {
+            rondaActiva.forEach((caso, i) => {
+                caso.userAns = caso.correct;
+                
+                const card = document.getElementById(`caso_card_${i}`);
+                if (card) card.classList.remove('incorrect');
+
+                let idBtn = `btn_${i}_${caso.correct.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                let btn = document.getElementById(idBtn);
+                if (btn) btn.classList.add('activa');
+            });
+            alert("🪄 Modo Profe: Todos los misterios han sido auto-resueltos.");
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key.toLowerCase() === 'd') {
+                e.preventDefault(); 
+                resolverModoProfe();
+            }
+        });
+
+        window.onload = initJuego;
+    </script>
+</body>
+<footer style="text-align: center; padding: 10px 10px; color: #7f8c8d; font-size: 1em; margin-top: 20px; border-top: 1px solid #e0e0e0; line-height: 1.5;">
+        <strong>&copy; 2026 — Creado por Profe Adna</strong> con &hearts; para mis alumnos | Taller de Informática EPA Sedaví<br>	 
+		<span class="llave-secreta" onclick="revelarBoton()">🔑</span>
+</footer>
+</html>

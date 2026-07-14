@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Identificar Componentes del PC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://tallerinformaticaepasedavi.blogspot.com/favicon.ico' rel='icon' type='image/x-icon'/>
+	<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --azul: #2c3e50;
+            --naranja: #e67e22;
+            --verde: #27ae60;
+            --rojo: #e74c3c;
+            --fondo: #f0f2f5;
+            --celeste: #3498db;
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --text: #2c3e50;
+            --primary: #2c3e50; 
+            --accent: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --selected: #e8f4fd;
+            --selected-border: #3498db;
+        }
+        
+        *{box-sizing:border-box;}
+        
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: var(--fondo); 
+            margin: 0; 
+            padding: 20px; 
+            overflow-x: hidden; 
+        }
+        
+        .contenedor { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08); 
+            position: relative;
+            z-index: 2;
+        }
+        
+        header { 
+            text-align: center; 
+            margin-bottom: 25px; 
+            border-bottom: 2px solid #f0f2f5; 
+            padding-bottom: 20px; 
+            position: sticky;
+            top: -10px; 
+            background: white;
+            z-index: 1000; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+            border-radius: 15px;
+            padding: 15px;
+        }
+        
+        header h1 { 
+            color: var(--azul); 
+            font-size: 2.2em; 
+            margin: 0 0 5px 0; 
+        }
+        
+        header p { 
+            color: #7f8c8d; 
+            font-size: 1.1em; 
+            margin: 0 0 15px 0; 
+            line-height: 1.4; 
+        }
+
+        button {
+            padding: 14px 26px; 
+            margin: 5px; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 18px; 
+            font-weight: bold; 
+            transition: 0.3s;
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: white !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn-check { background-color: var(--verde) !important; }
+        .btn-reset { background-color: var(--naranja) !important; }
+        button:hover{ opacity:0.9; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+        
+        .banco-opciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin: 10px 0 0 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 18px;
+            border: 2px dashed #cbd5e1;
+            max-height: 180px;
+            overflow-y: auto; 
+        }
+
+        .opcion-tag {
+            background: var(--card);
+            border: 2px solid var(--accent);
+            color: var(--text);
+            padding: 12px 22px; 
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em; 
+            transition: 0.2s;
+            user-select: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .opcion-tag:hover:not(.usada) {
+            transform: scale(1.03);
+            background: var(--accent);
+            color: white;
+        }
+
+        .opcion-tag.usada {
+            opacity: 0.25;
+            border-color: #cbd5e1;
+            background: #e2e8f0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .img-exercise-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 25px; 
+            margin: 20px 0; 
+        }
+
+        .img-card {
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            min-height: 300px; 
+            background: var(--card); 
+            border: 2px solid #e2e8f0; 
+            padding: 18px; 
+            border-radius: 18px; 
+            text-align: center; 
+            transition: 0.3s;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+
+        .img-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        }
+
+        .img-card img {
+            width: 100%; 
+            height: 140px; 
+            object-fit: contain; 
+            border-radius: 12px;
+            margin-bottom: 12px; 
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.05));
+            transition: transform 0.3s ease;
+        }
+
+        .img-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .img-card.tiene-valor .respuesta-box {
+            border-style: solid;
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .respuesta-box {
+            border: 2px dashed #cbd5e1;
+            padding: 12px;
+            border-radius: 12px;
+            min-height: 52px; 
+            font-weight: bold;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em; 
+            transition: 0.2s;
+            color: var(--accent);
+        }
+
+        .correct{ border: 3px solid var(--success) !important; background: #f1f9f5; } 
+        .correct .respuesta-box { background: var(--success) !important; color: white; border-color: var(--success); }
+
+        .incorrect{ border: 3px solid var(--danger) !important; background: #fff5f5; } 
+        .incorrect .respuesta-box { background: var(--danger) !important; color: white; border-color: var(--danger); }
+
+        .feedback {
+            font-size: 1em; 
+            margin-top: 8px; 
+            font-weight: bold; 
+            display: none;
+        }
+
+        .llave-secreta { 
+            cursor: pointer; 
+            opacity: 0.15; 
+            transition: opacity 0.5s; 
+            font-size: 1.2em;
+            margin-left: 10px;
+            user-select: none;
+        }
+        .llave-secreta:hover { 
+            opacity: 1; 
+        }
+        
+        .btn-profe {
+            display: none !important; 
+            background: linear-gradient(135deg, #6e45e2, #88d3ce) !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <header>
+            <h1>🧩 Desafío: Identificar Componentes (Rondas al Azar)</h1>
+            <p>Selecciona una opción del banco y luego haz clic en la tarjeta de la imagen correspondiente para asignarla.<br/>¡Haz clic en una tarjeta asignada para liberar el nombre!</p>
+            
+            <div class="banco-opciones" id="bancoPalabras"></div>
+        </header>
+
+        <div class="img-exercise-grid" id="desafioContent"></div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn-check" onclick="comprobarDesafio()">✔️ Corregir Desafío</button>
+            <button class="btn-reset" onclick="initDesafio()">🔄 Siguiente Ronda (Azar)</button>
+            <button id="btn-profe" class="btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Resolver reto</button>
+        </div>
+    </div>
+
+    <script>
+        // Todas las imágenes de la carpeta img/
+		const imgDataTotal = [
+			{img: 'cpu.jpg', correct: 'Procesador (CPU)'},
+			{img: 'ram.jpg', correct: 'Memoria RAM'},
+			{img: 'ventilador.jpg', correct: 'Ventilador'},
+			{img: 'discoSATA.jpg', correct: 'Disco SATA'},
+			{img: 'placa.jpg', correct: 'Placa Base'},
+			{img: 'disipador.jpg', correct: 'Disipador'},
+			{img: 'fuente.jpg', correct: 'Fuente de Alimentación'},
+			{img: 'bus.jpg', correct: 'Bus de datos'},
+			{img: 'puertored.jpg', correct: 'Puerto de Red'},
+			{img: 'tarjetagrafica.jpg', correct: 'Tarjeta Gráfica'},
+			{img: 'bateriaCMOS.jpg', correct: 'Batería'},
+			{img: 'tarjetasonido.jpg', correct: 'Tarjeta de Sonido'},
+			{img: 'ssd.jpg', correct: 'Disco SSD'},
+			{img: 'tarjetawifi.jpg', correct: 'Tarjeta WiFi'},
+			{img: 'discoNVMe_m.2.jpg', correct: 'Disco SSD NVMe M.2'},
+			{img: 'puertousb.jpg', correct: 'Puerto USB'},
+			{img: 'cablesata.jpg', correct: 'Cable Disco SATA'},
+			{img: 'conectoratx.jpg', correct: 'Conector Corriente ATX 24 pines'},
+			{img: 'ranurapci.jpg', correct: 'Ranura de expansión PCI / PCIe'},
+			{img: 'tarjetared.jpg', correct: 'Tarjeta de Red'},
+			{img: 'monitor.jpg', correct: 'Monitor'},
+			{img: 'puertovideo.jpg', correct: 'Puerto de Video'},
+			{img: 'raton.jpg', correct: 'Ratón'},
+			{img: 'puertoaudio.jpg', correct: 'Puerto de Audio'},
+			{img: 'lectorcd-dvd.jpg', correct: 'Unidad CD / DVD'},
+			{img: 'zocalocpu.jpg', correct: 'Zócalo (Socket)'},
+			{img: 'ranuraram.jpg', correct: 'Ranura DIMM (memoria RAM)'},
+			{img: 'discoSSD.jpg', correct: 'Disco SSD'},
+			{img: 'teclado.jpg', correct: 'Teclado'},
+			{img: 'pastatermica.jpg', correct: 'Pasta Térmica'},
+			{img: 'torre.jpg', correct: 'Caja o Torre'}		
+		];
+
+        let desafioData = []; // Guardará las 6 imágenes seleccionadas para la ronda activa
+		let opcionSeleccionadaActual = null;
+
+		// --- INICIAR / REINICIAR EL JUEGO ---
+		function initDesafio() {
+			const bancoContenedor = document.getElementById('bancoPalabras');
+			const gridContenedor = document.getElementById('desafioContent');
+			if (!bancoContenedor || !gridContenedor) return;
+			
+			bancoContenedor.innerHTML = '';
+			gridContenedor.innerHTML = '';
+            opcionSeleccionadaActual = null;
+
+            // 1. Seleccionar 6 imágenes al azar del total de la lista
+            desafioData = [...imgDataTotal].sort(() => 0.5 - Math.random()).slice(0, 8);
+
+            // 2. Extraer los nombres correctos de esa muestra y ordenarlos alfabéticamente para el banco superior
+            const opcionesRonda = desafioData.map(d => d.correct).sort((a, b) => a.localeCompare(b));
+
+            // 3. Crear las etiquetas del banco superior
+            opcionesRonda.forEach(nombre => {
+                const idTag = nombre.replace(/[^a-zA-Z0-9]/g, '_');
+                bancoContenedor.innerHTML += `
+                    <div class="opcion-tag" id="tag_${idTag}" onclick="seleccionarOpcion('${nombre}')">
+                        ${nombre}
+                    </div>`;
+            });
+
+            // 4. Crear las tarjetas con las imágenes locales de la carpeta img/
+			desafioData.forEach((d, i) => {
+                d.userAns = null; // Inicializar respuesta del alumno limpia
+				gridContenedor.innerHTML += `
+					<div class="img-card" id="concept_card_${i}" onclick="manejarClickCard(${i})">
+						<img src="img/${d.img}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/689/689304.png'">
+						<div class="respuesta-box" id="box_${i}">Haz clic aquí para asignar</div>
+                        <div class="feedback" id="fb_concept_${i}"></div>
+					</div>`;
+			});
+		}
+
+        // --- MECÁNICA INTERACTIVA DE ASIGNACIÓN ---
+        function seleccionarOpcion(nombreOpcion) {
+            const idTag = nombreOpcion.replace(/[^a-zA-Z0-9]/g, '_');
+            const tagElement = document.getElementById(`tag_${idTag}`);
+            
+            if (tagElement && tagElement.classList.contains('usada')) return;
+
+            // Desmarcar etiqueta previa si la hubiera
+            if (opcionSeleccionadaActual) {
+                const prevId = opcionSeleccionadaActual.replace(/[^a-zA-Z0-9]/g, '_');
+                const prevTag = document.getElementById(`tag_${prevId}`);
+                if (prevTag) prevTag.style.borderColor = 'var(--accent)';
+            }
+
+            opcionSeleccionadaActual = nombreOpcion;
+            if (tagElement) {
+                tagElement.style.borderColor = 'var(--naranja)';
+            }
+        }
+
+        function manejarClickCard(indiceCard) {
+            const d = desafioData[indiceCard];
+            const card = document.getElementById(`concept_card_${indiceCard}`);
+            const box = document.getElementById(`box_${indiceCard}`);
+
+            // CASO A: Si el alumno hace clic en una tarjeta que ya tenía un nombre puesto, lo quitamos (lo liberamos)
+            if (d.userAns && !opcionSeleccionadaActual) {
+                const idPrevio = d.userAns.replace(/[^a-zA-Z0-9]/g, '_');
+                const tagPrevio = document.getElementById(`tag_${idPrevio}`);
+                if (tagPrevio) tagPrevio.classList.remove('usada');
+
+                d.userAns = null;
+                box.innerHTML = "Haz clic aquí para asignar";
+                card.classList.remove('tiene-valor', 'correct', 'incorrect');
+                return;
+            }
+
+            // CASO B: Colocar la respuesta seleccionada en la tarjeta
+            if (!opcionSeleccionadaActual) return;
+
+            // Si la tarjeta ya contenía otra respuesta previa, liberar esa vieja primero
+            if (d.userAns) {
+                const idViejo = d.userAns.replace(/[^a-zA-Z0-9]/g, '_');
+                const tagViejo = document.getElementById(`tag_${idViejo}`);
+                if (tagViejo) tagViejo.classList.remove('usada');
+            }
+
+            // Guardar nueva asignación
+            d.userAns = opcionSeleccionadaActual;
+            box.innerHTML = opcionSeleccionadaActual;
+            card.classList.add('tiene-valor');
+
+            // Bloquear la etiqueta en el banco superior
+            const idActual = opcionSeleccionadaActual.replace(/[^a-zA-Z0-9]/g, '_');
+            const tagActual = document.getElementById(`tag_${idActual}`);
+            if (tagActual) {
+                tagActual.classList.add('usada');
+                tagActual.style.borderColor = 'var(--accent)';
+            }
+
+            opcionSeleccionadaActual = null;
+        }
+
+        // --- SISTEMA DE CORRECCIÓN ---
+        function comprobarDesafio() {
+            let aciertos = 0;
+            let totalRespondidas = 0;
+
+            desafioData.forEach((d, i) => {
+                const card = document.getElementById(`concept_card_${i}`);
+                const fb = document.getElementById(`fb_concept_${i}`);
+                
+                card.classList.remove('correct', 'incorrect');
+                if (d.userAns) totalRespondidas++;
+                
+                if (d.userAns === d.correct) {
+                    card.classList.add('correct');
+                    fb.style.display = 'none';
+                    aciertos++;
+                } else {
+                    card.classList.add('incorrect');
+                    fb.innerHTML = `Solución: ${d.correct}`;
+                    fb.style.color = 'var(--rojo)';
+                    fb.style.display = 'block';
+                }
+            });
+
+            if (totalRespondidas < desafioData.length) {
+                alert("Aún te quedan imágenes por identificar. ¡Completa el panel!");
+            } else if (aciertos === desafioData.length) {
+                alert("🎉 ¡Excelente trabajo! Has identificado todos los componentes correctamente.");
+                lanzarConfeti();
+            } else {
+                alert(`Has corregido el ejercicio. Aciertos: ${aciertos} de ${desafioData.length}. Revisa los fallos marcados en rojo.`);
+            }
+        }
+
+        function lanzarConfeti() {
+            var duration = 3 * 1000;
+            var end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+
+        // --- REVELAR BOTÓN DE MODO PROFESOR (LLAVE MAESTRA) ---
+        function revelarBoton() {
+            const btn = document.getElementById('btn-profe');
+            if (btn) {
+                btn.style.setProperty('display', 'inline-flex', 'important'); 
+                alert("🧙‍♂️ ¡Llave maestra activada! El botón de resolución automática ya está visible.");
+            }
+        }
+
+        function resolverModoProfe() {
+            desafioData.forEach((d, i) => {
+                d.userAns = d.correct;
+                const card = document.getElementById(`concept_card_${i}`);
+                const box = document.getElementById(`box_${i}`);
+                if (card && box) {
+                    card.classList.add('tiene-valor');
+                    box.innerHTML = d.correct;
+                }
+                const idActual = d.correct.replace(/[^a-zA-Z0-9]/g, '_');
+                const tag = document.getElementById(`tag_${idActual}`);
+                if (tag) tag.classList.add('usada');
+            });
+            opcionSeleccionadaActual = null;
+            alert("🪄 Modo Profe: Respuestas de la ronda autocompletadas.");
+            lanzarConfeti();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key.toLowerCase() === 'd') {
+                e.preventDefault(); 
+                resolverModoProfe();
+            }
+        });
+
+        // Iniciar el juego automáticamente al cargar la página
+        window.onload = initDesafio;
+    </script>
+</body>
+<footer style="text-align: center; padding: 10px 10px; color: #7f8c8d; font-size: 1em; margin-top: 20px; border-top: 1px solid #e0e0e0; line-height: 1.5;">
+        <strong>&copy; 2026 — Creado por Profe Adna</strong> con &hearts; para mis alumnos | Taller de Informática EPA Sedaví<br>	 
+		<span class="llave-secreta" onclick="revelarBoton()">🔑</span>
+</footer>
+</html>

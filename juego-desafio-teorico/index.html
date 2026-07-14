@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Desafío Teórico Informática</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://tallerinformaticaepasedavi.blogspot.com/favicon.ico' rel='icon' type='image/x-icon'/>
+	<!-- Cargamos Confetti y la librería de Iconos vectoriales estables -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --azul: #2c3e50;
+            --naranja: #e67e22;
+            --verde: #27ae60;
+            --rojo: #e74c3c;
+            --fondo: #f0f2f5;
+            --celeste: #3498db;
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --text: #2c3e50;
+            --primary: #2c3e50; 
+            --accent: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --selected: #e8f4fd;
+            --selected-border: #3498db;
+        }
+        
+        *{box-sizing:border-box;}
+        
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: var(--fondo); 
+            margin: 0; 
+            padding: 20px; 
+            overflow-x: hidden; 
+        }
+        
+        .contenedor { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08); 
+            position: relative;
+            z-index: 2;
+        }
+        
+        header { 
+            text-align: center; 
+            margin-bottom: 25px; 
+            border-bottom: 2px solid #f0f2f5; 
+            padding-bottom: 20px; 
+            position: sticky;
+            top: -10px; 
+            background: white;
+            z-index: 1000; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+            border-radius: 15px;
+            padding: 15px;
+        }
+        
+        header h1 { 
+            color: var(--azul); 
+            font-size: 2.2em; 
+            margin: 0 0 5px 0; 
+        }
+        
+        header p { 
+            color: #7f8c8d; 
+            font-size: 1.1em; 
+            margin: 0 0 15px 0; 
+            line-height: 1.4; 
+        }
+
+        button {
+            padding: 14px 26px; 
+            margin: 5px; 
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 18px; 
+            font-weight: bold; 
+            transition: 0.3s;
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: white !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn-check { background-color: var(--verde) !important; }
+        .btn-reset { background-color: var(--naranja) !important; }
+        button:hover{ opacity:0.9; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+        
+        .banco-opciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin: 10px 0 0 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 18px;
+            border: 2px dashed #cbd5e1;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .opcion-tag {
+            background: var(--card);
+            border: 2px solid var(--accent);
+            color: var(--text);
+            padding: 12px 22px; 
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.3em; 
+            transition: 0.2s;
+            user-select: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .opcion-tag:hover:not(.usada) {
+            transform: scale(1.03);
+            background: var(--accent);
+            color: white;
+        }
+
+        .opcion-tag.usada {
+            opacity: 0.25;
+            border-color: #cbd5e1;
+            background: #e2e8f0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .img-exercise-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 25px; 
+            margin: 20px 0; 
+        }
+
+        .img-card {
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            min-height: 330px; 
+            background: var(--card); 
+            border: 2px solid #e2e8f0; 
+            padding: 18px; 
+            border-radius: 18px; 
+            text-align: center; 
+            transition: 0.3s;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+
+        .img-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        }
+
+        /* DISEÑO DE ICONO VECTORIAL (ESTILO FLATICON) */
+        .card-icon-container {
+            font-size: 4.5em;
+            color: var(--accent);
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .img-card:hover .card-icon-container {
+            transform: scale(1.1);
+            color: var(--naranja);
+        }
+
+        .img-card.seleccionada {
+            border-color: var(--selected-border);
+            background-color: var(--selected);
+            box-shadow: 0 0 12px rgba(52, 152, 219, 0.4);
+        }
+
+        .img-card p {
+            font-size: 1.3em !important; 
+            line-height: 1.4 !important; 
+            color: var(--azul);
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .respuesta-box {
+            border: 2px dashed #cbd5e1;
+            padding: 12px;
+            border-radius: 12px;
+            min-height: 52px; 
+            font-weight: bold;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em; 
+            transition: 0.2s;
+            color: var(--accent);
+        }
+
+        .img-card.tiene-valor .respuesta-box {
+            border-style: solid;
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .correct{ border: 3px solid var(--success) !important; background: #f1f9f5; } 
+        .correct .respuesta-box { background: var(--success) !important; color: white; border-color: var(--success); }
+        .correct .card-icon-container { color: var(--success); }
+
+        .incorrect{ border: 3px solid var(--danger) !important; background: #fff5f5; } 
+        .incorrect .respuesta-box { background: var(--danger) !important; color: white; border-color: var(--danger); }
+        .incorrect .card-icon-container { color: var(--danger); }
+
+        .feedback {
+            font-size: 1.1em; 
+            margin-top: 8px; 
+            font-weight: bold; 
+            display: none;
+        }
+
+        .llave-secreta { 
+            cursor: pointer; 
+            opacity: 0.15; 
+            transition: opacity 0.5s; 
+            font-size: 1.2em;
+            margin-left: 10px;
+            user-select: none;
+        }
+        .llave-secreta:hover { opacity: 1; }
+        
+        .btn-profe {
+            display: none !important; 
+            background: linear-gradient(135deg, #6e45e2, #88d3ce) !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <header>
+            <h1>🖥️ Desafío: Conceptos Informáticos (Rondas al Azar)</h1>
+            <p>Selecciona una opción del banco de respuestas y haz clic en la tarjeta correspondiente para asignarla. <br/>¡Haz clic en una tarjeta asignada para liberar el nombre!</p>
+            
+            <div class="banco-opciones" id="bancoPalabras"></div>
+        </header>
+
+        <div class="img-exercise-grid" id="desafioContent"></div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn-check" onclick="comprobarDesafio()">✔️ Corregir Desafío</button>
+            <button class="btn-reset" onclick="initDesafio()">🔄 Siguiente Ronda (Azar)</button>
+            <button id="btn-profe" class="btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Resolver reto</button>
+        </div>
+    </div>
+
+    <script>
+        // --- BASE DE DATOS MEJORADA CON ICONOS VECTORIALES (NUNCA FALLAN, 100% FIABLES) ---
+        // Usamos clases CSS de FontAwesome en lugar de URLs de imágenes externas
+        const bancoPreguntasTotal = [
+            {icon: 'fa-solid fa-microchip', q: 'Unidad mínima de información (0 o 1):', correct: 'Bit'},
+            {icon: 'fa-solid fa-laptop', q: 'Parte física y tangible del ordenador:', correct: 'Hardware'},
+            {icon: 'fa-solid fa-code-branch', q: 'Lenguaje que solo usa ceros y unos:', correct: 'Sistema Binario'},
+            {icon: 'fa-solid fa-database', q: 'Medida equivalente a 1024 GB:', correct: '1 Terabyte (TB)'},
+            {icon: 'fa-solid fa-file-code', q: 'Programas e instrucciones del sistema:', correct: 'Software'},
+            {icon: 'fa-solid fa-boxes-stacked', q: 'Grupo de 8 bits que forman un carácter:', correct: 'Byte'},
+            {icon: 'fa-solid fa-sd-card', q: 'Medida equivalente a 1024 MB:', correct: '1 Gigabyte (GB)'},
+            {icon: 'fa-solid fa-route', q: 'Caminos por donde viajan los datos:', correct: 'Buses'},
+            {icon: 'fa-solid fa-memory', q: 'Memoria de acceso rápido y temporal:', correct: 'RAM'},
+            {icon: 'fa-solid fa-keyboard', q: 'Periférico de entrada de texto principal:', correct: 'Teclado'},
+            {icon: 'fa-solid fa-desktop', q: 'Periférico de salida de imagen principal:', correct: 'Monitor'},
+            {icon: 'fa-solid fa-hdd', q: 'Dispositivo de almacenamiento masivo permanente:', correct: 'Disco Duro / SSD'},
+            {icon: 'fa-solid fa-gavel', q: 'Cerebro del ordenador que procesa todo:', correct: 'Procesador (CPU)'},
+            {icon: 'fa-solid fa-plug', q: 'Aparato que da energía limpia a los componentes:', correct: 'Fuente de Alimentación'},
+            {icon: 'fa-solid fa-clipboard-list', q: 'Pieza principal donde se conectan todos los componentes:', correct: 'Placa Base'},
+            {icon: 'fa-solid fa-image', q: 'Se encarga específicamente de mostrar lo que vemos en la pantalla:', correct: 'Tarjeta Gráfica'},
+            {icon: 'fa-solid fa-window-restore', q: 'Software principal que gestiona el PC y permite que funcionen las apps:', correct: 'Sistema Operativo'},
+            {icon: 'fa-solid fa-circle-nodes', q: 'Conectores externos para transferir datos con periféricos o redes:', correct: 'Puertos'},
+            {icon: 'fa-solid fa-gears', q: 'Programas que enseñan al sistema operativo cómo usar el hardware:', correct: 'Drivers'},
+            {icon: 'fa-solid fa-print', q: 'Dispositivos que permiten interactuar con el PC o recibir/salir información:', correct: 'Periféricos'},
+            {icon: 'fa-solid fa-folder-open', q: 'Documentos, fotos, vídeos o programas que el PC usa y guarda:', correct: 'Archivos'},
+            {icon: 'fa-solid fa-chart-simple', q: 'Símbolos que representan hechos, cifras, palabras o imágenes:', correct: 'Datos'},
+            {icon: 'fa-solid fa-fan', q: 'Se encarga de mantener los componentes a temperaturas adecuadas:', correct: 'Sistema de Refrigeración'},
+            {icon: 'fa-solid fa-wifi', q: 'Permite que el ordenador se conecte a Internet o redes locales:', correct: 'Tarjeta de Red / Wifi'},
+            {icon: 'fa-solid fa-calculator', q: 'La palabra "Informática" nace de unir Información y...', correct: 'Automática'},
+            {icon: 'fa-solid fa-computer', q: 'Una máquina o dispositivo físico programable para tratar información es un...', correct: 'Ordenador (PC)'},
+            {icon: 'fa-solid fa-screwdriver-wrench', q: 'La torre, pantalla, cables, ratón o circuitos interiores son ejemplos de...', correct: 'Componentes (HW)'},
+            {icon: 'fa-solid fa-compact-disc', q: 'Windows, Linux, Word, Paint o los videojuegos son ejemplos de...', correct: 'Programas (SW)'},
+            {icon: 'fa-solid fa-arrow-pointer', q: 'El ratón es un ejemplo clásico de periférico de...', correct: 'Entrada'},
+            {icon: 'fa-solid fa-tv', q: 'El monitor o la impresora son ejemplos de periféricos de...', correct: 'Salida'},
+            {icon: 'fa-brands fa-usb', q: 'Una memoria USB (pendrive) es un periférico de ...', correct: 'Almacenamiento'},
+            {icon: 'fa-solid fa-terminal', q: 'Programas internos básicos que controlan el hardware al encender:', correct: 'Bios & Firmware'},
+            {icon: 'fa-solid fa-cubes', q: 'Unidad de medida equivalente a 1024 Bytes:', correct: '1 Kilobyte (KB)'},
+            {icon: 'fa-solid fa-box', q: 'Unidad de medida equivalente a 1024 KB:', correct: '1 Megabyte (MB)'},
+            {icon: 'fa-solid fa-box-tissue', q: 'La caja metálica o de plástico que protege todos los componentes internos:', correct: 'Carcasa / Torre'},
+            {icon: 'fa-solid fa-server', q: '¿Qué tipo de componente es el Procesador (CPU)?', correct: 'Hardware Interno'},
+            {icon: 'fa-solid fa-power-off', q: 'El sistema binario solo entiende de dos estados posibles: encendido o...', correct: 'Apagado'},
+            {icon: 'fa-solid fa-bolt', q: 'Cuando apagamos el ordenador, los datos de esta memoria se borran por completo:', correct: 'Memoria RAM'},
+            {icon: 'fa-solid fa-cloud-arrow-up', q: 'Guardar información en la nube o en un disco duro externo es usar ...', correct: 'Almacenamiento Exterior'},
+            {icon: 'fa-solid fa-icons', q: 'Herramientas informáticas creadas para tareas concretas como escribir o navegar:', correct: 'Programas y Aplicaciones'},
+            {icon: 'fa-solid fa-dna', q: 'Tarjetas internas adicionales que se conectan a la placa base para añadir funciones:', correct: 'Tarjetas PCI'},
+            {icon: 'fa-solid fa-puzzle-piece', q: 'Si tu placa base no tiene sonido o wifi de serie, necesitas añadir una...', correct: 'Tarjeta de Expansión'},
+            {icon: 'fa-brands fa-windows', q: 'El sistema operativo para ordenadores personales más extendido en todo el mundo:', correct: 'Windows'},
+            {icon: 'fa-brands fa-android', q: 'El sistema operativo líder y más utilizado en teléfonos móviles y tablets:', correct: 'Android'},
+            {icon: 'fa-solid fa-mouse', q: 'Periférico que sirve para dirigir el cursor, hacer clic y arrastrar elementos:', correct: 'El Ratón'},
+            {icon: 'fa-solid fa-right-to-bracket', q: 'Tecla principal usada para saltar de línea o confirmar una acción introducida:', correct: 'Enter / Intro'},
+            {icon: 'fa-solid fa-font', q: 'Representa a una sola letra del alfabeto dentro del ordenador:', correct: '1 Byte (Una Letra)'},
+            {icon: 'fa-solid fa-paragraph', q: 'Si un Byte es una letra, la agrupación de varias palabras formando un párrafo equivale a:', correct: '1 Kilobyte (Un Párrafo)'},
+            {icon: 'fa-solid fa-music', q: 'Equivale a unas páginas de un libro; es el tamaño típico de una foto o una canción:', correct: '1 Megabyte (Foto o Canción)'},
+            {icon: 'fa-solid fa-film', q: 'Equivale a un libro completo en texto; se usa para medir películas o memorias USB:', correct: '1 Gigabyte (Libro o Película)'},
+            {icon: 'fa-solid fa-book-atlas', q: 'Equivale a una gran biblioteca entera; mide discos duros actuales o unas 250 películas en HD:', correct: '1 Terabyte (Gran Biblioteca)'},
+            {icon: 'fa-solid fa-cloud-sun', q: 'Unidad de almacenamiento masivo usada en grandes centros de datos. Google procesa unos 20 al día:', correct: '1 Petabyte (Servidores Gigantes)'},
+            {icon: 'fa-brands fa-chrome', q: '¿A qué categoría informática pertenece el navegador Google Chrome?', correct: 'Software de Aplicación'},
+            {icon: 'fa-brands fa-linux', q: '¿A qué categoría pertenece el sistema operativo Linux o MacOS?', correct: 'Software del Sistema'},
+            {icon: 'fa-solid fa-video', q: '¿Qué tipo de periférico específico es una cámara Web (Webcam) conectada?', correct: 'Periférico de Entrada'},
+            {icon: 'fa-solid fa-volume-high', q: '¿Qué tipo de periférico específico son unos altavoces o auriculares?', correct: 'Periférico de Salida'}
+        ];
+
+        let desafioData = [];
+        let opcionSeleccionadaActual = null;
+
+        function initDesafio() {
+            opcionSeleccionadaActual = null;
+
+            let preguntasMezcladas = [...bancoPreguntasTotal];
+            for (let i = preguntasMezcladas.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [preguntasMezcladas[i], preguntasMezcladas[j]] = [preguntasMezcladas[j], preguntasMezcladas[i]];
+            }
+
+            desafioData = preguntasMezcladas.slice(0, 8).map(p => ({
+                ...p,
+                userAns: ''
+            }));
+
+            const banco = document.getElementById('bancoPalabras');
+            banco.innerHTML = '';
+            
+            const opcionesRonda = desafioData.map(p => p.correct).sort();
+            
+            opcionesRonda.forEach(opt => {
+                const idValido = opt.replace(/[^a-zA-Z0-9]/g, '_');
+                banco.innerHTML += `<div class="opcion-tag" id="tag_${idValido}" onclick="seleccionarOpcion('${opt}')">${opt}</div>`;
+            });
+
+            const cont = document.getElementById('desafioContent');
+            if (!cont) return;
+            cont.innerHTML = '';
+
+            desafioData.forEach((d, i) => {
+                cont.innerHTML += `
+                    <div class="img-card" id="concept_card_${i}" onclick="colocarRespuesta(${i})">
+                        <div class="card-icon-container">
+                             <i class="${d.icon}"></i>
+                        </div>
+                        <p>${d.q}</p>
+                        <div class="respuesta-box" id="box_${i}">❓ Haz clic aquí</div>
+                        <div id="fb_concept_${i}" class="feedback"></div>
+                    </div>`;
+            });
+        }
+
+        function seleccionarOpcion(nombreOpcion) {
+            const idTag = nombreOpcion.replace(/[^a-zA-Z0-9]/g, '_');
+            const tagElement = document.getElementById(`tag_${idTag}`);
+            
+            if (tagElement && tagElement.classList.contains('usada')) return;
+
+            if (opcionSeleccionadaActual) {
+                const prevId = opcionSeleccionadaActual.replace(/[^a-zA-Z0-9]/g, '_');
+                const prevTag = document.getElementById(`tag_${prevId}`);
+                if (prevTag) prevTag.style.borderColor = 'var(--accent)';
+            }
+
+            opcionSeleccionadaActual = nombreOpcion;
+            if (tagElement) {
+                tagElement.style.borderColor = 'var(--naranja)';
+            }
+        }
+
+        function colocarRespuesta(indiceCard) {
+            const card = document.getElementById(`concept_card_${indiceCard}`);
+            const box = document.getElementById(`box_${indiceCard}`);
+            const d = desafioData[indiceCard];
+
+            if (d.userAns && !opcionSeleccionadaActual) {
+                const idPrevio = d.userAns.replace(/[^a-zA-Z0-9]/g, '_');
+                const tagPrevio = document.getElementById(`tag_${idPrevio}`);
+                if (tagPrevio) tagPrevio.classList.remove('usada');
+
+                d.userAns = '';
+                box.innerHTML = "❓ Haz clic aquí";
+                card.classList.remove('tiene-valor', 'correct', 'incorrect');
+                return;
+            }
+
+            if (!opcionSeleccionadaActual) return;
+
+            if (d.userAns) {
+                const idPrevio = d.userAns.replace(/[^a-zA-Z0-9]/g, '_');
+                const tagPrevio = document.getElementById(`tag_${idPrevio}`);
+                if (tagPrevio) tagPrevio.classList.remove('usada');
+            }
+
+            d.userAns = opcionSeleccionadaActual;
+            box.innerHTML = opcionSeleccionadaActual;
+            card.classList.add('tiene-valor');
+
+            const idActual = opcionSeleccionadaActual.replace(/[^a-zA-Z0-9]/g, '_');
+            const tagActual = document.getElementById(`tag_${idActual}`);
+            if (tagActual) {
+                tagActual.classList.add('usada');
+                tagActual.style.borderColor = 'var(--accent)';
+            }
+
+            opcionSeleccionadaActual = null;
+        }
+
+        function comprobarDesafio() {
+            let aciertos = 0;
+
+            desafioData.forEach((d, i) => {
+                const card = document.getElementById(`concept_card_${i}`);
+                const fb = document.getElementById(`fb_concept_${i}`);
+                
+                card.classList.remove('correct', 'incorrect');
+                
+                if (d.userAns === d.correct) {
+                    card.classList.add('correct');
+                    fb.style.display = 'none';
+                    aciertos++;
+                } else {
+                    card.classList.add('incorrect');
+                    fb.innerHTML = `Solución: ${d.correct}`;
+                    fb.style.color = 'var(--rojo)';
+                    fb.style.display = 'block';
+                }
+            });
+
+            if (aciertos === desafioData.length) {
+                lanzarConfeti();
+                alert("🎉 ¡Excelente trabajo! Has completado todas las definiciones correctamente.");
+            } else {
+                alert(`Has corregido el ejercicio. Aciertos: ${aciertos} de ${desafioData.length}. Revisa las tarjetas marcadas en rojo.`);
+            }
+        }
+
+        function lanzarConfeti() {
+            var duration = 3 * 1000;
+            var end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+
+        function revelarBoton() {
+            const btn = document.getElementById('btn-profe');
+            if (btn) {
+                btn.style.setProperty('display', 'inline-flex', 'important'); 
+                alert("🧙‍♂️ ¡Llave maestra activada! El botón de resolución automática ya está visible.");
+            }
+        }
+
+        function resolverModoProfe() {
+            desafioData.forEach((d, i) => {
+                d.userAns = d.correct;
+                const card = document.getElementById(`concept_card_${i}`);
+                const box = document.getElementById(`box_${i}`);
+                if (card && box) {
+                    card.classList.add('tiene-valor');
+                    box.innerHTML = d.correct;
+                }
+                const idActual = d.correct.replace(/[^a-zA-Z0-9]/g, '_');
+                const tag = document.getElementById(`tag_${idActual}`);
+                if (tag) tag.classList.add('usada');
+            });
+            opcionSeleccionadaActual = null;
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key.toLowerCase() === 'd') {
+                e.preventDefault(); 
+                resolverModoProfe();
+                alert("🪄 Modo Profe: Respuestas autocompletadas.");
+            }
+        });
+
+        window.onload = initDesafio;
+    </script>
+</body>
+<footer style="text-align: center; padding: 10px 10px; color: #7f8c8d; font-size: 1em; margin-top: 20px; border-top: 1px solid #e0e0e0; line-height: 1.5;">
+        <strong>&copy; 2026 — Creado por Profe Adna</strong> con &hearts; para mis alumnos | Taller de Informática EPA Sedaví<br>	 
+		<span class="llave-secreta" onclick="revelarBoton()">🔑</span>
+</footer>
+</html>

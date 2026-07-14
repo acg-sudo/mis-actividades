@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El PC como un Restaurante</title>
+    <link href='https://tallerinformaticaepasedavi.blogspot.com/favicon.ico' rel='icon' type='image/x-icon'/>	
+
+    <style>
+        :root {
+            --primary: #e67e22;
+            --primary-dark: #d35400;
+            --bg-color: #f4f6f7;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --azul: #2c3e50;
+            --naranja: #e67e22;
+            --verde: #27ae60;
+            --rojo: #e74c3c;
+            --celeste: #3498db;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1450px;
+            width: 100%;
+        }
+
+        .header-ruta {
+            text-align: center;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .nav-pasos {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            gap: 10px;
+            overflow-x: auto;
+        }
+
+        .step-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            background: #e5e8e8;
+            color: #7f8c8d;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .step-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 3px 8px rgba(230, 126, 34, 0.3);
+        }
+
+        .step-btn.unlocked {
+            background: #d5f5e3;
+            color: #196f3d;
+        }
+
+        .pantalla-nivel {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .pantalla-nivel.active {
+            display: block;
+        }
+
+        .grid-teoria {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card-info {
+            padding: 20px;
+            border-radius: 12px;
+            border-top: 5px solid var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            background: #fafbfc;
+        }
+
+/* --- 🤝 REDISEÑO ALTA VISIBILIDAD: PANEL 9 (PC vs RESTAURANTE) --- */
+        .panel-conexion-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 20px;
+            max-width: 1100px; /* Un poco más amplio para evitar ahogar el texto */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .columna-conexion {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* El botón principal estilizado como ficha Premium */
+        .tarjeta-conexion {
+            background: white;
+            border: 2px solid #bdc3c7;
+            border-radius: 16px; /* Bordes más suaves y modernos */
+            padding: 14px 18px;  /* Más espacio interior de clic para manos senior */
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            
+            /* 🔧 Súper importante: Protección anti-desbordamiento de texto */
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+        /* Marco de foto elegante para la miniatura */
+        .img-conexion {
+            width: 75px;
+            height: 55px;
+            object-fit: contain;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            padding: 4px;
+            transition: transform 0.2s ease;
+            flex-shrink: 0; /* Evita que la imagen se encoja si el texto es largo */
+        }
+
+        /* Texto grande, nítido y con buen peso visual */
+        .texto-conexion {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--azul);
+            line-height: 1.3;
+        }
+
+/* --- 💻 COLUMNA IZQUIERDA: ORDENADOR (Efecto Tech Verde) --- */
+        #columna-pc-click .tarjeta-conexion {
+            border-left: 6px solid #2ecc71; /* El borde de la imagen image_363ee3.png ahora es verde */
+        }
+        #columna-pc-click .tarjeta-conexion:hover:not(.bloqueada):not(.incorrecta) {
+            background: #f4fdf7; /* Fondo con un toque verde muy sutil al pasar el ratón */
+            border-color: #2ecc71;
+            transform: translateX(6px);
+        }
+        #columna-pc-click .tarjeta-conexion:hover .img-conexion {
+            transform: scale(1.08);
+        }
+
+        /* --- 🍳 COLUMNA DERECHA: RESTAURANTE (Efecto Cocina Naranja) --- */
+        #columna-res-click .tarjeta-conexion {
+            border-right: 6px solid #e67e22;
+        }
+        #columna-res-click .tarjeta-conexion:hover:not(.bloqueada):not(.incorrecta) {
+            background: #fdf6ee;
+            border-color: #e67e22;
+            transform: translateX(-6px);
+        }
+        #columna-res-click .tarjeta-conexion:hover .img-conexion {
+            transform: scale(1.08);
+        }
+
+        /* --- ⚡ EL "UFF": EFECTOS DE SELECCIÓN ACTIVA (Pulso LED) --- */
+        
+        /* Cuando eligen una tarjeta de PC (¡Ahora cambia a Pulso Verde!) */
+        #columna-pc-click .tarjeta-conexion.seleccionada {
+            border-color: #27ae60;
+            background-color: #eafaf1;
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
+            animation: pulso-verde 2s infinite;
+        }
+
+        /* Cuando eligen una tarjeta de Cocina (Pulso Naranja) */
+        #columna-res-click .tarjeta-conexion.seleccionada {
+            border-color: #d35400;
+            background-color: #fdf0e2;
+            box-shadow: 0 0 15px rgba(230, 126, 34, 0.4);
+            animation: pulso-naranja 2s infinite;
+        }
+
+        /* --- 🚥 SISTEMA DE RESPUESTAS (Acierto y Error) --- */
+
+        /* Tarjeta Emparejada Correctamente (Se vuelve verde sólido) */
+        .tarjeta-conexion.bloqueada.correcta {
+            border-color: var(--verde) !important;
+            background-color: #2ecc71 !important;
+            color: white !important;
+            box-shadow: none !important;
+            cursor: default;
+            transform: none !important;
+        }
+        .tarjeta-conexion.bloqueada.correcta .texto-conexion {
+            color: white !important;
+        }
+
+        /* Tarjeta Errónea (Vibración y color rojo de aviso) */
+        .tarjeta-conexion.incorrecta {
+            border-color: var(--rojo) !important;
+            background-color: #e74c3c !important;
+            color: white !important;
+            animation: vibrar-corta 0.3s ease;
+        }
+        .tarjeta-conexion.incorrecta .texto-conexion {
+            color: white !important;
+        }
+
+		/* --- ✨ ANIMACIONES --- */
+        @keyframes pulso-verde {
+            0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+        }
+        @keyframes pulso-naranja {
+            0% { box-shadow: 0 0 0 0 rgba(230, 126, 34, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(230, 126, 34, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(230, 126, 34, 0); }
+        }
+        @keyframes vibrar-corta {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        /* --- BASE COMÚN PARA TRIVIAS --- */
+		.test-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+			gap: 25px;
+            margin-top: 20px;
+		}
+
+        .test-card {
+            padding: 20px;
+            transition: all 0.2s ease;
+        }
+
+/* ==========================================================================
+           🎨 REDISEÑO ACCESIBLE: NIVEL 10 - ¿QUÉ PASARÍA SI...? (Senior-Friendly)
+           ========================================================================== */
+        #nivel-10 {
+            background-color: #fcfbf5; /* Un tono crema muy suave que no cansa la vista */
+            border: 2px solid #34495e;
+            border-radius: 16px;       /* Esquinas redondeadas y amables */
+        }
+
+        #nivel-10 h2 {
+            color: #2c3e50;
+            font-family: 'Segoe UI', Verdana, sans-serif; /* Fuentes limpias y legibles */
+            font-weight: bold;
+            text-transform: none;        /* ¡Adiós a los gritos en mayúsculas! */
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        #nivel-10 .test-card {
+            background: #ffffff;
+            border: 2px solid #bdc3c7;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04); /* Sombra suave, sin contrastes agresivos */
+            transition: all 0.2s ease;
+            padding: 25px; /* Más espacio interior para respirar */
+        }
+
+        #nivel-10 .test-question {
+            font-family: 'Segoe UI', Verdana, sans-serif;
+            color: #2c3e50;
+            font-size: 1.25em;          /* Tamaño generoso para facilitar la lectura */
+            font-weight: bold;
+            text-transform: none;        /* Escritura natural */
+            background: #fbeaa1;         /* Un amarillo pastel mucho más tierno */
+            margin: -25px -25px 20px -25px;
+            padding: 16px 25px;
+            border-bottom: 2px solid #e5c158;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        /* Ocultar el radio button clásico circular */
+        #nivel-10 .test-option input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* Convertir opciones en botones limpios y amplios (fáciles de clicar) */
+        #nivel-10 .test-option {
+            display: block;
+            background: #f8f9fa;
+            border: 2px solid #dcdde1;
+            border-radius: 8px;
+            padding: 16px 20px;         /* Margen amplio: ideal si les tiembla un poco el pulso con el ratón */
+            margin: 14px 0;
+            font-weight: 600;
+            font-size: 1.15em;          /* Texto grande y claro */
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        /* Efecto Hover sutil al pasar el ratón */
+        #nivel-10 .test-option:hover {
+            background: #f1f2f6;
+            border-color: #34495e;
+        }
+
+        /* 🌟 Opción Seleccionada de manera elegante */
+        #nivel-10 .test-option:has(input:checked) {
+            background: #ebf5fb;         /* Azul claro relajante */
+            border-color: #2980b9;       /* Borde azul nítido que confirma la selección */
+            color: #2980b9;
+        }
+
+        /* --- ESTADOS DE CORRECCIÓN (Al comprobar) --- */
+        #nivel-10 .test-card.correct { 
+            border-color: var(--verde); 
+            background: #f4fbf7;
+        }
+        #nivel-10 .test-card.correct .test-question { 
+            background: var(--verde); 
+            color: white; 
+            border-bottom-color: #1e7e43;
+        }
+        #nivel-10 .test-card.correct .test-option:has(input:checked) {
+            background: #eafaf1;
+            color: #1e7e43;
+            border-color: var(--verde);
+        }
+
+        #nivel-10 .test-card.incorrect { 
+            border-color: var(--rojo); 
+            background: #fdf4f4;
+        }
+        #nivel-10 .test-card.incorrect .test-question { 
+            background: var(--rojo); 
+            color: white; 
+            border-bottom-color: #b03a2e;
+        }
+        #nivel-10 .test-card.incorrect .test-option:has(input:checked) {
+            background: #fdf2f2;
+            color: #b03a2e;
+            border-color: var(--rojo);
+        }
+
+
+/* ==========================================================================
+           🧩 REDISEÑO ACCESIBLE: NIVEL 11 - EL TABLÓN DE FICHAS DE CONCURSO
+           ========================================================================== */
+        #nivel-11 {
+            background-color: #f4f6f7; /* Un fondo gris azulado muy limpio y moderno */
+            border: 2px solid #cfd8dc;
+            border-radius: 16px;
+            padding: 30px 20px;
+        }
+
+        #nivel-11 h2 {
+            color: #2c3e50;
+            font-family: 'Segoe UI', Verdana, sans-serif;
+            font-weight: bold;
+            font-size: 1.8em;
+            border-bottom: 3px solid #3498db; /* Línea de acento azul juego */
+            padding-bottom: 12px;
+            margin-bottom: 30px;
+        }
+
+        /* La tarjeta que contiene la pregunta */
+        #nivel-11 .test-card {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            padding: 30px;
+            margin-bottom: 25px;
+            /* Activamos el contador automático de respuestas */
+            counter-reset: numero-opcion; 
+        }
+
+        /* Texto de la pregunta */
+        #nivel-11 .test-question {
+            font-family: 'Segoe UI', Verdana, sans-serif;
+            font-size: 1.3em;
+            color: #2c3e50;
+            font-style: normal;
+            font-weight: bold;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Ocultamos el radio button circular antiguo */
+        #nivel-11 .test-option input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* Las opciones transformadas en Grandes Fichas de pulsación */
+        #nivel-11 .test-option {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 16px 20px; /* Área de clic gigante */
+            margin: 14px 0;
+            font-family: 'Segoe UI', Verdana, sans-serif;
+            font-size: 1.2em; /* Letra grande y clara */
+            font-weight: 600;
+            color: #334155;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+        }
+
+        /* MÁGIA CSS: Creamos los círculos con los números 1, 2, 3 automáticamente */
+        #nivel-11 .test-option::before {
+            counter-increment: numero-opcion; /* Suma 1 por cada opción */
+            content: counter(numero-opcion);  /* Muestra el número resultante */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 36px;
+            background: #f1f5f9;
+            color: #64748b;
+            border-radius: 50%; /* Círculo perfecto */
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-right: 18px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+
+        /* Al pasar el ratón por encima */
+        #nivel-11 .test-option:hover {
+            background: #f8fafc;
+            border-color: #3498db;
+        }
+        #nivel-11 .test-option:hover::before {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        /* 🔘 FICHA SELECCIONADA: Se ilumina en un azul tecnológico muy vistoso */
+        #nivel-11 .test-option:has(input:checked) {
+            background: #ebf5fb; 
+            border-color: #2980b9;
+            color: #2980b9;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(41, 128, 185, 0.1);
+        }
+        /* El número también cambia de color al seleccionarse */
+        #nivel-11 .test-option:has(input:checked)::before {
+            background: #2980b9;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        /* --- SISTEMA DE CORRECCIÓN --- */
+        
+        /* Ficha seleccionada Correcta */
+        #nivel-11 .test-card.correct .test-option:has(input:checked) {
+            background: #eafaf1;
+            color: #1e7e43;
+            border-color: var(--verde);
+        }
+        #nivel-11 .test-card.correct .test-option:has(input:checked)::before {
+            background: var(--verde);
+            border-color: var(--verde);
+            content: "✓"; /* Cambia el número por un check de correcto */
+        }
+
+        /* Ficha seleccionada Incorrecta */
+        #nivel-11 .test-card.incorrect .test-option:has(input:checked) {
+            background: #fdf2f2;
+            color: #b03a2e;
+            border-color: var(--rojo);
+        }
+        #nivel-11 .test-card.incorrect .test-option:has(input:checked)::before {
+            background: var(--rojo);
+            border-color: var(--rojo);
+            content: "✕"; /* Cambia el número por una cruz de error */
+        }
+
+
+ /* ==========================================================================
+           🚨 REDISEÑO ACCESIBLE: NIVEL 12 - SERVICIO DE URGENCIAS (Alta Visibilidad)
+           ========================================================================== */
+        #nivel-12 {
+            background-color: #0f172a; /* Un azul oscuro profundo, mucho más relajante que el negro puro */
+            color: #f1f5f9;
+            padding: 30px 20px;
+            border: 3px solid #ef4444; /* Borde rojo de advertencia médica */
+            border-radius: 16px;
+        }
+
+        #nivel-12 h2 {
+            color: #f87171 !important; /* Un rojo coral brillante que destaca perfectamente sin deslumbrar */
+            font-family: 'Segoe UI', Verdana, sans-serif;
+            font-weight: bold;
+            font-size: 1.8em;
+            text-transform: none; /* Quitamos las mayúsculas sostenidas para evitar el efecto de grito */
+            text-shadow: none;    /* Eliminamos sombras que emborronen la letra */
+            border-bottom: 2px solid #ef4444;
+            padding-bottom: 12px;
+            margin-bottom: 30px;
+        }
+
+        /* La pantalla de alerta (La tarjeta de la pregunta) */
+        #nivel-12 .test-card {
+            background: #1e293b; /* Fondo de tarjeta gris-azuloso de alto contraste */
+            border: 2px solid #334155;
+            border-top: 6px solid #ef4444; /* Indicador superior de urgencia */
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        /* Texto de la pregunta en modo monitor médico */
+        #nivel-12 .test-question {
+            font-family: 'Segoe UI', Verdana, sans-serif;
+            color: #fca5a5; /* Rosa/rojo suave de alta legibilidad sobre fondo oscuro */
+            font-size: 1.3em; /* Letra grande y nítida */
+            font-weight: bold;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+		
+		/* ⚠️ Prefijo de Alerta en la pregunta (Amarillo brillante de alta visibilidad) */
+        #nivel-12 .test-question::before {
+            content: "⚠️ [ALERTA] ";
+            color: #f1c40f; 
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        /* Cambios dinámicos automáticos al corregir */
+        #nivel-12 .test-card.correct .test-question::before { 
+            content: "✅ [SISTEMA REPARADO] "; 
+            color: #34d399; 
+        }
+        
+        #nivel-12 .test-card.incorrect .test-question::before { 
+            content: "🚨 [FALLO CRÍTICO] "; 
+            color: #f87171; 
+        }
+		
+        /* Ocultar el radio button clásico circular */
+        #nivel-12 .test-option input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* Opciones transformadas en botones de panel de control (Grandes y limpios) */
+        #nivel-12 .test-option {
+            display: block;
+            background: #334155;
+            border: 2px solid #475569;
+            color: #f8fafc; /* Texto casi blanco para un contraste perfecto */
+            border-radius: 10px;
+            padding: 16px 20px; /* Margen de clic excelente para las manos */
+            margin: 14px 0;
+            font-family: 'Segoe UI', Verdana, sans-serif;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            
+            /* 🔧 Protección contra desbordamientos (Evita el error del ventilador) */
+            overflow-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        /* Al pasar el ratón por encima (Se ilumina el botón del panel) */
+        #nivel-12 .test-option:hover {
+            background: #475569;
+            color: #ffffff;
+            border-color: #f87171;
+        }
+
+        /* 🔘 OPCIÓN SELECCIONADA: Se enciende en rojo de alerta activada */
+        #nivel-12 .test-option:has(input:checked) {
+            background: #7f1d1d; /* Fondo rojo vino oscuro */
+            border-color: #ef4444; /* Borde rojo vivo */
+            color: #ffffff;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+        }
+
+        /* --- SISTEMA DE CORRECCIÓN (Resultados de Crisis) --- */
+        
+        /* Caso Éxito (Urgencia Resuelta) */
+        #nivel-12 .test-card.correct {
+            border-color: #10b981;
+            border-top-color: #10b981;
+            background: #064e3b; /* Verde oscuro seguro */
+        }
+        #nivel-12 .test-card.correct .test-question { color: #34d399; }
+        #nivel-12 .test-card.correct .test-option:has(input:checked) {
+            background: #065f46;
+            border-color: #10b981;
+            color: #ffffff;
+            box-shadow: none;
+        }
+        
+        /* Caso Error (Fallo de Sistema) */
+        #nivel-12 .test-card.incorrect {
+            border-color: #ef4444;
+            border-top-color: #ef4444;
+            background: #451a1a; /* Rojo oscuro de error */
+        }
+        #nivel-12 .test-card.incorrect .test-question { color: #fca5a5; }
+        #nivel-12 .test-card.incorrect .test-option:has(input:checked) {
+            background: #991b1b;
+            border-color: #ef4444;
+            color: #ffffff;
+            box-shadow: none;
+        }
+
+
+        /* --- CONTROLES Y BOTONES --- */
+        .controles-juego { margin-top: 30px; text-align: center; display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; }
+
+		.btn-panel {
+			background: linear-gradient(135deg, #f39c12, #e67e22);
+			color: white;
+			border: none;
+			padding: 22px;
+			font-size: 1.4em;
+			font-weight: bold;
+			border-radius: 12px;
+			cursor: pointer;
+			transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+			box-shadow: 0 4px 15px rgba(230, 126, 34, 0.25);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 12px;
+		}
+
+		.btn-panel:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 6px 20px rgba(230, 126, 34, 0.4);
+			background: linear-gradient(135deg, #f5b041, #eb984e);
+		}
+
+		.btn-panel:active { transform: translateY(-1px); }
+
+		.btn-control {
+			padding: 12px 25px;
+			font-size: 1em;
+			font-weight: bold;
+			border: none;
+			border-radius: 10px;
+			cursor: pointer;
+			color: white;
+			transition: 0.3s;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			margin: 5px;
+			height: 48px;
+			min-width: 150px;
+		}
+		.btn-control:hover { opacity: 0.9; }
+
+		.btn-check { background: var(--azul); }
+		.btn-reset { background: #7f8c8d; }       
+		.btn-home { background: #b97747; }        
+		.btn-profesor { background: var(--celeste); display: none; }
+		.btn-naranja { background: var(--naranja); }
+
+        #canvas-confeti {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+		
+		.nav-pasos { display: none; }
+    
+	/* ==========================================================================
+           📖 REDISEÑO: EL CUENTO DE LAS DOS HISTORIAS PARALELAS
+           ========================================================================== */
+        .contenedor-cuento {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 25px auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Cada capítulo o paso del cuento */
+        .capitulo-cuento {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+        }
+
+        /* Efecto libro al pasar el ratón por el capítulo */
+        .capitulo-cuento:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+            background: #fafbfc;
+        }
+
+        .historia-pc {
+            border-left: 4px solid #2ecc71;
+            padding-left: 15px;
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+        .historia-pc b {
+            color: #27ae60;
+            background: #eafaf1;
+            padding: 1px 4px;
+            border-radius: 4px;
+        }
+
+        .historia-res {
+            border-left: 4px solid #e67e22;
+            padding-left: 15px;
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+        .historia-res b {
+            color: #d35400;
+            background: #fdf0e2;
+            padding: 1px 4px;
+            border-radius: 4px;
+        }
+	
+	</style>
+</head>
+<body>
+
+<canvas id="canvas-confeti"></canvas>
+
+<div class="container">
+
+    <div class="header-ruta">
+        <h1 style="margin:0; font-size: 1.8em;">🖥️ El PC como un Restaurante 🍽️</h1>
+        <p style="margin: 5px 0 0 0; opacity: 0.9;">Domina la arquitectura de ordenadores mediante la analogía de la cocina</p>
+    </div>
+
+	<div id="panel-inicio" class="pantalla-nivel active" style="text-align: center; padding: 50px 20px;">
+		<p style="font-size: 1.2em; color: #566573; margin-bottom: 30px;">Selecciona una actividad para comenzar:</p>
+		<div style="display: flex; flex-direction: column; gap: 20px; max-width: 550px; margin: 0 auto;">
+			<button class="btn-panel" onclick="cambiarPantalla(8)">📖 Teoría</button>
+			<button class="btn-panel" onclick="cambiarPantalla(9)">🤝 Relacionar PC-Restaurante</button>
+			<button class="btn-panel" onclick="cambiarPantalla(10)">❓ ¿Qué pasaría si...?</button>
+			<button class="btn-panel" onclick="cambiarPantalla(11)">📝 Crítica</button>
+			<button class="btn-panel" onclick="cambiarPantalla(12)">🆘 Urgencias</button>
+		</div>
+	</div>
+
+    <div class="nav-pasos">
+        <button id="btn-step-8" class="step-btn active" onclick="cambiarPantalla(8)">📖 Teoría</button>
+        <button id="btn-step-9" class="step-btn" onclick="cambiarPantalla(9)">🤝 Relacionar PC-Restaurante</button>
+        <button id="btn-step-10" class="step-btn" onclick="cambiarPantalla(10)">❓ ¿Qué pasaría si...?</button>
+        <button id="btn-step-11" class="step-btn" onclick="cambiarPantalla(11)">📝 Crítica</button>
+        <button id="btn-step-12" class="step-btn" onclick="cambiarPantalla(12)">🆘 Urgencias</button>
+    </div>
+
+	<div id="nivel-8" class="pantalla-nivel">
+        <h2 style="color: var(--primary); margin-top: 0;">📖 Consulta de Correspondencias</h2>
+        <p style="margin-bottom: 25px;">Si tienes dudas durante el juego, lee los relatos o consulta la lista de abajo:</p>
+        
+        <!-- 📖 EL CUENTO DE LAS DOS HISTORIAS PARALELAS -->
+        <div class="contenedor-cuento">
+            
+            <!-- Encabezados fijos de las columnas del cuento -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: -5px; padding: 0 10px;">
+                <div style="color: var(--azul); font-weight: bold; font-size: 1.15em;">💻 En el Ordenador:</div>
+                <div style="color: var(--naranja); font-weight: bold; font-size: 1.15em;">🔍 En el Restaurante:</div>
+            </div>
+
+            <!-- Capítulo 1: El Inicio del Sistema -->
+            <div class="capitulo-cuento">
+                <div class="historia-pc">
+                    En un ordenador, para que una tarea se complete, el 📖 <b>Sistema Operativo</b> ejecuta el 🎆 <b>Programa o app</b> solicitado.
+                </div>
+                <div class="historia-res">
+                    En un restaurante, para que un plato salga a la mesa, el 📖 <b>Libro de reglas</b> pone en marcha el 📄 <b>Menú & Recetas específicas</b> solicitado.
+                </div>
+            </div>
+
+            <!-- Capítulo 2: El Cerebro y los Datos -->
+            <div class="capitulo-cuento">
+                <div class="historia-pc">
+                    Entonces, el procesador (🧠 <b>CPU - procesador</b>) extrae los 📁 <b>Archivos</b> de las 🗄️ <b>Unidades de almacenamiento</b> (o del ☁️ <b>Almacenamiento exterior</b>) y los carga en la 📋 <b>Memoria RAM</b> para trabajar con ellos.
+                </div>
+                <div class="historia-res">
+                    Entonces, el 🧑‍🍳 <b>Chef</b> extrae los 🥕 <b>Ingredientes</b> de la 📦 <b>Despensa</b> (o del 🏚️ <b>Almacén externo</b>) y los coloca en la 🍳 <b>Mesa de trabajo</b> para cocinarlos.
+                </div>
+            </div>
+
+            <!-- Capítulo 3: Visualización y Salida -->
+            <div class="capitulo-cuento">
+                <div class="historia-pc">
+                    Mientras el sistema está en funcionamiento, la 🖥️ <b>Tarjeta gráfica</b> genera la imagen para que todo se vea correctamente en la pantalla a través de los ⚡ <b>Puertos</b> y 🖱️ <b>Periféricos</b>.
+                </div>
+                <div class="historia-res">
+                    Luego el 🍽️ <b>Emplatador</b> se encarga de que la comida se vea bien en el plato para servirla por las 🚪 <b>Puertas de entrada y salida</b> con los 🍴 <b>Utensilios</b> adecuados.
+                </div>
+            </div>
+
+            <!-- Capítulo 4: Flujos de Soporte y Red -->
+            <div class="capitulo-cuento">
+                <div class="historia-pc">
+                    Al mismo tiempo, el 💦🌿 <b>Sistema de refrigeración</b> desaloja el calor interno, la 🌐 <b>Tarjeta de red & wifi</b> nos conecta a la red y los 🔗 <b>Buses de datos</b> mueven la información entre las piezas.
+                </div>
+                <div class="historia-res">
+                    Mientras la cocina está en marcha, los 💨❄️ <b>Extractores de humo y Aire Acondicionado</b> eliminan el calor, el 🍎 <b>Suministro de ingredientes</b> nos conecta con los proveedores y los 🧑‍🤝‍🧑 <b>Camareros</b> se encargarán de mover todo por el local.
+                </div>
+            </div>
+
+            <!-- Capítulo 5: La Energía y el Protagonista -->
+            <div class="capitulo-cuento">
+                <div class="historia-pc">
+                    Todo esto se sostiene sobre la 🎛️ <b>Placa base</b> y recibe electricidad de la 🔌 <b>Fuente de alimentación</b>. Finalmente, todo este proceso se pone en marcha gracias al 👤 <b>Usuario</b>, que es quien da las órdenes al equipo.
+                </div>
+                <div class="historia-res">
+                    Todo esto ocurre sobre una 🧱 <b>Infraestructura: suelo, paredes, etc.</b> sólida y con energía constante de ⚡ <b>Electricidad y gas</b>. Por último, nada de esto tendría sentido sin los 👤 <b>Clientes</b>, que son quienes hacen el pedido.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 📋 Diccionario Rápido de Equivalencias (Se queda igual como te gusta) -->
+        <div class="card-info" style="border-top-color: var(--success); background: #ffffff; padding: 25px; margin-top: 25px;">
+            <h3 style="margin-top:0; color: var(--success); font-size: 1.4em; border-bottom: 2px solid #d4efdf; padding-bottom: 8px; text-align: center;">📋 Diccionario Rápido de Equivalencias</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 10px 20px;">
+                <div style="line-height: 1.8; font-size: 1.1em;">
+                    <h4 style="margin: 0 0 10px 0; color: var(--azul); border-bottom: 1px dashed #ccc; padding-bottom: 5px;">🧱 Componentes Físicos (Hardware)</h4>
+                    <div>🔗 <b>Buses de datos</b> = 🧑‍🤝‍🧑 <b>Camareros</b></div>
+                    <div>🧠 <b>CPU - procesador</b> = 🧑‍🍳 <b>Chef</b></div>
+                    <div>🔌 <b>Fuente de alimentación</b> = ⚡ <b>Electricidad y gas</b></div>
+                    <div>📋 <b>Memoria RAM</b> = 🍳 <b>Mesa de trabajo</b></div>
+                    <div>🖱️ <b>Periféricos</b> = 🍴 <b>Utensilios</b></div>
+                    <div>🎛️ <b>Placa base</b> = 🧱 <b>Infraestructura</b></div>
+                    <div>⚡ <b>Puertos</b> = 🚪 <b>Puertas de entrada y salida</b></div>
+                    <div>💦🌿 <b>Sistema de refrigeración</b> = 💨❄️ <b>Extractores y AA</b></div>
+                    <div>🌐 <b>Tarjeta de red & wifi</b> = 🍎 <b>Suministro de ingredientes</b></div>
+                    <div>🖥️ <b>Tarjeta gráfica</b> = 🍽️ <b>Emplatador</b></div>
+                    <div>🗄️ <b>Unidades de almacenamiento</b> = 📦 <b>Despensa</b></div>
+                </div>
+                <div style="line-height: 1.8; font-size: 1.1em;">
+                    <h4 style="margin: 0 0 10px 0; color: var(--primary-dark); border-bottom: 1px dashed #ccc; padding-bottom: 5px;">💾 Programas y Personas</h4>
+                    <div>☁️ <b>Almacenamiento exterior</b> = 🏚️ <b>Almacén externo</b></div>
+                    <div>📁 <b>Archivos</b> = 🥕 <b>Ingredientes</b></div>
+                    <div>🎆 <b>Programas y apps</b> = 📄 <b>Menú y Recetas</b></div>
+                    <div>📖 <b>Sistema Operativo</b> = 📖 <b>Libro de reglas</b></div>
+                    <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dotted #ddd;">👤 <b>Usuarios</b> = 👤 <b>Clientes</b></div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: right; margin-top: 25px;">
+            <button class="btn-control btn-home" onclick="cambiarPantalla(0)">🏠 Volver al Panel</button>
+            <button class="btn-control btn-naranja" onclick="cambiarPantalla(9)">Ir a 🤝 Relacionar ➡️</button>
+       </div>
+    </div>
+	
+    <div id="nivel-9" class="pantalla-nivel">
+        <h2 style="color: var(--primary); margin-top: 0;">🤝 Panel de Conexiones Relámpago (6 retos aleatorios)</h2>
+        <p>¡Haz clic en un componente de la columna <b>Ordenador</b> y luego en su equivalente de la columna <b>Restaurante</b>!</p>
+        
+        <div class="panel-conexion-grid">
+            <div class="columna-conexion" id="columna-pc-click"></div>
+            <div class="columna-conexion" id="columna-res-click"></div>
+        </div>
+
+		<div class="controles-juego">
+			<button class="btn-control btn-reset" onclick="reiniciarRelacionar()">🔄 Nuevos Componentes</button>
+			<button class="btn-control btn-home" onclick="cambiarPantalla(0)">🏠 Volver al Panel</button>
+			<button id="btn-next-9" class="btn-control btn-naranja" style="display:none;" onclick="cambiarPantalla(10)">Ir a ❓ ¿Qué pasaría si...? ➡️</button>
+		</div>
+
+		<div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+			<button class="btn-control btn-profesor" id="btn-profe" onclick="autoCompletarRelacionar()">Modo Profesor</button>
+		</div>
+    </div>
+
+	<div id="nivel-10" class="pantalla-nivel">
+		<h2>❓ ¿Qué pasaría si...? (Ronda aleatoria de 8 retos)</h2>
+		<div id="qpContent"></div>
+		
+		<div class="controles-juego">
+			<button class="btn-control btn-check" onclick="checkRadio('qp', qpQAleatorias, 'qp_')">✅ Comprobar</button>
+			<button class="btn-control btn-reset" onclick="initQuePasariaSi()">🔄 Nuevas preguntas</button>
+			<button class="btn-control btn-home" onclick="cambiarPantalla(0)">🏠 Volver al Panel</button>
+			<button id="btn-next-10" class="btn-control btn-naranja" onclick="cambiarPantalla(11)">Ir a 📝 Crítica Técnica ➡️</button>
+		</div>
+		
+		<div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+			<button class="btn-control btn-profesor" id="btn-profe-10" onclick="autoCompletarRadio('qp', qpQAleatorias, 'qp_')">Modo Profesor</button>
+		</div>
+	</div>
+
+	<div id="nivel-11" class="pantalla-nivel">
+		<h2>📝 Crítica Técnica (Ronda aleatoria de 8 retos)</h2>
+		<div id="cgContent"></div>
+		
+		<div class="controles-juego">
+			<button class="btn-control btn-check" onclick="checkRadio('cg', cgQAleatorias, 'cg_')">✅ Comprobar</button>
+			<button class="btn-control btn-reset" onclick="initCritica()">🔄 Nuevas preguntas</button>
+			<button class="btn-control btn-home" onclick="cambiarPantalla(0)">🏠 Volver al Panel</button>
+			<button id="btn-next-11" class="btn-control btn-naranja" onclick="cambiarPantalla(12)">Ir a 🆘 Servicio de Urgencia ➡️</button>
+		</div>
+		
+		<div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+			<button class="btn-control btn-profesor" id="btn-profe-11" onclick="autoCompletarRadio('cg', cgQAleatorias, 'cg_')">Modo Profesor</button>
+		</div>
+	</div>
+
+	<div id="nivel-12" class="pantalla-nivel">
+		<h2>🆘 Servicio de Urgencia (Ronda aleatoria de 8 retos)</h2>
+		<div id="suContent"></div>
+		
+		<div class="controles-juego">
+			<button class="btn-control btn-check" onclick="checkRadio('su', suQAleatorias, 'su_')">✅ Comprobar</button>
+			<button class="btn-control btn-reset" onclick="initServicioUrg()">🔄 Nuevas preguntas</button>
+			<button class="btn-control btn-home" onclick="cambiarPantalla(0)">🏠 Volver al Panel</button>
+		</div>
+		
+		<div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+			<button class="btn-control btn-profesor" id="btn-profe-12" onclick="autoCompletarRadio('su', suQAleatorias, 'su_')">Modo Profesor</button>
+		</div>
+	</div>
+</div>
+
+<script>
+    const datosRelacionar = [
+        { pc: "Buses de datos", res: "Camareros", imgpc: "buses", imgres: "camareros" },
+        { pc: "CPU - procesador", res: "Chef", imgpc: "cpu", imgres: "chef" },
+        { pc: "Fuente de alimentación", res: "Electricidad y gas", imgpc: "fuente", imgres: "electricidad" },
+        { pc: "Memoria RAM", res: "Mesa de trabajo", imgpc: "memoriaram", imgres: "mesatrabajo" },
+        { pc: "Periféricos", res: "Utensilios", imgpc: "perifericos", imgres: "utensilios" },
+        { pc: "Placa base", res: "Infraestructura", imgpc: "placabase", imgres: "infraestructura" },
+        { pc: "Puertos", res: "Puertas de entrada y salida", imgpc: "puertos", imgres: "puertas" },
+        { pc: "Sistema de refrigeración", res: "Extractores de humo y Aire Acondicionado", imgpc: "refrigeracion", imgres: "extractores" },
+        { pc: "Tarjeta de red & wifi", res: "Suministro de ingredientes", imgpc: "red", imgres: "suministroingredientes" },
+        { pc: "Tarjeta gráfica", res: "Emplatador", imgpc: "grafica", imgres: "emplatador" },
+        { pc: "Unidades de almacenamiento", res: "Despensa", imgpc: "almacenamiento", imgres: "despensa" },
+        { pc: "Almacenamiento exterior", res: "Almacén externo", imgpc: "exterior", imgres: "almacenexterno" },
+        { pc: "Archivos", res: "Ingredientes", imgpc: "archivos", imgres: "ingredientes" },
+        { pc: "Programas y apps", res: "Menú & Recetas específicas", imgpc: "programasyapps", imgres: "menuyrecetas" },
+        { pc: "Sistema Operativo", res: "Libro de reglas", imgpc: "sistemaoperativo", imgres: "libroreglas" },
+        { pc: "Usuarios", res: "Clientes", imgpc: "usuarios", imgres: "clientes" }
+    ];
+
+	// --- BANCO GLOBAL DE PREGUNTAS (¿Qué pasaría si?, Crítica, Urgencia) ---
+	const qpQ = [
+		{ q: "El Chef cocina muy lento", opts: ["Ordenador lento", "Poco almacenamiento", "No se enciende"], correct: 0 },
+		{ q: "La despensa está llena de cajas viejas", opts: ["Sobrecalentamiento", "Poco almacenamiento", "No hay WiFi"], correct: 1 },
+		{ q: "La mesa de trabajo es minúscula", opts: ["Poca Memoria RAM", "No se enciende", "Fallo de drivers"], correct: 0 },
+		{ q: "Se corta el suministro de gas y luz", opts: ["Sobrecalentamiento", "No se enciende", "Ordenador lento"], correct: 1 },
+		{ q: "Se rompen los extractores de humo", opts: ["No hay WiFi", "Sobrecalentamiento", "Poco almacenamiento"], correct: 1 },
+		{ q: "Se bloquean las puertas de entrada", opts: ["No se conectan periféricos", "Ordenador lento", "Falla el sistema operativo"], correct: 0 },
+		{ q: "Los camareros se ponen en huelga", opts: ["No se enciende", "Los datos no viajan (Buses fallan)", "Poco almacenamiento"], correct: 1 },
+		{ q: "Se pierde el libro de reglas del local", opts: ["Falla el Sistema Operativo", "No hay electricidad", "Falla el ratón"], correct: 0 },
+		{ q: "Falla el suministro de ingredientes externos", opts: ["Sobrecalentamiento", "No hay Internet/Red", "Poca RAM"], correct: 1 },
+		{ q: "Se pierden los manuales de los utensilios", opts: ["No se enciende", "Fallo de Drivers", "Poco almacenamiento"], correct: 1 },
+		{ q: "El Chef no ve las comandas (pedidos)", opts: ["Fallo del Monitor", "Fallo de la RAM", "Fallo de la Fuente"], correct: 0 },
+		{ q: "Los cuchillos no cortan nada", opts: ["Fallo de Software", "Hardware desgastado o antiguo", "No hay Internet"], correct: 1 },
+		{ q: "El suministro de gas y luz sufre bajones intermitentes", opts: ["Reinicios inesperados por picos de tensión", "Falta de espacio en disco", "El ratón no se mueve"], correct: 0 },
+		{ q: "El Menú del día se escribe en un idioma secreto que nadie entiende", opts: ["El ordenador va rápido", "Incompatibilidad de Drivers o Software", "La pantalla parpadea"], correct: 1 },
+		{ q: "Se rompe el lavavajillas y se amontonan platos sucios del mes pasado", opts: ["Fallo de la CPU", "Saturación de archivos basura temporales", "Fallo de alimentación"], correct: 1 },
+		{ q: "Un cliente bromista cambia el número de todas las mesas sin avisar", opts: ["Virus o malware alterando rutas de archivos", "El procesador va más rápido", "Se apaga el monitor"], correct: 0 },
+		{ q: "La despensa tiene la puerta rota y cualquiera entra y quita cosas", opts: ["Falta de Antivirus o claves de seguridad", "Fallo de refrigeración", "No hay altavoces"], correct: 0 },
+		{ q: "El Emplatador se queda sin platos limpios donde servir la comida", opts: ["Fallo en la salida de vídeo / Monitor desconectado", "Fallo de la tarjeta de red", "La RAM se borra"], correct: 0 },
+		{ q: "Los camareros se ven obligados a correr por un pasillo extremadamente estrecho", opts: ["Cuello de botella en los Buses de datos", "Aumento de memoria RAM", "El PC arranca antes"], correct: 0 },
+		{ q: "El Chef olvida por completo el plato que cocinaba en cuanto se apagan los fogones", opts: ["Fallo grave del disco duro", "Comportamiento normal de la memoria RAM volátil", "Fallo del lector de tarjetas"], correct: 1 },
+		{ q: "Se llena a rebosar el contenedor de basura de la puerta trasera del local", opts: ["La papelera de reciclaje requiere ser vaciada", "El disco duro se quema", "No funciona el teclado"], correct: 0 },
+		{ q: "El ayudante de cocina duplica y manda el mismo pedido 100 veces por error", opts: ["Procesos duplicados colapsando el rendimiento", "El PC duplica su almacenamiento", "Aumenta la velocidad de red"], correct: 0 },
+		{ q: "El libro de reglas se moja y se borran la mitad de sus páginas", opts: ["Falla el ratón óptico", "Archivos del Sistema Operativo dañados o corruptos", "La fuente de alimentación explota"], correct: 1 },
+		{ q: "Entran ratones al local y muerden los cables de los utensilios", opts: ["Daño físico por desgaste o accidentes externos", "Fallo del sistema operativo", "Actualización de Windows"], correct: 0 },
+		{ q: "El camión de suministros trae ingredientes equivocados que no se pidieron", opts: ["Descarga de archivos corruptos o erróneos", "Fallo de la placa madre", "La CPU se calienta"], correct: 0 }
+	];
+
+	const cgQ = [
+		{ q: "El 'Menú del Día' (instrucciones actuales) se guarda en un lugar que se borra al cerrar el local. ¿Qué es?", opts: ["Disco Duro", "Memoria RAM", "Fuente de Alimentación"], correct: 1 },
+		{ q: "Si el 'Chef' (CPU) es muy rápido pero la 'Mesa de trabajo' (RAM) es minúscula:", opts: ["El restaurante vuela", "Habrá un cuello de botella", "Se quemará la comida"], correct: 1 },
+		{ q: "¿En qué 'Despensa' guardamos las recetas para que no se pierdan al apagar los fogones?", opts: ["Memoria RAM", "Tarjeta Gráfica", "Disco Duro / SSD"], correct: 2 },
+		{ q: "Un crítico dice que el 'Cerebro' de la cocina es el Monitor. ¿Es correcto?", opts: ["Sí, es el que manda", "No, el cerebro es la CPU", "No, el cerebro es el teclado"], correct: 1 },
+		{ q: "¿Qué componente es el 'Escenario' donde se conectan todos los fogones y utensilios?", opts: ["La Caja", "La Placa Base", "El Ratón"], correct: 1 },
+		{ q: "Si la 'Instalación Eléctrica' (Fuente) es de mala calidad, ¿que riesgo corre el restaurante?", opts: ["Que la comida sepa mal", "Que se quemen los componentes", "Que el ratón no funcione"], correct: 1 },
+		{ q: "Los 'Camareros' que llevan los platos de la cocina a las mesas se llaman...", opts: ["Buses de datos", "Puertos USB", "Ventiladores"], correct: 0 },
+		{ q: "¿Cuál de estos es un 'Ingrediente' de Software (intangible)?", opts: ["El Ratón", "El Sistema Operativo", "El Disipador"], correct: 1 },
+		{ q: "Para que el Chef no se sofoque con el calor de los fogones, instalamos un...", opts: ["Altavoz", "Refrigerador / Ventilador", "Escáner"], correct: 1 },
+		{ q: "El crítico pregunta: ¿Cuál es el componente más importante para jugar (cocinar) en alta resolución?", opts: ["Tarjeta Gráfica Dedicada", "Tarjeta de Sonido", "Lector de DVD"], correct: 0 },
+		{ q: "El armazón exterior que protege todos los utensilios y al Chef es...", opts: ["La Caja o Torre", "La Ventana", "El Mantel"], correct: 0 },
+		{ q: "Si queremos conectar el restaurante con otros restaurantes del mundo usamos...", opts: ["El Grifo", "La Tarjeta de Red / WiFi", "El Horno"], correct: 1 },
+		{ q: "¿Qué ventaja obtenemos si decidimos ampliar la 'Mesa de trabajo' (RAM) de la cocina?", opts: ["El disco duro tendrá más gigas", "Podremos preparar más platos simultáneamente sin ralentizaciones", "La pantalla tendrá mejor color"], correct: 1 },
+		{ q: "Si el 'Chef' dispone de varios ayudantes idénticos trabajando en paralelo, es un procesador...", opts: ["Mononúcleo", "Multinúcleo (Multi-core)", "Sin caché"], correct: 1 },
+		{ q: "Si un cliente te pide cambiar por completo el antiguo 'Libro de Reglas', se refiere a...", opts: ["Actualizar o reinstalar el Sistema Operativo", "Cambiar los cables de datos", "Comprar un ratón gamer"], correct: 0 },
+		{ q: "¿Qué 'Despensa' es más rápida para recolectar ingredientes: un sótano viejo (HDD) o estantes electrónicos (SSD)?", opts: ["El sótano viejo (HDD)", "La despensa electrónica (SSD)", "Ambos tardan igual"], correct: 1 },
+		{ q: "Los utensilios como tenedores o escáneres que introducen o extraen datos son...", opts: ["Periféricos", "Sistemas Operativos", "Buses internos"], correct: 0 },
+		{ q: "Al limpiar las pelusas acumuladas en los 'Extractores de humo' (Disipadores) logramos...", opts: ["Que internet vaya el doble de rápido", "Evitar bajones de potencia y apagones por exceso de calor", "Que la RAM guarde más datos"], correct: 1 },
+		{ q: "El 'Menú y Recetas' (Programas) no puede abrirse si no existe un 'Libro de Reglas' (S.O.) instalado previamente.", opts: ["Falso, funcionan solos", "Verdadero, el S.O. es obligatorio para ejecutarlos", "Depende del tamaño de la torre"], correct: 1 },
+		{ q: "¿Qué pieza transforma la energía eléctrica alterna de la calle en la corriente continua exacta que usa el PC?", opts: ["La Tarjeta Madre", "La Fuente de Alimentación", "El Microprocesador"], correct: 1 },
+		{ q: "Si la 'Infraestructura' (Placa Base) no coincide con los encajes del 'Chef' (CPU), ocurre que...", opts: ["El ordenador va lento", "Son componentes incompatibles y el equipo no se puede montar", "La pantalla se ve al revés"], correct: 1 },
+		{ q: "¿Cuál es la misión principal del operario 'Emplatador' (Tarjeta Gráfica)?", opts: ["Procesar el sonido estereofónico", "Traducir los datos lógicos de la cocina en imágenes píxel a píxel para la pantalla", "Almacenar archivos pesados"], correct: 1 },
+		{ q: "Mandar las sobras de comida sobrante a un 'Almacén Externo' alejado en otra ciudad equivale a...", opts: ["Guardar datos en la Memoria RAM", "Usar Almacenamiento en la Nube o un servidor externo", "Formatear el disco local"], correct: 1 },
+		{ q: "El código malicioso oculto que intenta robar las recetas secretas de nuestra cocina se conoce como...", opts: ["Hardware libre", "Malware o Virus informático", "Memoria Caché"], correct: 1 },
+		{ q: "La masilla especial que se coloca entre el Chef (CPU) y el ventilador para transferir calor se llama...", opts: ["Pasta Térmica", "Pegamento de Silicio", "Aceite de Refrigeración"], correct: 0 }
+	];
+
+	const suQ = [
+		{ q: "¡Agua sobre la placa central!", opts: ["Teclado", "Placa Base", "Altavoz"], correct: 1 },
+		{ q: "El Chef tiene demasiado calor.", opts: ["Ventilador", "Disco Duro", "Ratón"], correct: 0 },
+		{ q: "La despensa se ha quemado.", opts: ["Fallo de RAM", "Fallo de Disco", "Fallo de CPU"], correct: 1 },
+		{ q: "No llega corriente a la cocina.", opts: ["Fallo de Fuente", "Fallo de Pantalla", "Fallo de Buses"], correct: 0 },
+		{ q: "Se ha cortado el cable del ratón.", opts: ["Fallo de Software", "Fallo de Periférico", "Fallo de Memoria"], correct: 1 },
+		{ q: "El Chef no recuerda qué estaba cocinando al encender el fuego.", opts: ["Fallo de Disco Duro", "Fallo de RAM", "Fallo de Gráfica"], correct: 1 },
+		{ q: "Los platos salen con colores extraños y rayas.", opts: ["Fallo de Gráfica", "Fallo de Altavoces", "Fallo de Procesador"], correct: 0 },
+		{ q: "El teclado está pegajoso y no escribe.", opts: ["Limpiar Software", "Cambiar Periférico", "Actualizar BIOS"], correct: 1 },
+		{ q: "El horno pita sin parar y no arranca.", opts: ["Fallo de Placa Base (BIOS)", "Fallo de Internet", "Fallo de Alfombrilla"], correct: 0 },
+		{ q: "El cliente no oye el timbre de aviso.", opts: ["Fallo de Tarjeta de Sonido/Altavoz", "Fallo de RAM", "Fallo de Monitor"], correct: 0 },
+		{ q: "La impresora de tickets se ha quedado sin papel.", opts: ["Fallo de Software", "Fallo de Periférico de Salida", "Fallo de CPU"], correct: 1 },
+		{ q: "El sistema pide una contraseña que nadie sabe.", opts: ["Fallo de Seguridad/Software", "Fallo de Hardware", "Fallo de Ventilador"], correct: 0 },
+		{ q: "Al pulsar el botón de encendido la torre está completamente muerta, sin luces ni ruidos.", opts: ["Fallo de la Pantalla", "Fallo de la Fuente de Alimentación o del cable de red eléctrica", "Fallo del Sistema Operativo"], correct: 1 },
+		{ q: "El sistema va lento y congelado tras abrir simultáneamente 60 pestañas en el navegador web.", opts: ["Saturación y falta de espacio libre en la Memoria RAM", "El disco duro se ha desconectado", "Fallo en los altavoces"], correct: 0 },
+		{ q: "El puntero en pantalla avanza a saltos erráticos o se queda encallado continuamente.", opts: ["El procesador está dañado", "El sensor óptico del ratón está sucio o la alfombrilla es inadecuada", "Fallo en la tarjeta WiFi"], correct: 1 },
+		{ q: "Un cartel emergente de advertencia indica de continuo: 'Espacio en disco casi lleno'.", opts: ["La Memoria RAM se va a quemar", "La Despensa (Almacenamiento) está al límite; toca borrar datos", "La GPU necesita más energía"], correct: 1 },
+		{ q: "El ordenador se apaga de golpe de forma seca a los 10 minutos exactos de arrancar un videojuego potente.", opts: ["Falta de conexión a internet", "Mecanismo de seguridad por sobrecalentamiento térmico", "Fallo en el botón de encendido"], correct: 1 },
+		{ q: "Al abrir el navegador web aparece insistentemente el mensaje: 'Sin conexión a Internet'.", opts: ["Fallo del monitor led", "Avería en la Tarjeta de Red, cable Ethernet o router", "La RAM se ha borrado"], correct: 1 },
+		{ q: "Los altavoces emiten un pitido o zumbido eléctrico de fondo insoportable.", opts: ["Mal contacto en el conector Jack de audio o interferencias en el cableado", "Fallo del disco SSD", "Fallo de la BIOS"], correct: 0 },
+		{ q: "Introduces una memoria externa USB y ningún puerto de la torre emite respuesta.", opts: ["Fallo de la batería de litio", "Fallo lógico en puertos USB o falta de controladores de hardware", "La pantalla se ha desconfigurado"], correct: 1 },
+		{ q: "Banners y ventanas flotantes de publicidad masiva brotan por toda la interfaz sin control.", opts: ["Infección por Malware / Adware publicitario perjudicial", "La CPU está cansada", "Fallo físico de la placa base"], correct: 0 },
+		{ q: "El ordenador desconfigura su reloj interno regresando al año 2000 cada vez que se desconecta de la pared.", opts: ["El procesador es viejo", "La pila de botón CR2032 de la Placa Base se ha agotado", "Fallo del sistema operativo"], correct: 1 },
+		{ q: "El ventilador interno emite un zumbido ensordecedor constante similar a una turbina de avión.", opts: ["Acumulación severa de suciedad en aspas o desgaste del eje del rodamiento", "La RAM va muy rápido", "Fallo en el disco duro"], correct: 0 },
+		{ q: "Tras una actualización interrumpida, el PC arroja una pantalla azul de error crítico en bucle (BSOD).", opts: ["Corrupción grave del Sistema Operativo o conflicto crítico de controladores", "La torre se ha quedado sin luz", "Fallo del teclado"], correct: 0 },
+		{ q: "La torre emite ráfagas de pitidos cortos seguidos por el altavoz interno y no proyecta señal de vídeo.", opts: ["Módulos de memoria RAM mal encajados, sucios o defectuosos", "La alfombrilla está del revés", "Falta papel de impresora"], correct: 0 }
+	];
+		
+	// Variables de estado dinámicas
+	let qpQAleatorias = [];
+	let cgQAleatorias = [];
+	let suQAleatorias = [];
+    
+    // Variables específicas para el Nivel 9 (Panel Relámpago)
+    let combo6Activo = [];
+    let pcSeleccionadoId = null; 
+    let aciertosNivel9 = 0;
+    let idAnimacionConfeti;
+
+	window.onload = function() {
+        cambiarPantalla(0); 
+        const modoProfeGuardado = sessionStorage.getItem("modoProfesorActivo");
+        const idsProfe = ['btn-profe', 'btn-profe-10', 'btn-profe-11', 'btn-profe-12'];
+        idsProfe.forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) btn.style.display = (modoProfeGuardado === "true") ? 'inline-block' : 'none';
+        });
+    };
+
+	function cambiarPantalla(nivelNum) {
+		desactivarConfeti();
+		const nav = document.querySelector('.nav-pasos');
+		const panelInicio = document.getElementById('panel-inicio');
+		document.querySelectorAll('.pantalla-nivel').forEach(p => p.classList.remove('active'));
+
+		if (nivelNum === 0) {
+			panelInicio.classList.add('active');
+			nav.style.display = 'none';
+		} else {
+			nav.style.display = 'flex';
+			document.getElementById(`nivel-${nivelNum}`).classList.add('active');
+			
+			const esProfe = sessionStorage.getItem("modoProfesorActivo") === "true";
+			const idsProfe = ['btn-profe', 'btn-profe-10', 'btn-profe-11', 'btn-profe-12'];
+			idsProfe.forEach(id => {
+				const btn = document.getElementById(id);
+				if (btn) btn.style.display = esProfe ? 'inline-block' : 'none';
+			});
+
+			if (nivelNum === 9) reiniciarRelacionar();
+			else if (nivelNum === 10) initQuePasariaSi();
+			else if (nivelNum === 11) initCritica();
+			else if (nivelNum === 12) initServicioUrg();
+		}
+	}
+
+    // --- SISTEMA DEL NIVEL 9: PANEL RELÁMPAGO ---
+    function inicializarJuegoRelacionar() {
+        const colPC = document.getElementById('columna-pc-click');
+        const colRes = document.getElementById('columna-res-click');
+        document.getElementById('btn-next-9').style.display = "none";
+        
+        colPC.innerHTML = "";
+        colRes.innerHTML = "";
+        pcSeleccionadoId = null;
+        aciertosNivel9 = 0;
+
+        combo6Activo = [...datosRelacionar].sort(() => Math.random() - 0.5).slice(0, 6);
+
+        combo6Activo.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'tarjeta-conexion';
+            div.id = `pc-card-${index}`;
+            div.onclick = () => seleccionarTarjetaPC(index);
+            div.innerHTML = `
+                <img src="./PC/${item.imgpc}.jpg" class="img-conexion" onerror="this.style.display='none'">
+                <div class="texto-conexion">${item.pc}</div>
+            `;
+            colPC.appendChild(div);
+        });
+
+        const comboResDesordenado = combo6Activo.map((item, index) => ({ ...item, originalIndex: index }))
+                                                .sort(() => Math.random() - 0.5);
+
+        comboResDesordenado.forEach((item) => {
+            const div = document.createElement('div');
+            div.className = 'tarjeta-conexion';
+            div.id = `res-card-${item.originalIndex}`;
+            div.onclick = () => verificarTarjetaRes(item.originalIndex);
+            div.innerHTML = `
+                <img src="./Restaurante/${item.imgres}.jpg" class="img-conexion" onerror="this.style.display='none'">
+                <div class="texto-conexion">${item.res}</div>
+            `;
+            colRes.appendChild(div);
+        });
+    }
+
+    function seleccionarTarjetaPC(index) {
+        const card = document.getElementById(`pc-card-${index}`);
+        if (card.classList.contains('bloqueada')) return;
+
+        if (pcSeleccionadoId !== null) {
+            const prevCard = document.getElementById(`pc-card-${pcSeleccionadoId}`);
+            if (prevCard) prevCard.classList.remove('seleccionada');
+        }
+
+        pcSeleccionadoId = index;
+        card.classList.add('seleccionada');
+    }
+
+    function verificarTarjetaRes(index) {
+        if (pcSeleccionadoId === null) {
+            alert("¡Primero haz clic en una pieza de la columna Ordenador!");
+            return;
+        }
+
+        const resCard = document.getElementById(`res-card-${index}`);
+        if (resCard.classList.contains('bloqueada')) return;
+
+        const pcCard = document.getElementById(`pc-card-${pcSeleccionadoId}`);
+
+        if (pcSeleccionadoId === index) {
+            pcCard.classList.remove('seleccionada');
+            pcCard.classList.add('bloqueada', 'correcta');
+            resCard.classList.add('bloqueada', 'correcta');
+            
+            pcSeleccionadoId = null;
+            aciertosNivel9++;
+
+            if (aciertosNivel9 === 6) {
+                setTimeout(() => {
+                    alert("¡Excelente! Has emparejado los 6 elementos a la perfección.");
+                    lanzarConfeti();
+                    document.getElementById('btn-step-9').classList.add('unlocked');
+                    document.getElementById('btn-next-9').style.display = "inline-flex";
+                }, 300);
+            }
+        } else {
+            pcCard.classList.add('incorrecta');
+            resCard.classList.add('incorrecta');
+
+            setTimeout(() => {
+                pcCard.classList.remove('incorrecta', 'seleccionada');
+                resCard.classList.remove('incorrecta');
+            }, 400);
+
+            pcSeleccionadoId = null;
+        }
+    }
+
+    function reiniciarRelacionar() {
+        desactivarConfeti();
+        inicializarJuegoRelacionar();
+    }
+
+    function autoCompletarRelacionar() {
+        for (let i = 0; i < 6; i++) {
+            const pcCard = document.getElementById(`pc-card-${i}`);
+            const resCard = document.getElementById(`res-card-${i}`);
+            if (pcCard && resCard) {
+                pcCard.className = "tarjeta-conexion bloqueada correcta";
+                resCard.className = "tarjeta-conexion bloqueada correcta";
+            }
+        }
+        pcSeleccionadoId = null;
+        aciertosNivel9 = 6;
+        document.getElementById('btn-next-9').style.display = "inline-flex";
+    }
+
+    // --- SISTEMA REUTILIZABLE DE TRIVIAS ---
+    function renderRadio(containerId, questions, prefix, groupName) {
+		const container = document.getElementById(containerId);
+		let html = `<div class="test-grid">`;
+		questions.forEach((q, qIdx) => {
+			html += `<div id="${prefix}card_${qIdx}" class="test-card">
+				<div class="test-question">${qIdx + 1}. ${q.q}</div>
+				${q.opts.map((opt, oIdx) => `<label class="test-option"><input type="radio" name="${groupName}_${qIdx}" value="${oIdx}"> ${opt}</label>`).join('')}
+				<div id="${prefix}fb_${qIdx}" style="display:none; margin-top:10px; font-weight:bold;"></div>
+			</div>`;
+		});
+		container.innerHTML = html + `</div>`;
+	}
+
+	function checkRadio(group, data, prefix) {
+		let correctCount = 0;
+		let totalQuestions = data.length;
+		
+		data.forEach((p, i) => {
+			const sel = document.querySelector(`input[name="${group}_${i}"]:checked`);
+			const card = document.getElementById(`${prefix}card_${i}`);
+			const fb = document.getElementById(`${prefix}fb_${i}`);
+			fb.style.display = "block";
+			if (sel && parseInt(sel.value) === p.correct) {
+				card.className = "test-card correct"; fb.innerHTML = "✓ Correcto!"; correctCount++;
+			} else {
+				card.className = "test-card incorrect"; fb.innerHTML = `✗ Incorrecto. Era: "${p.opts[p.correct]}"`;
+			}
+		});
+		
+		alert(`Has acertado ${correctCount} de ${totalQuestions}.`);
+
+		if (correctCount === totalQuestions) {
+			lanzarConfeti();
+			if (group === 'qp') {
+				document.getElementById('btn-step-10').classList.add('unlocked');
+				document.getElementById('btn-next-10').style.display = "inline-block";
+			} else if (group === 'cg') {
+				document.getElementById('btn-step-11').classList.add('unlocked');
+				document.getElementById('btn-next-11').style.display = "inline-block";
+			} else if (group === 'su') {
+				document.getElementById('btn-step-12').classList.add('unlocked');
+			}
+		}
+	}
+
+	function autoCompletarRadio(group, data, prefix) {
+		data.forEach((p, i) => {
+			const radioCorrecto = document.querySelector(`input[name="${group}_${i}"][value="${p.correct}"]`);
+			if (radioCorrecto) {
+				radioCorrecto.checked = true;
+				const card = document.getElementById(`${prefix}card_${i}`);
+				if (card) card.className = "test-card correct";
+				const fb = document.getElementById(`${prefix}fb_${i}`);
+				if (fb) {
+					fb.style.display = "block";
+					fb.innerHTML = "✓ (Modo Profesor)";
+				}
+			}
+		});
+		if (group === 'qp') document.getElementById('btn-next-10').style.display = "inline-block";
+		else if (group === 'cg') document.getElementById('btn-next-11').style.display = "inline-block";
+	}
+
+	function initQuePasariaSi() { 
+		qpQAleatorias = [...qpQ].sort(() => Math.random() - 0.5).slice(0, 8);
+		renderRadio('qpContent', qpQAleatorias, 'qp_', 'qp'); 
+		if(document.getElementById('btn-next-10')) document.getElementById('btn-next-10').style.display = 'none';
+	}
+	
+	function initCritica() { 
+		cgQAleatorias = [...cgQ].sort(() => Math.random() - 0.5).slice(0, 8);
+		renderRadio('cgContent', cgQAleatorias, 'cg_', 'cg'); 
+		if(document.getElementById('btn-next-11')) document.getElementById('btn-next-11').style.display = 'none';
+	}
+	
+	function initServicioUrg() { 
+		suQAleatorias = [...suQ].sort(() => Math.random() - 0.5).slice(0, 8);
+		renderRadio('suContent', suQAleatorias, 'su_', 'su'); 
+	}
+
+	function cambiarEstadoLlaveProfe() {
+        const idsBotonProfe = ['btn-profe', 'btn-profe-10', 'btn-profe-11', 'btn-profe-12'];
+        let estadoActual = sessionStorage.getItem("modoProfesorActivo");
+        
+        if (estadoActual === "true") {
+            idsBotonProfe.forEach(id => { const b = document.getElementById(id); if(b) b.style.display = 'none'; });
+            sessionStorage.setItem("modoProfesorActivo", "false");
+            alert("Modo Profesor desactivado.");
+        } else {
+            idsBotonProfe.forEach(id => { const b = document.getElementById(id); if(b) b.style.display = 'inline-block'; });
+            sessionStorage.setItem("modoProfesorActivo", "true");
+            alert("Modo Profesor activado. Ya puede ver los botones de autocompletar.");
+        }
+    }
+
+    // --- ANIMACIÓN DE CONFETI ---
+    function lanzarConfeti() {
+        const canvas = document.getElementById("canvas-confeti");
+        const ctx = canvas.getContext("2d");
+        canvas.style.display = "block";
+
+        function redimensionar() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        redimensionar();
+        window.addEventListener('resize', redimensionar);
+
+        const recuentoParticulas = 200;
+        const particulas = [];
+        const colores = ["#ff0055", "#00ffcc", "#ffcc00", "#ff6600", "#9900ff", "#33ff00", "#0099ff"];
+
+        for (let i = 0; i < recuentoParticulas; i++) {
+            particulas.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height, 
+                r: Math.random() * 6 + 4,                          
+                d: Math.random() * recuentoParticulas,             
+                color: colores[Math.floor(Math.random() * colores.length)],
+                inclinacion: Math.random() * 10 - 5,
+                velocidadInclinacion: Math.random() * 0.05 + 0.01
+            });
+        }
+
+        function dibujo() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particulas.forEach((p, index) => {
+                p.y += Math.cos(p.d) + 2 + p.r / 2; 
+                p.x += Math.sin(p.inclinacion);     
+                p.inclinacion += p.velocidadInclinacion;
+
+                ctx.beginPath();
+                ctx.lineWidth = p.r;
+                ctx.strokeStyle = p.color;
+                ctx.moveTo(p.x + p.inclinacion + p.r / 2, p.y);
+                ctx.lineTo(p.x + p.inclinacion, p.y + p.inclinacion + p.r / 2);
+                ctx.stroke();
+
+                if (p.y > canvas.height) {
+                    particulas[index] = {
+                        x: Math.random() * canvas.width, y: -20, r: p.r, d: p.d, color: p.color,
+                        inclinacion: Math.random() * 10 - 5, velocidadInclinacion: p.velocidadInclinacion
+                    };
+                }
+            });
+            idAnimacionConfeti = requestAnimationFrame(dibujo);
+        }
+        dibujo();
+        setTimeout(desactivarConfeti, 15000);
+    }
+
+    function desactivarConfeti() {
+        if (idAnimacionConfeti) {
+            cancelAnimationFrame(idAnimacionConfeti);
+            idAnimacionConfeti = null;
+        }
+        const canvas = document.getElementById("canvas-confeti");
+        if (canvas) {
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.style.display = "none";
+        }
+    }
+</script>
+
+<footer style="text-align: center; padding: 20px 10px; color: #7f8c8d; font-size: 1em; margin-top: 40px; border-top: 1px solid #e0e0e0; width: 100%; line-height: 1.5;">
+    <strong>&copy; 2026 — Creado por Profe Adna</strong> con ❤️ para mis alumnos | Taller de Informática EPA Sedaví<br>	 
+    <span class="llave-secreta" onclick="cambiarEstadoLlaveProfe()">🔑</span>
+</footer>
+</body>
+</html>
