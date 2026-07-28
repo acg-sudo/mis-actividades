@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Identificar Componentes - Placa Base</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://tallerinformaticaepasedavi.blogspot.com/favicon.ico' rel='icon' type='image/x-icon'/>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --azul: #2c3e50;
+            --naranja: #e67e22;
+            --verde: #27ae60;
+            --rojo: #e74c3c;
+            --fondo: #f0f2f5;
+            --card: #ffffff;
+            --text: #2c3e50;
+            --primary: #2c3e50;
+            --accent: #3498db;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--fondo);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .contenedor {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: 10px;
+        }
+
+        header h1 {
+            color: var(--azul);
+            font-size: 2em;
+            margin: 0 0 5px 0;
+        }
+
+        header p {
+            color: #7f8c8d;
+            font-size: 1em;
+            margin: 0;
+        }
+
+        /* --- 1. BLOQUE SUPERIOR: IMAGEN + BANCO A LA DERECHA --- */
+        .bloque-superior {
+            display: grid;
+            grid-template-columns: 1fr 340px; /* La imagen toma todo el espacio posible y el banco 340px */
+            gap: 20px;
+            align-items: start;
+            margin-bottom: 25px;
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 950px) {
+            .bloque-superior {
+                grid-template-columns: 1fr; /* Se apilan en pantallas pequeñas */
+            }
+        }
+
+        .img-principal-container {
+            text-align: center;
+            width: 100%;
+        }
+
+        #img-principal-placa {
+            max-width: 100%;
+            max-height: 580px; /* Tamaño más grande para ver perfectamente la placa */
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* BANCO A LA DERECHA DE LA IMAGEN */
+        .columna-banco-derecha {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px dashed #cbd5e1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .columna-banco-derecha h3 {
+            margin: 0 0 12px 0;
+            font-size: 1.1em;
+            color: var(--azul);
+            text-align: center;
+        }
+
+        .banco-opciones {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .opcion-tag {
+            background: var(--card);
+            border: 2px solid var(--accent);
+            color: var(--text);
+            padding: 8px 12px; 
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9em; 
+            transition: 0.2s;
+            user-select: none;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+
+        .opcion-tag:hover:not(.usada) {
+            transform: translateX(-3px);
+            background: var(--accent);
+            color: white;
+        }
+
+        .opcion-tag.usada {
+            opacity: 0.25;
+            border-color: #cbd5e1;
+            background: #e2e8f0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .opcion-tag.seleccionada {
+            border-color: var(--naranja) !important;
+            background-color: #fff3e0 !important;
+            box-shadow: 0 0 8px rgba(230, 126, 34, 0.5);
+        }
+
+        /* --- 2. BLOQUE INFERIOR: TARJETAS EN FILAS --- */
+        .bloque-inferior {
+            border-top: 2px solid #f0f2f5;
+            padding-top: 20px;
+        }
+
+        .bloque-inferior h3 {
+            margin: 0 0 15px 0;
+            color: var(--azul);
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        #placaFinalContent {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Tarjetas bien distribuidas en filas */
+            gap: 15px;
+        }
+
+        .question-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            min-height: 165px;
+        }
+
+        .question-box:hover {
+            border-color: var(--accent);
+        }
+
+        .question-box.correct {
+            background-color: #f1f9f5 !important;
+            border: 2px solid var(--verde) !important;
+        }
+
+        .question-box.incorrect {
+            background-color: #fff5f5 !important;
+            border: 2px solid var(--rojo) !important;
+        }
+
+        .img-mini-container {
+            width: 100%;
+            height: 75px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            margin: 4px 0;
+        }
+
+        .img-mini-container img {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+        }
+
+        .respuesta-box {
+            width: 100%;
+            border: 2px dashed #cbd5e1;
+            padding: 6px 4px;
+            border-radius: 6px;
+            min-height: 38px; 
+            font-weight: bold;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85em; 
+            text-align: center;
+            color: var(--accent);
+        }
+
+        .question-box.tiene-valor .respuesta-box {
+            border-style: solid;
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .question-box.correct .respuesta-box { background: var(--verde) !important; color: white; border-color: var(--verde); }
+        .question-box.incorrect .respuesta-box { background: var(--rojo) !important; color: white; border-color: var(--rojo); }
+
+        .feedback-text {
+            font-size: 0.75em;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* BOTONES DE ACCIÓN */
+        button {
+            padding: 12px 24px;
+            margin: 5px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: white !important;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-check { background-color: var(--verde) !important; }
+        .btn-reset { background-color: var(--naranja) !important; }
+        button:hover { opacity: 0.9; }
+
+        .llave-secreta { cursor: pointer; opacity: 0.15; transition: 0.3s; }
+        .llave-secreta:hover { opacity: 1; }
+        .btn-profe { display: none; background: linear-gradient(135deg, #6e45e2, #88d3ce) !important; }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+        <header>
+            <h1>❤️ Desafío: La Placa Base. El Corazón del Sistema.</h1>
+            <p>(1) Elige una opción del banco. (2) Baja a la sección de casillas y haz clic sobre el número para asignarla. <i>(Haz clic de nuevo sobre la casilla para liberarla)</i>.</p>
+        </header>
+
+        <!-- 1. BLOQUE SUPERIOR: IMAGEN Y BANCO A LA DERECHA -->
+        <div class="bloque-superior">
+            <div class="img-principal-container">
+                <img id="img-principal-placa" src="imgplacabase/placabase.jpg" alt="Examen Placa Base" onerror="this.src='https://cdn-icons-png.flaticon.com/512/689/689304.png'">
+            </div>
+
+            <div class="columna-banco-derecha">
+                <h3>🏷️ Banco de Opciones</h3>
+                <div class="banco-opciones" id="bancoPalabras"></div>
+            </div>
+        </div>
+
+        <!-- 2. BLOQUE INFERIOR: CASILLAS EN FILAS -->
+        <div class="bloque-inferior">
+            <h3>📝 Asigna los componentes a su número correspondiente:</h3>
+            <div id="placaFinalContent"></div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn-check" onclick="checkPlaca()">✅ Comprobar Respuestas</button>
+                <button class="btn-reset" onclick="resetPlaca()">🔄 Nueva Ronda</button>
+                <button id="btn-profe" class="btn-profe" onclick="resolverEjercicioActual()">🧙‍♂️ Modo Profesor</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const placaFinalData = [
+            { n: 1, correct: "CPU", userAns: null },
+            { n: 2, correct: "Disipador CPU", userAns: null },
+            { n: 3, correct: "Conector alimentación placa", userAns: null },
+            { n: 4, correct: "Memoria RAM", userAns: null },
+            { n: 5, correct: "Pila", userAns: null },
+            { n: 6, correct: "Conectores para Discos", userAns: null },
+            { n: 7, correct: "Conectores Tarjetas Expansión", userAns: null },
+            { n: 8, correct: "BIOS", userAns: null },
+            { n: 9, correct: "Conectores Tarjeta Gráfica Dedicada", userAns: null },
+            { n: 10, correct: "Conectores Audio", userAns: null },
+            { n: 11, correct: "Conector Ethernet RJ-45", userAns: null },
+            { n: 12, correct: "Conectores USB", userAns: null },
+            { n: 13, correct: "Conectores Video", userAns: null },
+            { n: 14, correct: "Conectores PS/2", userAns: null }
+        ];
+
+        let opcionSeleccionadaActual = null;
+
+        function lanzarConfeti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function initJuego() {
+            const bancoContenedor = document.getElementById('bancoPalabras');
+            const gridContenedor = document.getElementById('placaFinalContent');
+            if (!bancoContenedor || !gridContenedor) return;
+
+            bancoContenedor.innerHTML = '';
+            gridContenedor.innerHTML = '';
+            opcionSeleccionadaActual = null;
+
+            // 1. Cargar Banco en formato vertical a la derecha
+            const opciones = placaFinalData.map(d => d.correct).sort((a, b) => a.localeCompare(b));
+            opciones.forEach(nombre => {
+                const idTag = limpiarId(nombre);
+                bancoContenedor.innerHTML += `
+                    <div class="opcion-tag" id="tag_${idTag}" onclick="seleccionarOpcion('${nombre}')">
+                        ${nombre}
+                    </div>`;
+            });
+
+            // 2. Cargar Tarjetas en la sección inferior
+            placaFinalData.forEach(item => {
+                item.userAns = null;
+                gridContenedor.innerHTML += `
+                    <div id="q_placa_${item.n}" class="question-box" onclick="manejarClickCard(${item.n})">
+                        <span style="font-weight: bold; color: var(--primary); font-size:0.9em;">Nº ${item.n}</span>
+                        
+                        <div class="img-mini-container"> 
+                            <img id="display_img_${item.n}" src="" style="display:none;">
+                            <span id="text_help_${item.n}" style="font-size: 0.7em; color: #999; text-align: center;">
+                                Sin asignar
+                            </span>
+                        </div>
+
+                        <div class="respuesta-box" id="box_${item.n}">Asignar</div>
+                        <div class="feedback-text" id="fb_placa_${item.n}"></div>
+                    </div>
+                `;
+            });
+        }
+
+        function limpiarId(cadena) {
+            return cadena.replace(/[^a-zA-Z0-9]/g, '_');
+        }
+
+        function seleccionarOpcion(nombreOpcion) {
+            const idTag = limpiarId(nombreOpcion);
+            const tagElement = document.getElementById(`tag_${idTag}`);
+
+            if (tagElement && tagElement.classList.contains('usada')) return;
+
+            if (opcionSeleccionadaActual) {
+                const prevTag = document.getElementById(`tag_${limpiarId(opcionSeleccionadaActual)}`);
+                if (prevTag) prevTag.classList.remove('seleccionada');
+            }
+
+            if (opcionSeleccionadaActual === nombreOpcion) {
+                opcionSeleccionadaActual = null;
+                return;
+            }
+
+            opcionSeleccionadaActual = nombreOpcion;
+            if (tagElement) tagElement.classList.add('seleccionada');
+        }
+
+        function manejarClickCard(numHueco) {
+            const item = placaFinalData.find(d => d.n === numHueco);
+            if (!item) return;
+
+            const card = document.getElementById(`q_placa_${numHueco}`);
+            const box = document.getElementById(`box_${numHueco}`);
+            const img = document.getElementById(`display_img_${numHueco}`);
+            const help = document.getElementById(`text_help_${numHueco}`);
+
+            // Liberar tarjeta al hacer clic
+            if (item.userAns && !opcionSeleccionadaActual) {
+                const tagPrevio = document.getElementById(`tag_${limpiarId(item.userAns)}`);
+                if (tagPrevio) tagPrevio.classList.remove('usada');
+
+                item.userAns = null;
+                box.innerHTML = "Asignar";
+                card.classList.remove('tiene-valor', 'correct', 'incorrect');
+                img.style.display = "none";
+                help.style.display = "block";
+                return;
+            }
+
+            if (!opcionSeleccionadaActual) return;
+
+            // Reemplazar respuesta si ya había una
+            if (item.userAns) {
+                const tagViejo = document.getElementById(`tag_${limpiarId(item.userAns)}`);
+                if (tagViejo) tagViejo.classList.remove('usada');
+            }
+
+            item.userAns = opcionSeleccionadaActual;
+            box.innerHTML = opcionSeleccionadaActual;
+            card.classList.add('tiene-valor');
+
+            const targetData = placaFinalData.find(d => d.correct === opcionSeleccionadaActual);
+            if (targetData) {
+                img.src = `imgplacabase/${targetData.n}.jpg`;
+                img.style.display = "block";
+                help.style.display = "none";
+            }
+
+            const tagActual = document.getElementById(`tag_${limpiarId(opcionSeleccionadaActual)}`);
+            if (tagActual) {
+                tagActual.classList.add('usada');
+                tagActual.classList.remove('seleccionada');
+            }
+
+            opcionSeleccionadaActual = null;
+        }
+
+        function checkPlaca(esAutoResolver = false) {
+            let aciertos = 0;
+            let totalRespondidas = 0;
+
+            placaFinalData.forEach((item) => {
+                const card = document.getElementById(`q_placa_${item.n}`);
+                const fb = document.getElementById(`fb_placa_${item.n}`);
+
+                if (card && fb) {
+                    card.classList.remove('correct', 'incorrect');
+                    fb.style.display = 'none';
+
+                    if (item.userAns) totalRespondidas++;
+
+                    if (item.userAns === item.correct) {
+                        card.classList.add('correct');
+                        aciertos++;
+                    } else if (item.userAns) {
+                        card.classList.add('incorrect');
+                        fb.innerHTML = `Solución: ${item.correct}`;
+                        fb.style.color = "var(--rojo)";
+                        fb.style.display = 'block';
+                    }
+                }
+            });
+
+            if (aciertos === placaFinalData.length) {
+                const imgPrincipal = document.getElementById('img-principal-placa');
+                if (imgPrincipal) {
+                    imgPrincipal.src = "imgplacabase/placabasesol.jpg";
+                    imgPrincipal.style.borderColor = "#28a745";
+                }
+                
+                lanzarConfeti();
+                
+                if (!esAutoResolver) {
+                    setTimeout(() => {
+                        alert("✨ ¡ESPECTACULAR! ✨\n\nHas identificado los 14 componentes correctamente.");
+                    }, 400);
+                }
+            } else if (totalRespondidas < placaFinalData.length) {
+                alert(`Aún te quedan componentes por identificar (${totalRespondidas} de ${placaFinalData.length}).`);
+            } else {
+                alert(`Has acertado ${aciertos} de ${placaFinalData.length} componentes. 🧐\n\nRevisa las casillas en rojo e inténtalo de nuevo.`);
+            }
+        }
+
+        function resetPlaca() {
+            if (confirm("¿Quieres borrar todas tus respuestas?")) {
+                const imgPrincipal = document.getElementById('img-principal-placa');
+                if (imgPrincipal) {
+                    imgPrincipal.src = "imgplacabase/placabase.jpg";
+                    imgPrincipal.style.borderColor = "#ddd";
+                }
+                initJuego();
+            }
+        }
+
+        function resolverEjercicioActual() {
+            placaFinalData.forEach((item) => {
+                opcionSeleccionadaActual = item.correct;
+                manejarClickCard(item.n);
+            });
+            checkPlaca(true);
+        }
+
+        function revelarBoton() {
+            const btn = document.getElementById('btn-profe');
+            if (btn) {
+                if (btn.style.display === 'inline-flex' || btn.style.display === 'inline-block') {
+                    btn.style.display = 'none';
+                    alert("🧙‍♂️ Modo Profesor desactivado.");
+                } else {
+                    btn.style.display = 'inline-flex';
+                    alert("🧙‍♂️ Modo Profesor activado.");
+                }
+            } 
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key.toLowerCase() === 'd') {
+                e.preventDefault(); 
+                revelarBoton();
+            }
+        });
+
+        window.onload = initJuego;
+    </script>
+
+    <footer style="text-align: center; padding: 10px; color: #7f8c8d; font-size: 0.9em; margin-top: 20px; border-top: 1px solid #e0e0e0;">
+        <strong>&copy; 2026 — Creado por Profe Adna</strong> con &hearts; para mis alumnos | Taller de Informática EPA Sedaví<br>
+        <span class="llave-secreta" onclick="revelarBoton()" title="Modo Profesor">🔑</span>
+    </footer>
+</body>
+</html>
