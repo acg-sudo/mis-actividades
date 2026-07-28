@@ -198,7 +198,7 @@
         .llave-secreta:hover { opacity: 1; }
         
         .btn-profe {
-            display: none !important; 
+            display: none; 
             background: linear-gradient(135deg, #6e45e2, #88d3ce) !important;
             color: white !important;
         }
@@ -266,7 +266,7 @@
 
 		/* --- NUEVO SISTEMA DE INVOCACIÓN DE TOOLTIPS ACCESIBLES --- */
 
-		/* 1. Comportamiento para Móviles y Teclado: se abre al hacer clic/foco y se cierra al pulsar fuera[cite: 8] */
+		/* 1. Comportamiento para Móviles y Teclado: se abre al hacer clic/foco y se cierra al pulsar fuera */
 		.glosario:focus::after, 
 		.glosario:focus-within::after {
 			opacity: 1;
@@ -303,7 +303,7 @@
 
     <div class="contenedor">
         <header>
-            <h1>🛒 Asesor de Compras y Hardware (Rondas al Azar)</h1>
+            <h1>🛒 Asesor de Compras y Hardware</h1>
             <p>Conviértete en un experto informático. Resuelve los casos prácticos de la tienda y supera el test de control.</p>
         </header>
         
@@ -318,7 +318,7 @@
                 <!-- Inyección dinámica -->
             </div>
             <div style="text-align: center; margin-top: 30px; border-top: 2px solid #f0f2f5; padding-top: 20px;">
-                <button class="btn-control btn-check" onclick="checkClientes()">✔️ Validar Clientes</button>
+                <button class="btn-control btn-check" onclick="checkClientes()">✅ Comprobar Respuestas </button>
                 <button class="btn-control btn-next" id="btnIrAParte2" onclick="cambiarAPantalla2()" style="display: none;">Siguiente Fase ➡️</button>
             </div>
         </section>
@@ -330,14 +330,14 @@
                 <!-- Inyección dinámica -->
             </div>
             <div style="text-align: center; margin-top: 30px; border-top: 2px solid #f0f2f5; padding-top: 20px;">
-                <button class="btn-control btn-check" onclick="checkVF()">✔️ Validar Test Técnico</button>
-                <button class="btn-control btn-reset" onclick="initJuegoCompleto()">🔄 Jugar Otra Vez (Nuevas Preguntas)</button>
+                <button class="btn-control btn-check" onclick="checkVF()">✅ Comprobar Respuestas</button>
+                <button class="btn-control btn-reset" onclick="initJuegoCompleto()">🔄 Nueva Ronda</button>
             </div>
         </section>
 
         <!-- CONTROL GLOBAL FUERA DE LAS PANTALLAS (ZONA MAESTRA) -->
         <div style="text-align: center; margin-top: 15px;">
-            <button id="btn-profe" class="btn-control btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Resolver Reto</button>
+            <button id="btn-profe" class="btn-control btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Modo Profesor</button>
         </div>
     </div>
 
@@ -488,7 +488,8 @@ const bancoVF = [
     { q: "¿La resolución de pantalla Full HD (1080p) muestra los textos más nítidos que la HD?", v: "V", msgV: "✅ ¡Sí! Al albergar más píxeles, la definición de imagen es sustancialmente mejor.", msgF: "❌ ¡Incorrecto! La resolución HD básica ya se nota borrosa y pixelada." },
     { q: "¿Los conectores USB-C permiten pasar datos y además cargar el ordenador?", v: "V", msgV: "✅ ¡Correcto! Es el puerto universal polivalente moderno.", msgF: "❌ El USB-C es el estándar actual precisamente por su versatilidad." },
     { q: "¿Un teclado retroiluminado gasta tanta batería que se desaconseja totalmente?", v: "F", msgV: "❌ ¡Falso! El gasto de los LEDs integrados es minúsculo e insignificante.", msgF: "✅ ¡Exacto! Es una opción fantástica para trabajar o estudiar con luz ambiental tenue." },
-	{ q: "¿La memoria RAM es una <span class='glosario' tabindex='0' data-info='Es la zona de trabajo temporal del ordenador. Imagina que es como tu mesa de escritorio: ahí tienes abiertos los libros que estás usando justo ahora, pero no es el archivador definitivo.'>memoria volátil</span> que se vacía sola al apagar el PC?", v: "V", msgV: "✅ ¡Exacto! Es la memoria de trabajo a corto plazo, si no hay luz se borra.", msgF: "❌ ¡Error! Al apagar el PC la RAM se limpia completamente." },    { q: "¿Poner una tarjeta gráfica de gama súper alta con un procesador viejísimo genera <span class='glosario' tabindex='0' data-info='Fenómeno que ocurre cuando un componente lento frena el rendimiento de un componente rápido, impidiendo aprovechar su potencia real.'>cuello de botella</span>?", v: "V", msgV: "✅ ¡Exacto! El procesador antiguo frena por completo a la gráfica moderna.", msgF: "❌ ¡Falso! La potencia se desaprovechará porque la CPU vieja hará de tapón." },
+	{ q: "¿La memoria RAM es una <span class='glosario' tabindex='0' data-info='Es la zona de trabajo temporal del ordenador. Imagina que es como tu mesa de escritorio: ahí tienes abiertos los libros que estás usando justo ahora, pero no es el archivador definitivo.'>memoria volátil</span> que se vacía sola al apagar el PC?", v: "V", msgV: "✅ ¡Exacto! Es la memoria de trabajo a corto plazo, si no hay luz se borra.", msgF: "❌ ¡Error! Al apagar el PC la RAM se limpia completamente." },
+    { q: "¿Poner una tarjeta gráfica de gama súper alta con un procesador viejísimo genera <span class='glosario' tabindex='0' data-info='Fenómeno que ocurre cuando un componente lento frena el rendimiento de un componente rápido, impidiendo aprovechar su potencia real.'>cuello de botella</span>?", v: "V", msgV: "✅ ¡Exacto! El procesador antiguo frena por completo a la gráfica moderna.", msgF: "❌ ¡Falso! La potencia se desaprovechará porque la CPU vieja hará de tapón." },
     { q: "¿Limpiar el polvo de los ventiladores del PC una vez al año ayuda a que no vaya lento?", v: "V", msgV: "✅ ¡Gran verdad! Evita el sobrecalentamiento que ralentiza el procesador.", msgF: "❌ ¡Falso! El polvo acumulado hace que el PC se caliente y baje su velocidad para no quemarse." },
     { q: "¿Los portátiles Mac con chip Apple Silicon (M1, M2, M3) usan arquitectura ARM?", v: "V", msgV: "✅ ¡Correcto! Por eso sus baterías duran tantas horas funcionando.", msgF: "❌ ¡Incorrecto! Apple abandonó a Intel y ahora diseña sus propios procesadores ARM." },
     { q: "¿La refrigeración líquida es obligatoria para ordenadores de oficina básicos?", v: "F", msgV: "❌ ¡Qué va! Un ventilador normal y barato de aire sobra para la oficina.", msgF: "✅ ¡Muy bien! La líquida solo se usa en ordenadores potentes que generan muchísimo calor." },
@@ -682,9 +683,14 @@ function lanzarConfeti() {
 function revelarBoton() {
     const btn = document.getElementById('btn-profe');
     if (btn) {
-        btn.style.setProperty('display', 'inline-flex', 'important'); 
-        alert("🧙‍♂️ ¡Llave maestra activada! Resolución automática disponible abajo del todo.");
-    }
+        if (btn.style.display === 'inline-flex' || btn.style.display === 'inline-block') {
+            btn.style.display = 'none';
+            alert("🧙‍♂️ Modo Profesor desactivado.");
+        } else {
+            btn.style.display = 'inline-flex';
+            alert("🧙‍♂️ Modo Profesor activado.");
+        }
+    } 
 }
 
 function resolverModoProfe() {
@@ -700,7 +706,7 @@ function resolverModoProfe() {
 window.addEventListener('keydown', (e) => {
     if (e.altKey && e.key.toLowerCase() === 'd') {
         e.preventDefault(); 
-        resolverModoProfe();
+        revelarBoton();
     }
 });
 
