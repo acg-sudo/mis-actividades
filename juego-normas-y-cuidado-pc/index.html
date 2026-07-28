@@ -186,7 +186,7 @@
         .llave-secreta:hover { opacity: 1; }
         
         .btn-profe {
-            display: none !important; 
+            display: none; 
             background: linear-gradient(135deg, #6e45e2, #88d3ce) !important;
             color: white !important;
         }
@@ -196,16 +196,16 @@
 
     <div class="contenedor">
         <header>
-            <h1>🧑‍💻 Ergonomía y Cuidado del Equipo (Rondas al Azar)</h1>
-            <p>Se han seleccionado <strong>8 retos aleatorios</strong> basados en normativas de salud y prevención digital. <br/>Analiza bien cada tarjeta y pulsa sobre la opción que consideres correcta.</p>
+            <h1>🧑‍💻 Ergonomía y Cuidado del Equipo</h1>
+            <p>¡Comienza tu desafío sobre salud y prevención digital!. <br/>Analiza bien cada tarjeta y pulsa sobre la opción que consideres correcta.</p>
         </header>
 
         <div class="img-exercise-grid" id="desafioContent"></div>
 
         <div style="text-align: center; margin-top: 30px;">
-            <button class="btn-check" onclick="comprobarDesafio()">✔️ Corregir Desafío</button>
-            <button class="btn-reset" onclick="initDesafio()">🔄 Nueva Ronda (8 al Azar)</button>
-            <button id="btn-profe" class="btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Resolver reto</button>
+            <button class="btn-check" onclick="comprobarDesafio()">✅ Comprobar Respuestas</button>
+            <button class="btn-reset" onclick="initDesafio()">🔄 Nueva Ronda</button>
+            <button id="btn-profe" class="btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Modo Profesor</button>
         </div>
     </div>
 
@@ -217,7 +217,7 @@
             { i: "🧹", q: "Si quieres que tu PC no se llene de pelusas rápidamente, ¿dónde es mejor colocarlo?", a: "Sobre la mesa o un soporte", o: ["Sobre la mesa o un soporte", "Directamente en el suelo"], f: "✅ ¡Bien! El suelo actúa como una aspiradora de polvo, obstruyendo los componentes." },
             { i: "💨", q: "¿Por qué debemos dejar un hueco de unos 10-15 cm entre la pared y la parte trasera del PC?", a: "Para que el aire caliente salga bien", o: ["Para que el aire caliente salga bien", "Para que no se escapen los cables"], f: "✅ ¡Correcto! Sin ese espacio, el calor rebota y el ordenador se sobrecalienta." },
             { i: "🔧", q: "¿Cada cuánto tiempo se recomienda abrir la tapa lateral para limpiar el polvo interno?", a: "Una o dos veces al año", o: ["Cada 10 años en el taller", "Una o dos veces al año"], f: "✅ ¡Así es! Un mantenimiento regular evita que los ventiladores se bloqueen." },
-            { i: "🛌", q: "¿Qué sucede si utilizas un ordenador portátil apoyado directamente sobre las sábanas de la cama?", a: "Se tapan las rejillas de aire", o: ["Se tapan las rejillas de aire", "La batería se carga más rápido"], f: "✅ ¡Muy bien! Las superficies blandas asfixian el portátil y lo sobrecalientan rápido." },
+            { i: "🛌", q: "¿Qué sucede si utilizas un ordenador portátil apoyado directamente sobre las sábanas de la cama?", a: "Se tapan las rejillas de aire", o: ["Se tapan las rejillas de aire", "La batería se carga más rápido"], f: "✅ ¡Muy bien! Las surfaces blandas asfixian el portátil y lo sobrecalientan rápido." },
             { i: "🔋", q: "Para cuidar la salud de la batería de tu portátil, ¿cuándo deberías enchufar el cargador?", a: "Cuando le quede un 20% de carga", o: ["Solo cuando llegue al 0%", "Cuando le quede un 20% de carga"], f: "✅ ¡Perfecto! Evitar que baje al 0% alarga mucho la vida útil de las celdas de litio." },
             { i: "🖥️", q: "Has manchado la pantalla con los dedos. ¿Cómo deberías limpiarla correctamente?", a: "Con un paño de microfibra seco", o: ["Con un paño de microfibra seco", "Con un estropajo y jabón líquido"], f: "✅ ¡Correcto! Las pantallas son delicadas; nunca uses productos químicos abrasivos." },
             { i: "⚡", q: "Si hay una tormenta eléctrica muy fuerte con rayos cerca de casa, ¿qué es lo más seguro?", a: "Apagar y desenchufar el equipo", o: ["Seguir jugando normalmente", "Apagar y desenchufar el equipo"], f: "✅ ¡Sabio consejo! Un pico de tensión por un rayo puede quemar los componentes internos." },
@@ -373,14 +373,25 @@
         function revelarBoton() {
             const btn = document.getElementById('btn-profe');
             if (btn) {
-                btn.style.setProperty('display', 'inline-flex', 'important'); 
-                alert("🧙‍♂️ ¡Llave maestra activada! Botón de autocompletado visible abajo.");
+                if (btn.style.display === 'inline-flex') {
+                    btn.style.display = 'none';
+                    alert("🧙‍♂️ Modo Profesor desactivado.");
+                } else {
+                    btn.style.display = 'inline-flex';
+                    alert("🧙‍♂️ Modo Profesor activado.");
+                }
             }
         }
 
         function resolverModoProfe() {
             desafioData.forEach((d, i) => {
                 d.userAns = d.correct;
+                const card = document.getElementById(`concept_card_${i}`);
+                const fb = document.getElementById(`fb_concept_${i}`);
+
+                card.classList.remove('incorrect');
+                card.classList.add('correct');
+
                 d.options.forEach(opt => {
                     const idOpt = `opt_${i}_${opt.replace(/[^a-zA-Z0-9]/g, '_')}`;
                     const el = document.getElementById(idOpt);
@@ -389,14 +400,19 @@
                         else el.classList.remove('seleccionada');
                     }
                 });
+
+                fb.innerHTML = d.feedback;
+                fb.style.color = 'var(--verde)';
+                fb.style.display = 'block';
             });
+
+            lanzarConfeti();
         }
 
         window.addEventListener('keydown', (e) => {
             if (e.altKey && e.key.toLowerCase() === 'd') {
                 e.preventDefault(); 
-                resolverModoProfe();
-                alert("🪄 Modo Profe: Opciones correctas preseleccionadas en la ronda.");
+                revelarBoton();
             }
         });
 
