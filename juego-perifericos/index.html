@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clasificación de Periféricos</title>
-    <style>
+    <link href='https://tallerinformaticaepasedavi.blogspot.com/favicon.ico' rel='icon' type='image/x-icon'/>
+	<style>
         :root {
             --azul: #2c3e50;
             --naranja: #e67e22;
@@ -128,7 +129,7 @@
 
 <div class="contenedor">
     <header>
-        <h1>Desafío: Clasifica los Periféricos</h1>
+        <h1>⌨️🖱️ Desafío: Clasifica los Periféricos 🖨️🎧</h1>
         <p>Arrastra cada periférico a su categoría correspondiente. ¡Haz clic sobre uno colocado para devolverlo al banco!</p>
     </header>
 
@@ -153,15 +154,15 @@
             <div class="grid-banco" id="banco-perifericos"></div>
             <div class="mensaje-vacio" id="msg-vacio">
                 💡 ¡Has clasificado todos los periféricos!<br><br>
-                Comprueba tus respuestas o pulsa <b>"Reiniciar juego"</b> para jugar otra partida con elementos nuevos.
+                Comprueba tus respuestas o pulsa <b>"Nueva Ronda"</b> para jugar otra partida con elementos nuevos.
             </div>
         </div>
     </div>
 
     <div class="controles">
-        <button class="btn-check" onclick="validar()">Comprobar respuestas</button>
-        <button class="btn-reset" onclick="location.reload()">Reiniciar juego</button>
-        <button class="btn-profesor" id="btn-profe" onclick="autoCompletar()">Modo Profesor</button>
+        <button class="btn-check" onclick="validar()">✅ Comprobar Respuestas</button>
+        <button class="btn-reset" onclick="location.reload()">🔄 Nueva Ronda</button>
+        <button class="btn-profesor" id="btn-profe" onclick="autoCompletar()">🧙‍♂️ Modo Profesor</button>
     </div>
 </div>
 
@@ -302,7 +303,7 @@
             
             const colorRandom = colores[Math.floor(Math.random() * colores.length)];
             const xRandom = Math.random() * 100;
-            const delayRandom = Math.random() * 1.5; // Salida un poco más compacta
+            const delayRandom = Math.random() * 1.5;
             const duracionRandom = 2 + Math.random() * 2.5;
             const tamanoRandom = 8 + Math.random() * 8;
 
@@ -344,9 +345,7 @@
         if (totalColocados < perifericosPartida.length) {
             alert("Aún quedan periféricos en el banco por clasificar. ¡No te dejes ninguno!");
         } else if (errores === 0) {
-            // ORDEN CORREGIDO: 1º Salta la alerta. JavaScript detiene la ejecución aquí...
             alert("¡Perfecto! Has clasificado todos los periféricos correctamente. ¡Buen trabajo!");
-            // 2º ...y en cuanto el alumno pulsa "Aceptar", se ejecuta la lluvia de confeti:
             lanzarConfeti();
         } else {
             alert("Hay algunos errores en la clasificación. Los elementos erróneos están marcados en rojo. ¡Haz clic en ellos para corregirlos!");
@@ -354,7 +353,16 @@
     }
 
     function revelarBoton() {
-        document.getElementById('btn-profe').style.display = 'inline-block';
+        const btn = document.getElementById('btn-profe');
+        if (btn) {
+            if (btn.style.display === 'inline-flex' || btn.style.display === 'inline-block') {
+                btn.style.display = 'none';
+                alert("🧙‍♂️ Modo Profesor desactivado.");
+            } else {
+                btn.style.display = 'inline-flex';
+                alert("🧙‍♂️ Modo Profesor activado.");
+            }
+        }
     }
 
     function autoCompletar() {
@@ -379,15 +387,19 @@
         });
         
         comprobarBancoVacio();
-        // Orden corregido también para el modo profesor
-        alert("Modo Profesor Activo: Elementos de la ronda resueltos correctamente.");
         lanzarConfeti();
     }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key.toLowerCase() === 'd') {
+            e.preventDefault(); 
+            revelarBoton();
+        }
+    });
 </script>
 </body>
 <footer style="text-align: center; padding: 10px 10px; color: #7f8c8d; font-size: 1em; margin-top: 20px; border-top: 1px solid #e0e0e0; line-height: 1.5;">
-        <strong>&copy; 2026 — Creado por Profe Adna</strong> | Taller de Informática EPA Sedaví<br>
-		Diseñado con &hearts; para mis alumnos<br>
+        <strong>&copy; 2026 — Creado por Profe Adna</strong> con &hearts; para mis alumnos | Taller de Informática EPA Sedaví<br>	 
 		<span class="llave-secreta" onclick="revelarBoton()">🔑</span>
 </footer>
 </html>
