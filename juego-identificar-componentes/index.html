@@ -5,7 +5,7 @@
     <title>Identificar Componentes del PC</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href='https://tallerinformaticaepasedavi.blogspot.com/favicon.ico' rel='icon' type='image/x-icon'/>
-	<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
         :root {
@@ -229,7 +229,7 @@
         }
         
         .btn-profe {
-            display: none !important; 
+            display: none; 
             background: linear-gradient(135deg, #6e45e2, #88d3ce) !important;
             color: white !important;
         }
@@ -239,7 +239,7 @@
 
     <div class="contenedor">
         <header>
-            <h1>🧩 Desafío: Identificar Componentes (Rondas al Azar)</h1>
+            <h1>🧩 Desafío: Identificar Componentes</h1>
             <p>Selecciona una opción del banco y luego haz clic en la tarjeta de la imagen correspondiente para asignarla.<br/>¡Haz clic en una tarjeta asignada para liberar el nombre!</p>
             
             <div class="banco-opciones" id="bancoPalabras"></div>
@@ -248,62 +248,62 @@
         <div class="img-exercise-grid" id="desafioContent"></div>
 
         <div style="text-align: center; margin-top: 30px;">
-            <button class="btn-check" onclick="comprobarDesafio()">✔️ Corregir Desafío</button>
-            <button class="btn-reset" onclick="initDesafio()">🔄 Siguiente Ronda (Azar)</button>
-            <button id="btn-profe" class="btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Resolver reto</button>
+            <button class="btn-check" onclick="comprobarDesafio()">✅ Comprobar Respuestas</button>
+            <button class="btn-reset" onclick="initDesafio()">🔄 Nueva Ronda</button>
+            <button id="btn-profe" class="btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Modo Profesor</button>
         </div>
     </div>
 
     <script>
         // Todas las imágenes de la carpeta img/
-		const imgDataTotal = [
-			{img: 'cpu.jpg', correct: 'Procesador (CPU)'},
-			{img: 'ram.jpg', correct: 'Memoria RAM'},
-			{img: 'ventilador.jpg', correct: 'Ventilador'},
-			{img: 'discoSATA.jpg', correct: 'Disco SATA'},
-			{img: 'placa.jpg', correct: 'Placa Base'},
-			{img: 'disipador.jpg', correct: 'Disipador'},
-			{img: 'fuente.jpg', correct: 'Fuente de Alimentación'},
-			{img: 'bus.jpg', correct: 'Bus de datos'},
-			{img: 'puertored.jpg', correct: 'Puerto de Red'},
-			{img: 'tarjetagrafica.jpg', correct: 'Tarjeta Gráfica'},
-			{img: 'bateriaCMOS.jpg', correct: 'Batería'},
-			{img: 'tarjetasonido.jpg', correct: 'Tarjeta de Sonido'},
-			{img: 'ssd.jpg', correct: 'Disco SSD'},
-			{img: 'tarjetawifi.jpg', correct: 'Tarjeta WiFi'},
-			{img: 'discoNVMe_m.2.jpg', correct: 'Disco SSD NVMe M.2'},
-			{img: 'puertousb.jpg', correct: 'Puerto USB'},
-			{img: 'cablesata.jpg', correct: 'Cable Disco SATA'},
-			{img: 'conectoratx.jpg', correct: 'Conector Corriente ATX 24 pines'},
-			{img: 'ranurapci.jpg', correct: 'Ranura de expansión PCI / PCIe'},
-			{img: 'tarjetared.jpg', correct: 'Tarjeta de Red'},
-			{img: 'monitor.jpg', correct: 'Monitor'},
-			{img: 'puertovideo.jpg', correct: 'Puerto de Video'},
-			{img: 'raton.jpg', correct: 'Ratón'},
-			{img: 'puertoaudio.jpg', correct: 'Puerto de Audio'},
-			{img: 'lectorcd-dvd.jpg', correct: 'Unidad CD / DVD'},
-			{img: 'zocalocpu.jpg', correct: 'Zócalo (Socket)'},
-			{img: 'ranuraram.jpg', correct: 'Ranura DIMM (memoria RAM)'},
-			{img: 'discoSSD.jpg', correct: 'Disco SSD'},
-			{img: 'teclado.jpg', correct: 'Teclado'},
-			{img: 'pastatermica.jpg', correct: 'Pasta Térmica'},
-			{img: 'torre.jpg', correct: 'Caja o Torre'}		
-		];
+        const imgDataTotal = [
+            {img: 'cpu.jpg', correct: 'Procesador (CPU)'},
+            {img: 'ram.jpg', correct: 'Memoria RAM'},
+            {img: 'ventilador.jpg', correct: 'Ventilador'},
+            {img: 'discoSATA.jpg', correct: 'Disco SATA'},
+            {img: 'placa.jpg', correct: 'Placa Base'},
+            {img: 'disipador.jpg', correct: 'Disipador'},
+            {img: 'fuente.jpg', correct: 'Fuente de Alimentación'},
+            {img: 'bus.jpg', correct: 'Bus de datos'},
+            {img: 'puertored.jpg', correct: 'Puerto de Red'},
+            {img: 'tarjetagrafica.jpg', correct: 'Tarjeta Gráfica'},
+            {img: 'bateriaCMOS.jpg', correct: 'Batería'},
+            {img: 'tarjetasonido.jpg', correct: 'Tarjeta de Sonido'},
+            {img: 'ssd.jpg', correct: 'Disco SSD'},
+            {img: 'tarjetawifi.jpg', correct: 'Tarjeta WiFi'},
+            {img: 'discoNVMe_m.2.jpg', correct: 'Disco SSD NVMe M.2'},
+            {img: 'puertousb.jpg', correct: 'Puerto USB'},
+            {img: 'cablesata.jpg', correct: 'Cable Disco SATA'},
+            {img: 'conectoratx.jpg', correct: 'Conector Corriente ATX 24 pines'},
+            {img: 'ranurapci.jpg', correct: 'Ranura de expansión PCI / PCIe'},
+            {img: 'tarjetared.jpg', correct: 'Tarjeta de Red'},
+            {img: 'monitor.jpg', correct: 'Monitor'},
+            {img: 'puertovideo.jpg', correct: 'Puerto de Video'},
+            {img: 'raton.jpg', correct: 'Ratón'},
+            {img: 'puertoaudio.jpg', correct: 'Puerto de Audio'},
+            {img: 'lectorcd-dvd.jpg', correct: 'Unidad CD / DVD'},
+            {img: 'zocalocpu.jpg', correct: 'Zócalo (Socket)'},
+            {img: 'ranuraram.jpg', correct: 'Ranura DIMM (memoria RAM)'},
+            {img: 'discoSSD.jpg', correct: 'Disco SSD'},
+            {img: 'teclado.jpg', correct: 'Teclado'},
+            {img: 'pastatermica.jpg', correct: 'Pasta Térmica'},
+            {img: 'torre.jpg', correct: 'Caja o Torre'}      
+        ];
 
-        let desafioData = []; // Guardará las 6 imágenes seleccionadas para la ronda activa
-		let opcionSeleccionadaActual = null;
+        let desafioData = []; // Guardará las 8 imágenes seleccionadas para la ronda activa
+        let opcionSeleccionadaActual = null;
 
-		// --- INICIAR / REINICIAR EL JUEGO ---
-		function initDesafio() {
-			const bancoContenedor = document.getElementById('bancoPalabras');
-			const gridContenedor = document.getElementById('desafioContent');
-			if (!bancoContenedor || !gridContenedor) return;
-			
-			bancoContenedor.innerHTML = '';
-			gridContenedor.innerHTML = '';
+        // --- INICIAR / REINICIAR EL JUEGO ---
+        function initDesafio() {
+            const bancoContenedor = document.getElementById('bancoPalabras');
+            const gridContenedor = document.getElementById('desafioContent');
+            if (!bancoContenedor || !gridContenedor) return;
+            
+            bancoContenedor.innerHTML = '';
+            gridContenedor.innerHTML = '';
             opcionSeleccionadaActual = null;
 
-            // 1. Seleccionar 6 imágenes al azar del total de la lista
+            // 1. Seleccionar 8 imágenes al azar del total de la lista
             desafioData = [...imgDataTotal].sort(() => 0.5 - Math.random()).slice(0, 8);
 
             // 2. Extraer los nombres correctos de esa muestra y ordenarlos alfabéticamente para el banco superior
@@ -319,16 +319,16 @@
             });
 
             // 4. Crear las tarjetas con las imágenes locales de la carpeta img/
-			desafioData.forEach((d, i) => {
+            desafioData.forEach((d, i) => {
                 d.userAns = null; // Inicializar respuesta del alumno limpia
-				gridContenedor.innerHTML += `
-					<div class="img-card" id="concept_card_${i}" onclick="manejarClickCard(${i})">
-						<img src="img/${d.img}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/689/689304.png'">
-						<div class="respuesta-box" id="box_${i}">Haz clic aquí para asignar</div>
+                gridContenedor.innerHTML += `
+                    <div class="img-card" id="concept_card_${i}" onclick="manejarClickCard(${i})">
+                        <img src="img/${d.img}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/689/689304.png'">
+                        <div class="respuesta-box" id="box_${i}">Haz clic aquí para asignar</div>
                         <div class="feedback" id="fb_concept_${i}"></div>
-					</div>`;
-			});
-		}
+                    </div>`;
+            });
+        }
 
         // --- MECÁNICA INTERACTIVA DE ASIGNACIÓN ---
         function seleccionarOpcion(nombreOpcion) {
@@ -437,12 +437,17 @@
             }());
         }
 
-        // --- REVELAR BOTÓN DE MODO PROFESOR (LLAVE MAESTRA) ---
+        // --- REVELAR / OCULTAR BOTÓN DE MODO PROFESOR ---
         function revelarBoton() {
             const btn = document.getElementById('btn-profe');
             if (btn) {
-                btn.style.setProperty('display', 'inline-flex', 'important'); 
-                alert("🧙‍♂️ ¡Llave maestra activada! El botón de resolución automática ya está visible.");
+                if (btn.style.display === 'inline-flex') {
+                    btn.style.display = 'none';
+                    alert("🧙‍♂️ Modo Profesor desactivado.");
+                } else {
+                    btn.style.display = 'inline-flex';
+                    alert("🧙‍♂️ Modo Profesor activado.");
+                }
             }
         }
 
@@ -451,23 +456,27 @@
                 d.userAns = d.correct;
                 const card = document.getElementById(`concept_card_${i}`);
                 const box = document.getElementById(`box_${i}`);
+                const fb = document.getElementById(`fb_concept_${i}`);
+
                 if (card && box) {
-                    card.classList.add('tiene-valor');
+                    card.classList.remove('incorrect');
+                    card.classList.add('correct', 'tiene-valor');
                     box.innerHTML = d.correct;
                 }
+                if (fb) fb.style.display = 'none';
+
                 const idActual = d.correct.replace(/[^a-zA-Z0-9]/g, '_');
                 const tag = document.getElementById(`tag_${idActual}`);
                 if (tag) tag.classList.add('usada');
             });
             opcionSeleccionadaActual = null;
-            alert("🪄 Modo Profe: Respuestas de la ronda autocompletadas.");
             lanzarConfeti();
         }
 
         window.addEventListener('keydown', (e) => {
             if (e.altKey && e.key.toLowerCase() === 'd') {
                 e.preventDefault(); 
-                resolverModoProfe();
+                revelarBoton();
             }
         });
 
@@ -476,7 +485,7 @@
     </script>
 </body>
 <footer style="text-align: center; padding: 10px 10px; color: #7f8c8d; font-size: 1em; margin-top: 20px; border-top: 1px solid #e0e0e0; line-height: 1.5;">
-        <strong>&copy; 2026 — Creado por Profe Adna</strong> con &hearts; para mis alumnos | Taller de Informática EPA Sedaví<br>	 
-		<span class="llave-secreta" onclick="revelarBoton()">🔑</span>
+        <strong>&copy; 2026 — Creado por Profe Adna</strong> con &hearts; para mis alumnos | Taller de Informática EPA Sedaví<br>     
+        <span class="llave-secreta" onclick="revelarBoton()">🔑</span>
 </footer>
 </html>
