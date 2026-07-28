@@ -790,6 +790,19 @@
             border-radius: 4px;
         }
 	
+	/* --- 🔑 LLAVE MAESTRA SECRET /🧙‍♂️ MODO PROFESOR --- */
+	.llave-secreta {
+		opacity: 0.08; /* Muy tenue, casi invisible para los alumnos */
+		cursor: pointer;
+		transition: opacity 0.3s ease;
+		user-select: none; /* Evita que la seleccionen por error al arrastrar el ratón */
+		font-size: 1.1em;
+	}
+
+	/* Al pasar el ratón por encima (opcional) o para comprobar dónde está */
+	.llave-secreta:hover {
+		opacity: 0.6; /* Se insinúa un poco más cuando el profe pasa el ratón */
+	}
 	</style>
 </head>
 <body>
@@ -922,8 +935,8 @@
        </div>
     </div>
 	
-    <div id="nivel-9" class="pantalla-nivel">
-        <h2 style="color: var(--primary); margin-top: 0;">🤝 Panel de Conexiones Relámpago (6 retos aleatorios)</h2>
+ <div id="nivel-9" class="pantalla-nivel">
+        <h2 style="color: var(--primary); margin-top: 0;">🤝 Panel de Conexiones Relámpago</h2>
         <p>¡Haz clic en un componente de la columna <b>Ordenador</b> y luego en su equivalente de la columna <b>Restaurante</b>!</p>
         
         <div class="panel-conexion-grid">
@@ -931,63 +944,63 @@
             <div class="columna-conexion" id="columna-res-click"></div>
         </div>
 
-		<div class="controles-juego">
-			<button class="btn-control btn-reset" onclick="reiniciarRelacionar()">🔄 Nuevos Componentes</button>
-			<button class="btn-control btn-home" onclick="cambiarPantalla(0)">🏠 Volver al Panel</button>
-			<button id="btn-next-9" class="btn-control btn-naranja" style="display:none;" onclick="cambiarPantalla(10)">Ir a ❓ ¿Qué pasaría si...? ➡️</button>
-		</div>
+        <div class="controles-juego">
+            <button class="btn-control btn-reset" onclick="reiniciarRelacionar()">🔄 Nueva Ronda</button>
+            <button class="btn-control btn-home" onclick="cambiarPantalla(0)">🏠 Volver al Panel</button>
+            <button id="btn-next-9" class="btn-control btn-naranja" style="display:none;" onclick="cambiarPantalla(10)">Ir a ❓ ¿Qué pasaría si...? ➡️</button>
+        </div>
 
-		<div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-			<button class="btn-control btn-profesor" id="btn-profe" onclick="autoCompletarRelacionar()">Modo Profesor</button>
-		</div>
+        <div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+            <button class="btn-control btn-profesor" id="btn-profe" onclick="autoCompletarRelacionar()">🧙‍♂️ Modo Profesor</button>
+        </div>
     </div>
 
-	<div id="nivel-10" class="pantalla-nivel">
-		<h2>❓ ¿Qué pasaría si...? (Ronda aleatoria de 8 retos)</h2>
-		<div id="qpContent"></div>
-		
-		<div class="controles-juego">
-			<button class="btn-control btn-check" onclick="checkRadio('qp', qpQAleatorias, 'qp_')">✅ Comprobar</button>
-			<button class="btn-control btn-reset" onclick="initQuePasariaSi()">🔄 Nuevas preguntas</button>
-			<button class="btn-control btn-home" onclick="cambiarPantalla(0)">🏠 Volver al Panel</button>
-			<button id="btn-next-10" class="btn-control btn-naranja" onclick="cambiarPantalla(11)">Ir a 📝 Crítica Técnica ➡️</button>
-		</div>
-		
-		<div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-			<button class="btn-control btn-profesor" id="btn-profe-10" onclick="autoCompletarRadio('qp', qpQAleatorias, 'qp_')">Modo Profesor</button>
-		</div>
-	</div>
+    <div id="nivel-10" class="pantalla-nivel">
+        <h2>❓ ¿Qué pasaría si...?</h2>
+        <div id="qpContent"></div>
+        
+        <div class="controles-juego">
+            <button class="btn-control btn-check" onclick="checkRadio('qp', qpQAleatorias, 'qp_')">✅ Comprobar Respuestas</button>
+            <button class="btn-control btn-reset" onclick="initQuePasariaSi()">🔄 Nuevas Ronda</button>
+            <button class="btn-control btn-home" onclick="cambiarPantalla(0)">🏠 Volver al Panel</button>
+            <button id="btn-next-10" class="btn-control btn-naranja" onclick="cambiarPantalla(11)">Ir a 📝 Crítica Técnica ➡️</button>
+        </div>
+        
+        <div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+            <button class="btn-control btn-profesor" id="btn-profe-10" onclick="autoCompletarRadio('qp', qpQAleatorias, 'qp_', '🧙‍♂️ Modo Profesor')">🧙‍♂️ Modo Profesor</button>
+        </div>
+    </div>
 
-	<div id="nivel-11" class="pantalla-nivel">
-		<h2>📝 Crítica Técnica (Ronda aleatoria de 8 retos)</h2>
-		<div id="cgContent"></div>
-		
-		<div class="controles-juego">
-			<button class="btn-control btn-check" onclick="checkRadio('cg', cgQAleatorias, 'cg_')">✅ Comprobar</button>
-			<button class="btn-control btn-reset" onclick="initCritica()">🔄 Nuevas preguntas</button>
-			<button class="btn-control btn-home" onclick="cambiarPantalla(0)">🏠 Volver al Panel</button>
-			<button id="btn-next-11" class="btn-control btn-naranja" onclick="cambiarPantalla(12)">Ir a 🆘 Servicio de Urgencia ➡️</button>
-		</div>
-		
-		<div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-			<button class="btn-control btn-profesor" id="btn-profe-11" onclick="autoCompletarRadio('cg', cgQAleatorias, 'cg_')">Modo Profesor</button>
-		</div>
-	</div>
+    <div id="nivel-11" class="pantalla-nivel">
+        <h2>📝 Crítica Técnica</h2>
+        <div id="cgContent"></div>
+        
+        <div class="controles-juego">
+            <button class="btn-control btn-check" onclick="checkRadio('cg', cgQAleatorias, 'cg_')">✅ Comprobar Respuestas</button>
+            <button class="btn-control btn-reset" onclick="initCritica()">🔄 Nuevas Ronda</button>
+            <button class="btn-control btn-home" onclick="cambiarPantalla(0)">🏠 Volver al Panel</button>
+            <button id="btn-next-11" class="btn-control btn-naranja" onclick="cambiarPantalla(12)">Ir a 🆘 Servicio de Urgencia ➡️</button>
+        </div>
+        
+        <div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+            <button class="btn-control btn-profesor" id="btn-profe-11" onclick="autoCompletarRadio('cg', cgQAleatorias, 'cg_', '🧙‍♂️ Modo Profesor')">🧙‍♂️ Modo Profesor</button>
+        </div>
+    </div>
 
-	<div id="nivel-12" class="pantalla-nivel">
-		<h2>🆘 Servicio de Urgencia (Ronda aleatoria de 8 retos)</h2>
-		<div id="suContent"></div>
-		
-		<div class="controles-juego">
-			<button class="btn-control btn-check" onclick="checkRadio('su', suQAleatorias, 'su_')">✅ Comprobar</button>
-			<button class="btn-control btn-reset" onclick="initServicioUrg()">🔄 Nuevas preguntas</button>
-			<button class="btn-control btn-home" onclick="cambiarPantalla(0)">🏠 Volver al Panel</button>
-		</div>
-		
-		<div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-			<button class="btn-control btn-profesor" id="btn-profe-12" onclick="autoCompletarRadio('su', suQAleatorias, 'su_')">Modo Profesor</button>
-		</div>
-	</div>
+    <div id="nivel-12" class="pantalla-nivel">
+        <h2>🆘 Servicio de Urgencia</h2>
+        <div id="suContent"></div>
+        
+        <div class="controles-juego">
+            <button class="btn-control btn-check" onclick="checkRadio('su', suQAleatorias, 'su_')">✅ Comprobar Respuestas</button>
+            <button class="btn-control btn-reset" onclick="initServicioUrg()">🔄 Nuevas Ronda</button>
+            <button class="btn-control btn-home" onclick="cambiarPantalla(0)">🏠 Volver al Panel</button>
+        </div>
+        
+        <div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+            <button class="btn-control btn-profesor" id="btn-profe-12" onclick="autoCompletarRadio('su', suQAleatorias, 'su_', '🧙‍♂️ Modo Profesor')">🧙‍♂️ Modo Profesor</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -1302,7 +1315,7 @@
 		}
 	}
 
-	function autoCompletarRadio(group, data, prefix) {
+	function autoCompletarRadio(group, data, prefix, textoModo) {
 		data.forEach((p, i) => {
 			const radioCorrecto = document.querySelector(`input[name="${group}_${i}"][value="${p.correct}"]`);
 			if (radioCorrecto) {
@@ -1312,7 +1325,7 @@
 				const fb = document.getElementById(`${prefix}fb_${i}`);
 				if (fb) {
 					fb.style.display = "block";
-					fb.innerHTML = "✓ (Modo Profesor)";
+					fb.innerHTML = `✓ (${textoModo || '🧙‍♂️ Modo Profesor'})`;
 				}
 			}
 		});
@@ -1344,11 +1357,11 @@
         if (estadoActual === "true") {
             idsBotonProfe.forEach(id => { const b = document.getElementById(id); if(b) b.style.display = 'none'; });
             sessionStorage.setItem("modoProfesorActivo", "false");
-            alert("Modo Profesor desactivado.");
+            alert("🧙‍♂️ Modo Profesor desactivado.");
         } else {
             idsBotonProfe.forEach(id => { const b = document.getElementById(id); if(b) b.style.display = 'inline-block'; });
             sessionStorage.setItem("modoProfesorActivo", "true");
-            alert("Modo Profesor activado. Ya puede ver los botones de autocompletar.");
+            alert("🧙‍♂️ Modo Profesor activado. Ya puede ver los botones de autocompletar.");
         }
     }
 
@@ -1422,8 +1435,8 @@
     }
 </script>
 
-<footer style="text-align: center; padding: 20px 10px; color: #7f8c8d; font-size: 1em; margin-top: 40px; border-top: 1px solid #e0e0e0; width: 100%; line-height: 1.5;">
-    <strong>&copy; 2026 — Creado por Profe Adna</strong> con ❤️ para mis alumnos | Taller de Informática EPA Sedaví<br>	 
+<footer style="text-align: center; padding: 10px 10px; color: #7f8c8d; font-size: 1em; margin-top: 20px; border-top: 1px solid #e0e0e0; width: 100%; line-height: 1.5;">
+    <strong>&copy; 2026 — Creado por Profe Adna</strong> con &hearts; para mis alumnos | Taller de Informática EPA Sedaví<br>	 
     <span class="llave-secreta" onclick="cambiarEstadoLlaveProfe()">🔑</span>
 </footer>
 </body>
