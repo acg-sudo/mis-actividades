@@ -247,7 +247,7 @@
         .llave-secreta:hover { opacity: 1; }
         
         .btn-profe {
-            display: none !important; 
+            display: none; 
             background: linear-gradient(135deg, #6e45e2, #88d3ce) !important;
             color: white !important;
         }
@@ -257,7 +257,7 @@
 
     <div class="contenedor">
         <header>
-            <h1>🖥️ Desafío: Conceptos Informáticos (Rondas al Azar)</h1>
+            <h1>🖥️ Desafío: Conceptos Informáticos</h1>
             <p>Selecciona una opción del banco de respuestas y haz clic en la tarjeta correspondiente para asignarla. <br/>¡Haz clic en una tarjeta asignada para liberar el nombre!</p>
             
             <div class="banco-opciones" id="bancoPalabras"></div>
@@ -266,15 +266,14 @@
         <div class="img-exercise-grid" id="desafioContent"></div>
 
         <div style="text-align: center; margin-top: 30px;">
-            <button class="btn-check" onclick="comprobarDesafio()">✔️ Corregir Desafío</button>
-            <button class="btn-reset" onclick="initDesafio()">🔄 Siguiente Ronda (Azar)</button>
-            <button id="btn-profe" class="btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Resolver reto</button>
+            <button class="btn-check" onclick="comprobarDesafio()">✅ Comprobar Respuestas</button>
+            <button class="btn-reset" onclick="initDesafio()">🔄 Nueva Ronda</button>
+            <button id="btn-profe" class="btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Modo Profesor</button>
         </div>
     </div>
 
     <script>
-        // --- BASE DE DATOS MEJORADA CON ICONOS VECTORIALES (NUNCA FALLAN, 100% FIABLES) ---
-        // Usamos clases CSS de FontAwesome en lugar de URLs de imágenes externas
+        // --- BASE DE DATOS MEJORADA CON ICONOS VECTORIALES ---
         const bancoPreguntasTotal = [
             {icon: 'fa-solid fa-microchip', q: 'Unidad mínima de información (0 o 1):', correct: 'Bit'},
             {icon: 'fa-solid fa-laptop', q: 'Parte física y tangible del ordenador:', correct: 'Hardware'},
@@ -434,7 +433,7 @@
             opcionSeleccionadaActual = null;
         }
 
-        function comprobarDesafio() {
+        function comprobarDesafio(silent = false) {
             let aciertos = 0;
 
             desafioData.forEach((d, i) => {
@@ -457,8 +456,8 @@
 
             if (aciertos === desafioData.length) {
                 lanzarConfeti();
-                alert("🎉 ¡Excelente trabajo! Has completado todas las definiciones correctamente.");
-            } else {
+                if (!silent) alert("🎉 ¡Excelente trabajo! Has completado todas las definiciones correctamente.");
+            } else if (!silent) {
                 alert(`Has corregido el ejercicio. Aciertos: ${aciertos} de ${desafioData.length}. Revisa las tarjetas marcadas en rojo.`);
             }
         }
@@ -476,8 +475,13 @@
         function revelarBoton() {
             const btn = document.getElementById('btn-profe');
             if (btn) {
-                btn.style.setProperty('display', 'inline-flex', 'important'); 
-                alert("🧙‍♂️ ¡Llave maestra activada! El botón de resolución automática ya está visible.");
+                if (btn.style.display === 'inline-flex') {
+                    btn.style.display = 'none';
+                    alert("🧙‍♂️ Modo Profesor desactivado.");
+                } else {
+                    btn.style.display = 'inline-flex';
+                    alert("🧙‍♂️ Modo Profesor activado.");
+                }
             }
         }
 
@@ -495,13 +499,13 @@
                 if (tag) tag.classList.add('usada');
             });
             opcionSeleccionadaActual = null;
+            comprobarDesafio(true);
         }
 
         window.addEventListener('keydown', (e) => {
             if (e.altKey && e.key.toLowerCase() === 'd') {
                 e.preventDefault(); 
-                resolverModoProfe();
-                alert("🪄 Modo Profe: Respuestas autocompletadas.");
+                revelarBoton();
             }
         });
 
