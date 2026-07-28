@@ -192,7 +192,7 @@
         .llave-secreta:hover { opacity: 1; }
         
         .btn-profe {
-            display: none !important; 
+            display: none; 
             background: linear-gradient(135deg, #4f46e5, #06b6d4) !important;
         }
     </style>
@@ -201,7 +201,7 @@
 
     <div class="contenedor">
         <header>
-            <h1>🕵️‍♂️ Desafío: Detective Técnico del PC (Rondas al Azar) </h1>
+            <h1>🕵️‍♂️ Desafío: Detective Técnico del PC</h1>
             <p><strong>¡Hora de entrenar el pensamiento lógico!</strong> Vamos a resolver problemas reales basados en los síntomas de un ordenador. Analiza el caso de cada tarjeta y selecciona la píldora con el diagnóstico correcto para solucionar el problema.</p>
         </header>
 
@@ -209,9 +209,9 @@
         <div class="grid-casos" id="casosContent"></div>
 
         <div style="text-align: center; margin-top: 30px;">
-            <button class="btn-control btn-check" onclick="checkCasos()">✔️ Corregir Casos</button>
-            <button class="btn-control btn-reset" onclick="initJuego()">🔄 Siguiente Ronda (Azar)</button>
-            <button id="btn-profe" class="btn-control btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Resolver reto</button>
+            <button class="btn-control btn-check" onclick="checkCasos()">✅ Comprobar Respuestas</button>
+            <button class="btn-control btn-reset" onclick="initJuego()">🔄 Nueva Ronda</button>
+            <button id="btn-profe" class="btn-control btn-profe" onclick="resolverModoProfe()">🧙‍♂️ Modo Profesor</button>
         </div>
     </div>
 
@@ -333,7 +333,7 @@
         }
 
         // --- SISTEMA DE CORRECCIÓN ---
-		function checkCasos() {
+		function checkCasos(silent = false) {
 			let aciertosTotales = 0;
             let respondidas = 0;
 			
@@ -366,9 +366,9 @@
 			});
 
 			if (aciertosTotales === rondaActiva.length) {
-				alert("🏆 ¡Espectacular! Has resuelto los 8 misterios técnicos de esta ronda.");
+				if (!silent) alert("🏆 ¡Espectacular! Has resuelto los 8 misterios técnicos de esta ronda.");
 				lanzarConfeti();
-			} else {
+			} else if (!silent) {
 				alert(`Casos cerrados. Has solucionado con éxito ${aciertosTotales} de ${rondaActiva.length} problemas.`);
 			}
 		}
@@ -387,8 +387,13 @@
         function revelarBoton() {
             const btn = document.getElementById('btn-profe');
             if (btn) {
-                btn.style.setProperty('display', 'inline-flex', 'important'); 
-                alert("🧙‍♂️ ¡Llave maestra activada! Resolución automática disponible.");
+                if (btn.style.display === 'inline-flex' || btn.style.display === 'inline-block') {
+                    btn.style.display = 'none';
+                    alert("🧙‍♂️ Modo Profesor desactivado.");
+                } else {
+                    btn.style.display = 'inline-flex';
+                    alert("🧙‍♂️ Modo Profesor activado.");
+                }
             }
         }
 
@@ -403,13 +408,14 @@
                 let btn = document.getElementById(idBtn);
                 if (btn) btn.classList.add('activa');
             });
-            alert("🪄 Modo Profe: Todos los misterios han sido auto-resueltos.");
+            
+            checkCasos(true);
         }
 
         window.addEventListener('keydown', (e) => {
             if (e.altKey && e.key.toLowerCase() === 'd') {
                 e.preventDefault(); 
-                resolverModoProfe();
+                revelarBoton();
             }
         });
 
